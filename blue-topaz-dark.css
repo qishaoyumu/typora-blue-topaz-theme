@@ -1,0 +1,838 @@
+/*
+ * Blue Topaz Theme for Typora (Dark)
+ * Based on Blue Topaz theme by WhyI & Pkmer - MIT License
+ * https://github.com/PKM-er/Blue-Topaz_Obsidian-css
+ *
+ * @import light theme as base, override colors only
+ */
+
+@import "blue-topaz.css";
+
+/* ========== :root overrides ========== */
+:root {
+    --bg-color: #202020;
+    --text-color: #c6c6c6;
+    --md-char-color: #5c6370;
+    --meta-content-color: #8a8a8a;
+    --heading-char-color: #7ac12d;
+
+    --primary-color: rgb(45, 130, 204);
+    --primary-btn-border-color: #2574a8;
+    --primary-btn-text-color: #e4e4e4;
+
+    --window-border: 1px solid #343434;
+
+    --side-bar-bg-color: #151515;
+    --active-file-bg-color: #1a2a3a;
+    --active-file-text-color: #e4e4e4;
+    --active-file-border-color: rgb(45, 130, 204);
+
+    --item-hover-bg-color: #2a2a2a;
+    --item-hover-text-color: #e4e4e4;
+    --control-text-color: #8a8a8a;
+    --control-text-hover-color: #c6c6c6;
+
+    --select-text-bg-color: #3b767160;
+    --select-text-font-color: inherit;
+    --search-select-bg-color: #bb4361;
+    --search-select-text-color: #e0e0e0;
+
+    --blur-text-color: rgba(200, 200, 200, 0.33);
+    --active-toggle-btn-color: #1a2a3a;
+    --rawblock-edit-panel-bd: #2b2b2b;
+    --monospace: "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "等距更纱黑体 SC", monospace;
+
+    --mermaid-theme: dark;
+    --mermaid-font-family: inherit;
+    --mermaid-sequence-actor-bg: hsl(207, 77%, 30%);
+    --mermaid-flowchart-fill: hsla(207, 77%, 54%, 0.12);
+    --sequence-theme: simple;
+}
+
+/* ========== Body ========== */
+body {
+    background: var(--bg-color);
+}
+
+html, body, button, input, select, textarea {
+    color: var(--text-color);
+    border-color: transparent;
+}
+
+content {
+    background-color: var(--bg-color) !important;
+}
+
+#write {
+    background-color: var(--bg-color);
+}
+
+/* ========== Headings (Rainbow colors) ========== */
+h1 {
+    color: hsl(78, 62%, 47%);
+}
+
+h2 {
+    color: hsl(118, 42%, 49%);
+}
+
+h3 {
+    color: hsl(180, 53%, 48%);
+}
+
+h4 {
+    color: hsl(216, 69%, 68%);
+}
+
+h5 {
+    color: hsl(258, 79%, 77%);
+}
+
+h6 {
+    color: hsl(290, 85%, 81%);
+}
+
+/* heading focus label */
+@media (min-width: 980px) {
+    h3.md-focus:before,
+    h4.md-focus:before,
+    h5.md-focus:before,
+    h6.md-focus:before {
+        color: #666;
+        border-color: #555;
+    }
+}
+
+/* ========== Links ========== */
+a {
+    color: hsl(208, 64%, 49%);
+}
+
+/* ========== Blockquote ========== */
+blockquote {
+    border-left-color: hsl(208, 64%, 49%);
+    background: #9191911c;
+}
+
+blockquote blockquote {
+    border-left-color: hsl(208, 64%, 49%);
+}
+
+/* ========== Horizontal rule ========== */
+hr {
+    background-color: #3f3f3f;
+}
+
+/* ========== Table ========== */
+#write table {
+    border-right: 1px solid #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+#write th {
+    background-color: hsla(208, 64%, 49%, 0.1);
+}
+
+#write tbody tr {
+    background-color: #2f2f2f32;
+}
+
+#write tbody tr:nth-child(odd) {
+    background-color: #00000033;
+}
+
+/* table row hover */
+#write tbody tr:hover {
+    background-color: #08569a21;
+}
+
+/* table cell hover */
+#write td:hover {
+    background-color: #1f65a221;
+}
+
+/* table header hover */
+#write th:hover {
+    background-color: #21395bc7;
+}
+
+/* ========== Table edit UI ========== */
+.md-table-resize-popover {
+    background: var(--bg-color);
+    border-color: #343434;
+}
+
+.ty-table-edit {
+    background: var(--bg-color);
+    border-color: #343434;
+}
+
+/* ========== Code ========== */
+code {
+    color: #d58000;
+    background: #4c4c4cb0;
+}
+
+.md-fences {
+    background: #1a1a1a;
+    border: none;
+}
+
+.md-fences .code-tooltip {
+    background: #2b2b2b;
+    border-color: #343434;
+}
+
+/* ========== Code highlight (Dark — Palenight defaults + body overrides) ========== */
+/* Matches Obsidian's default appearance WITHOUT Style Settings */
+
+.cm-s-inner .cm-variable {
+    color: #d0d0d0;
+}
+
+
+/* CSS: unify variable-2/string/atom/number as light blue; keep property yellow to distinguish names from values */
+pre.md-fences[lang="css"] .cm-s-inner .cm-variable-2,
+pre.md-fences[lang="css"] .cm-s-inner .cm-string,
+pre.md-fences[lang="css"] .cm-s-inner .cm-atom,
+pre.md-fences[lang="css"] .cm-s-inner .cm-number {
+    color: #a0c7e9;
+}
+
+.cm-s-inner .cm-def,
+.cm-s-inner.cm-def {
+    color: #82aaff; /* Palenight blue — function/variable definition */
+}
+
+.cm-s-inner .cm-operator {
+    color: #a0c7e9;
+}
+
+.cm-s-inner .cm-property {
+    color: #e88388;
+}
+
+.cm-s-inner .cm-keyword {
+    color: #c792ea;
+    font-weight: 600;
+}
+
+.cm-s-inner .cm-tag {
+    color: #44cf6e; /* --color-green: matches Obsidian's CSS tag rendering */
+}
+
+.cm-s-inner .cm-attribute {
+    color: #d0d0d0; /* default text color */
+}
+
+.cm-s-inner .cm-string {
+    color: #44cf6e; /* --code-string = var(--color-green) */
+}
+
+.cm-s-inner .cm-comment,
+.cm-s-inner.cm-comment {
+    color: #568060;
+}
+
+.cm-s-inner .cm-header,
+.cm-s-inner.cm-header {
+    color: #da7dae;
+}
+
+.cm-s-inner .cm-quote,
+.cm-s-inner.cm-quote {
+    color: #57ac57;
+}
+
+.cm-s-inner .cm-error {
+    color: #f97583;
+}
+
+.cm-s-inner .cm-hr {
+    color: #8a8a8a; /* --code-hr = var(--code-punctuation) = var(--text-muted) */
+}
+
+.cm-s-inner .cm-link {
+    color: #a0c7e9;
+}
+
+.cm-s-inner .cm-negative {
+    color: #db7c84;
+}
+
+.cm-s-inner .cm-positive {
+    color: #abd58e;
+}
+
+.cm-s-inner .cm-string-2 {
+    color: #44cf6e; /* --code-string-2 = var(--code-string) = var(--color-green) */
+}
+
+.cm-s-inner .cm-meta {
+    color: #ffcb6b;
+}
+
+.cm-s-inner .cm-qualifier {
+    color: #53dfdd; /* cyan, consistent with light mode */
+}
+
+.cm-s-inner .cm-builtin {
+    color: #ffcb6b;
+}
+
+.cm-s-inner .cm-bracket {
+    color: #8a8a8a; /* --code-punctuation = var(--text-muted) */
+}
+
+.cm-s-inner .cm-atom,
+.cm-s-inner.cm-atom {
+    color: #da904b;
+}
+
+.cm-s-inner .cm-number {
+    color: #da904b; /* orange, unified with atom, distinct from string's green */
+}
+
+.cm-s-inner .cm-variable-2 {
+    color: #d0d0d0; /* unified with variable; avoids inconsistency of green n vs gray arr in JS */
+}
+
+.cm-s-inner .cm-variable-3 {
+    color: #a0c7e9; /* --code-property = var(--blue) */
+}
+
+.cm-s-inner .cm-type {
+    color: #d0d0d0; /* default text color */
+}
+
+.CodeMirror-matchingbracket {
+    color: var(--text-color) !important;
+    text-decoration: underline;
+}
+
+.CodeMirror-selectedtext,
+.CodeMirror-selected {
+    background: #3b767160;
+}
+
+.CodeMirror-gutters {
+    background: #1a1a1a;
+    border-right-color: #343434;
+}
+
+.CodeMirror-linenumber {
+    color: #555;
+}
+
+.CodeMirror div.CodeMirror-cursor {
+    border-left-color: #c6c6c6;
+}
+
+.CodeMirror-activeline-background {
+    background: hsla(208, 64%, 49%, 0.05);
+}
+
+/* Gray list markers */
+#write ul > li::marker {
+    color: #777;
+}
+
+#write ol > li::marker {
+    color: #777;
+}
+
+/* Nested list indent guide lines — aligned with parent bullet */
+#write li > ul,
+#write li > ol {
+    position: relative;
+    padding-left: 2.3em;
+}
+
+#write li > ul::before {
+    content: "";
+    position: absolute;
+    left: -0.95em;
+}
+
+#write li > ol::before {
+    content: "";
+    position: absolute;
+    left: -1.2em;
+}
+
+#write li > ul::before,
+#write li > ol::before {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ========== Images ========== */
+.md-img-error span {
+    color: #e16d76;
+}
+
+/* ========== Task list ========== */
+.md-task-list-item > input:before {
+    border-color: #7b7b7b;
+    background-color: var(--bg-color);
+}
+
+.md-task-list-item > input:checked:before,
+.md-task-list-item > input[checked]:before {
+    background-color: #3187d3;
+    border-color: #3187d3;
+    color: white;
+}
+
+.md-task-list-item > input:not([disabled]):not(:checked):hover:before {
+    color: #555;
+}
+
+.task-list-done {
+    color: #8e8e8e;
+}
+
+/* ========== Footnotes, YAML, mark, kbd ========== */
+.footnotes-area {
+    color: #8a8a8a;
+    border-top-color: #343434;
+}
+
+sup.md-footnote {
+    color: rgb(45, 130, 204);
+}
+
+.md-toc-inner {
+    color: hsl(208, 64%, 49%);
+}
+
+#write pre.md-meta-block {
+    background: #1a1a1a;
+    border-color: #343434;
+    color: #8a8a8a;
+}
+
+mark {
+    background: hsla(57, 40%, 38%, 0.54);
+}
+
+kbd {
+    color: inherit !important;
+    background-color: #1111118c !important;
+}
+
+/* ========== MathJax ========== */
+.md-mathjax-midline {
+    background: #3a3a3a;
+}
+
+/* ========== Inline element editing ========== */
+.md-expand .md-meta {
+    color: #8a8a8a;
+}
+
+.md-expand .md-before,
+.md-expand .md-after {
+    color: #5c6370;
+}
+
+/* ========== Mermaid diagram — Dark overrides ========== */
+.md-diagram-panel-preview .node rect,
+.md-diagram-panel-preview .node circle,
+.md-diagram-panel-preview .node ellipse,
+.md-diagram-panel-preview .node polygon,
+.md-diagram-panel-preview .node path {
+    fill: #101027 !important;
+}
+
+.md-diagram-panel-preview .edgePath .path {
+    stroke: #aaa !important;
+}
+
+.md-diagram-panel-preview .marker,
+.md-diagram-panel-preview .arrowheadPath {
+    fill: #aaa !important;
+    stroke: #aaa !important;
+}
+
+.md-diagram-panel-preview .edgeLabel,
+.md-diagram-panel-preview .labelBkg,
+.md-diagram-panel-preview .edgeLabel p {
+    background-color: #1111118c !important;
+}
+
+.md-diagram-panel-preview .edgeLabel rect {
+    fill: #111111 !important;
+    opacity: 0.55 !important;
+}
+
+/* ========== Focus mode ========== */
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) * {
+    color: #555 !important;
+}
+
+.on-focus-mode .CodeMirror.cm-s-inner:not(.CodeMirror-focused) * {
+    color: #555 !important;
+}
+
+.on-focus-mode #typora-source .CodeMirror-code > *:not(.CodeMirror-activeline) * {
+    color: #555 !important;
+}
+
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) img {
+    opacity: 0.3;
+}
+
+.on-focus-mode .md-fences.md-focus .CodeMirror-code > *:not(.CodeMirror-activeline) * {
+    color: #555 !important;
+}
+
+.on-focus-mode li[cid]:not(.md-focus-container) {
+    color: #555;
+}
+
+.on-focus-mode .task-list-item:not(.md-focus-container) > input {
+    opacity: 0.3;
+}
+
+.on-focus-mode .md-focus,
+.on-focus-mode .md-focus-container {
+    color: var(--text-color);
+}
+
+/* ========== Sidebar ========== */
+#typora-sidebar {
+    background: var(--side-bar-bg-color);
+    border-right-color: #343434;
+}
+
+.sidebar-tabs {
+    border-bottom-color: #343434;
+}
+
+.file-list-item,
+.file-library-node {
+    border-bottom-color: #222;
+}
+
+.sidebar-footer {
+    border-top-color: #343434;
+}
+
+/* ========== Footer ========== */
+footer.ty-footer {
+    background: var(--bg-color);
+    border-top-color: #343434;
+}
+
+#footer-word-count-info {
+    background: #2b2b2b;
+    border-color: #343434;
+}
+
+/* ========== Search, Quick Open ========== */
+#md-searchpanel {
+    background: var(--bg-color);
+    border-bottom-color: #343434;
+}
+
+#md-searchpanel input {
+    background: #2b2b2b;
+    border-color: #343434;
+    color: var(--text-color);
+}
+
+.searchpanel-search-option-btn {
+    border-color: #343434;
+}
+
+.md-search-hit {
+    background: #bb4361;
+    color: #fff;
+}
+
+#typora-quick-open {
+    background: #2b2b2b;
+    border-color: #343434;
+}
+
+#typora-quick-open-input input {
+    background: #1a1a1a;
+    border-color: #343434;
+}
+
+.auto-suggest-container {
+    background: #2b2b2b;
+    border-color: #343434;
+}
+
+/* ========== Preferences, Mega Menu, Modals ========== */
+.megamenu-content {
+    background: var(--bg-color);
+}
+
+.megamenu-opened header {
+    background: var(--bg-color);
+}
+
+.megamenu-menu-panel {
+    background: var(--side-bar-bg-color);
+}
+
+.modal-content {
+    background: #2b2b2b;
+    border-color: #343434;
+}
+
+.modal-header {
+    border-bottom-color: #444;
+}
+
+.modal-footer {
+    border-top-color: #444;
+}
+
+.btn-default {
+    border-color: #555;
+    color: var(--text-color);
+}
+
+.btn-default:hover {
+    background: #333;
+}
+
+.context-menu,
+.dropdown-menu {
+    background: #2b2b2b;
+    border-color: #343434;
+}
+
+.dropdown-menu > li > a {
+    color: var(--text-color);
+}
+
+.dropdown-menu > li > a:hover {
+    background: var(--item-hover-bg-color);
+}
+
+.native-window #md-notification {
+    border-color: #555;
+    background: #2b2b2b;
+}
+
+div.code-tooltip,
+.md-hover-tip .md-arrow:after {
+    background: #2b2b2b;
+    border-color: #343434;
+}
+
+#ty-tooltip {
+    background: #555;
+}
+
+/* ========== Source mode ========== */
+.cm-s-typora-default .cm-header,
+.cm-s-typora-default .cm-property {
+    color: #cebcca;
+}
+
+.cm-s-typora-default .cm-comment,
+.cm-s-typora-default .cm-code {
+    color: #8aa1e1;
+}
+
+.cm-s-typora-default .cm-string {
+    color: #A7A7D9;
+}
+
+.cm-s-typora-default .cm-atom,
+.cm-s-typora-default .cm-number {
+    color: #848695;
+    font-style: italic;
+}
+
+.cm-s-typora-default .cm-link {
+    color: #95B94B;
+}
+
+.CodeMirror.cm-s-typora-default .CodeMirror-activeline-background {
+    background: rgba(51, 51, 51, 0.72);
+}
+
+.CodeMirror.cm-s-typora-default div.CodeMirror-cursor {
+    border-left-color: #c6c6c6;
+}
+
+/* ========== Print (Dark → force readable) ========== */
+@media print {
+    html, body {
+        background: white !important;
+        color: #0e0e0e !important;
+    }
+
+    h1 { color: hsl(78, 62%, 47%) !important; }
+    h2 { color: hsl(118, 42%, 49%) !important; }
+    h3 { color: hsl(180, 53%, 48%) !important; }
+    h4 { color: hsl(216, 69%, 68%) !important; }
+    h5 { color: hsl(258, 79%, 77%) !important; }
+    h6 { color: hsl(290, 85%, 81%) !important; }
+
+    pre, code {
+        background: #f6f8fa !important;
+        border-color: #e6e6e6 !important;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+
+    blockquote {
+        border-left: 4px solid #468eeb !important;
+        background: #f6f8fa !important;
+        color: #555 !important;
+        page-break-inside: avoid;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+    }
+
+    a {
+        color: hsl(207, 77%, 54%) !important;
+    }
+
+    mark {
+        background: hsla(34, 100%, 80%, 0.85) !important;
+        color: inherit !important;
+    }
+
+    strong, b {
+        color: #000 !important;
+    }
+
+    em, i {
+        color: #099d4e !important;
+    }
+
+    del {
+        color: inherit !important;
+    }
+
+    hr {
+        background-color: #bfbfbf !important;
+    }
+
+    img {
+        page-break-inside: avoid;
+    }
+}
+
+/* ========== Scrollbar ========== */
+::-webkit-scrollbar-thumb {
+    background: #3f3f3f7e;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #666;
+}
+
+/* ========== Text selection ========== */
+::selection {
+    background: #3b767160;
+}
+
+/* ========== GFM Alerts ========== */
+/* Dark mode: five-color scheme, slightly higher opacity */
+
+/* Note — blue */
+.md-alert.md-alert-note,
+.md-alert.note {
+    background-image: linear-gradient(to bottom, rgba(58, 150, 255, 0.14) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-note::before,
+.md-alert.note::before {
+    background: rgba(58, 150, 255, 0.14) !important;
+}
+.md-alert-text-note {
+    color: rgb(58, 150, 255);
+}
+
+/* Important — purple */
+.md-alert.md-alert-important,
+.md-alert.important {
+    background-image: linear-gradient(to bottom, rgba(163, 130, 240, 0.14) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-important::before,
+.md-alert.important::before {
+    background: rgba(163, 130, 240, 0.14) !important;
+}
+.md-alert-text-important {
+    color: rgb(163, 130, 240);
+}
+
+/* Warning — gold */
+.md-alert.md-alert-warning,
+.md-alert.warning {
+    background-image: linear-gradient(to bottom, rgba(210, 167, 60, 0.14) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-warning::before,
+.md-alert.warning::before {
+    background: rgba(210, 167, 60, 0.14) !important;
+}
+.md-alert-text-warning {
+    color: rgb(210, 167, 60);
+}
+
+/* Tip — green */
+.md-alert.md-alert-tip,
+.md-alert.tip {
+    background-image: linear-gradient(to bottom, rgba(63, 185, 95, 0.12) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-tip::before,
+.md-alert.tip::before {
+    background: rgba(63, 185, 95, 0.12) !important;
+}
+.md-alert-text-tip {
+    color: rgb(63, 185, 95);
+}
+
+/* Caution — red */
+.md-alert.md-alert-caution,
+.md-alert.caution {
+    background-image: linear-gradient(to bottom, rgba(248, 81, 73, 0.14) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-caution::before,
+.md-alert.caution::before {
+    background: rgba(248, 81, 73, 0.14) !important;
+}
+.md-alert-text-caution {
+    color: rgb(248, 81, 73);
+}
+
+/* ========== Strong & Em ========== */
+strong, b {
+    color: #e7e7e7;
+}
+
+em, i {
+    color: #a4ca8e;
+}
+
+em strong, em b,
+strong em, strong i {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(120deg, #43d3ff 0%, #baaaff 80%);
+}
+
+
+/* ========== TOC dropdown ========== */
+#toc-dropmenu {
+    background: #2b2b2b;
+    border-color: #343434;
+}

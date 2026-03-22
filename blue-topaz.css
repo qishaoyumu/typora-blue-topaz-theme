@@ -1,0 +1,1267 @@
+/*
+ * Blue Topaz Theme for Typora (Light)
+ * Based on Blue Topaz theme by WhyI & Pkmer - MIT License
+ * https://github.com/PKM-er/Blue-Topaz_Obsidian-css
+ *
+ * Ported to Typora by Cyrus
+ * Based on Blue Topaz v2025052001
+ */
+
+/* ========== 1. @import ========== */
+@import "blue-topaz/font.css";
+
+/* ========== 2. @include-when-export ========== */
+@include-when-export url(https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap);
+
+/* ========== 3. :root variables ========== */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #0e0e0e;
+    --md-char-color: #c7c5c5;
+    --meta-content-color: #5b808d;
+    --heading-char-color: #3498db;
+
+    --primary-color: #468eeb;
+    --primary-btn-border-color: #3a7bd5;
+    --primary-btn-text-color: #ffffff;
+
+    --window-border: 1px solid #dddddd;
+
+    --side-bar-bg-color: #fcfcfc;
+    --active-file-bg-color: #e8f0fe;
+    --active-file-text-color: #0e0e0e;
+    --active-file-border-color: #468eeb;
+
+    --item-hover-bg-color: #f0f0f0;
+    --item-hover-text-color: #0e0e0e;
+    --control-text-color: #7f7f7f;
+    --control-text-hover-color: #0e0e0e;
+
+    --select-text-bg-color: #a9d1c859;
+    --select-text-font-color: inherit;
+    --search-select-bg-color: #ffd1dd;
+    --search-select-text-color: #0e0e0e;
+
+    --blur-text-color: rgba(14, 14, 14, 0.33);
+    --active-toggle-btn-color: #e8f0fe;
+    --rawblock-edit-panel-bd: #f3f3f3;
+    --monospace: "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "等距更纱黑体 SC", monospace;
+
+    --mermaid-theme: default;
+    --mermaid-font-family: inherit;
+    --sequence-theme: simple;
+}
+
+/* ========== 4. html base ========== */
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* ========== 5. body ========== */
+body {
+    font-family: "Inter", "霞鹜文楷 GB", "LXGW WenKai",
+        -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Microsoft YaHei", sans-serif;
+    color: var(--text-color);
+    line-height: 1.5;
+    background: var(--bg-color);
+}
+
+/* ========== 6. #write ========== */
+#write {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 30px;
+    padding-bottom: 50vh;
+}
+
+@media only screen and (min-width: 1400px) {
+    #write { max-width: 1024px; }
+}
+
+@media only screen and (min-width: 1800px) {
+    #write { max-width: 1200px; }
+}
+
+#write > ul:first-child,
+#write > ol:first-child {
+    margin-top: 30px;
+}
+
+content {
+    background-color: var(--bg-color);
+}
+
+/* ========== 7. Headings h1~h6 ========== */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    clear: both;
+    overflow-wrap: break-word;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 1.5625rem;
+    line-height: 1.5;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: hsl(216, 88%, 26%);
+}
+
+h2 {
+    font-size: 1.4375rem;
+    line-height: 1.5;
+    margin-top: 1.4rem;
+    margin-bottom: 0.9rem;
+    color: hsl(212, 100%, 33%);
+}
+
+h3 {
+    font-size: 1.3125rem;
+    line-height: 1.5;
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: hsl(210, 86%, 39%);
+}
+
+h4 {
+    font-size: 1.1875rem;
+    line-height: 1.5;
+    margin-top: 1rem;
+    margin-bottom: 0.6rem;
+    color: hsl(208, 58%, 49%);
+}
+
+h5 {
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    margin-top: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: hsl(209, 70%, 62%);
+}
+
+h6 {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-top: 0.8rem;
+    margin-bottom: 0.5rem;
+    color: hsl(209, 65%, 72%);
+}
+
+/* heading focus label */
+@media (min-width: 980px) {
+    h3.md-focus:before,
+    h4.md-focus:before,
+    h5.md-focus:before,
+    h6.md-focus:before {
+        color: #aaa;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        position: absolute;
+        left: -1.65rem;
+        top: 0.36rem;
+        font-size: 9px;
+        padding: 0 3px;
+        vertical-align: bottom;
+        font-weight: normal;
+        line-height: normal;
+    }
+    h3.md-focus:before { content: 'h3'; }
+    h4.md-focus:before { content: 'h4'; }
+    h5.md-focus:before { content: 'h5'; }
+    h6.md-focus:before { content: 'h6'; }
+}
+
+/* ========== 8. Paragraphs & Lists ========== */
+#write p {
+    margin: 0 !important;
+}
+
+#write p + p {
+    margin-top: 1rem !important;
+}
+
+#write ul, #write ol {
+    padding-left: 1.6em;
+}
+
+#write ul {
+    list-style-type: disc;
+}
+
+#write li {
+    margin: 0.2em 0;
+}
+
+#write li > p {
+    margin: 0;
+}
+
+/* Gray list markers */
+#write ul > li::marker {
+    color: #999;
+}
+
+#write ol > li::marker {
+    color: #999;
+}
+
+/* Nested list indent guide lines — aligned with parent bullet */
+#write li > ul,
+#write li > ol {
+    position: relative;
+    padding-left: 2.3em;
+}
+
+#write li > ul::before {
+    content: "";
+    position: absolute;
+    left: -0.95em;
+}
+
+#write li > ol::before {
+    content: "";
+    position: absolute;
+    left: -1.2em;
+}
+
+#write li > ul::before,
+#write li > ol::before {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* ========== 9. Links ========== */
+a {
+    color: hsl(207, 77%, 54%);
+    text-decoration: none;
+    transition: opacity 0.4s ease-in-out;
+}
+
+a:hover {
+    opacity: 0.8;
+    text-decoration: none;
+}
+
+#write a {
+    text-decoration: underline;
+}
+
+#write a:hover {
+    text-decoration: none;
+}
+
+/* ========== 10. Blockquote ========== */
+blockquote {
+    border-left: 5px solid hsl(207, 77%, 54%);
+    padding: 0.5em 0.5em 0.5em 0.6em;
+    color: inherit;
+    background: #d5d5d52c;
+    margin: 1em 0;
+    margin-inline-start: 2.5%;
+    margin-inline-end: 2.5%;
+    border-radius: 5px;
+}
+
+blockquote blockquote {
+    border-left-color: hsl(207, 77%, 54%);
+}
+
+
+/* ========== 11. Horizontal rule ========== */
+hr {
+    height: 2px;
+    border: 0;
+    background-color: #bfbfbf;
+    margin: 1.5em 0 !important;
+}
+
+/* ========== 12. Table ========== */
+#write table {
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9375em;
+    border-right: 1px solid #e8e8e8;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+#write th,
+#write td {
+    padding: 4px 10px;
+    border: none;
+}
+
+#write th {
+    font-weight: 600;
+    color: var(--text-color);
+    background-color: hsla(207, 77%, 54%, 0.1);
+}
+
+#write tbody tr {
+    background-color: #f1f1f176;
+}
+
+#write tbody tr:nth-child(odd) {
+    background-color: #ffffff70;
+}
+
+/* table row hover */
+#write tbody tr:hover {
+    background-color: #85bfee2f;
+}
+
+/* table cell hover */
+#write td:hover {
+    background-color: #5dacec34;
+}
+
+/* table header hover */
+#write th:hover {
+    background-color: #ddefff;
+}
+
+/* ========== 13. Table edit UI ========== */
+.md-table-resize-popover {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+}
+
+.ty-table-edit {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+}
+
+/* ========== 14. Inline code & Code blocks ========== */
+code {
+    color: #e95d00;
+    background: #cccccc62;
+    font-weight: bold;
+    padding: 2px 2px 1px;
+    border-radius: 3px;
+    font-size: 0.825em;
+    font-family: var(--monospace);
+}
+
+.md-fences {
+    background: #f5f5f5;
+    border: none;
+    border-radius: 5px;
+    padding: 1em 1.5em;
+    margin: 0.8em 0;
+    font-size: 0.825em;
+    font-family: var(--monospace);
+}
+
+.md-fences .code-tooltip {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* ========== 15. Code highlight .cm-s-inner ========== */
+/* Matches Obsidian Blue Topaz default (no Style Settings) */
+/* app.css body + theme.css body overrides + .theme-light palette */
+
+.cm-s-inner .cm-variable {
+    color: #000000;
+}
+
+
+/* CSS: unify variable-2/string/atom/number as light blue; keep property yellow to distinguish names from values */
+pre.md-fences[lang="css"] .cm-s-inner .cm-variable-2,
+pre.md-fences[lang="css"] .cm-s-inner .cm-string,
+pre.md-fences[lang="css"] .cm-s-inner .cm-atom,
+pre.md-fences[lang="css"] .cm-s-inner .cm-number {
+    color: #5e81ac;
+}
+
+.cm-s-inner .cm-def,
+.cm-s-inner.cm-def {
+    color: #086ddd; /* blue — function/variable definition */
+}
+
+.cm-s-inner .cm-attribute {
+    color: #000000; /* default text color */
+}
+
+.cm-s-inner .cm-property {
+    color: #e45649;
+}
+
+.cm-s-inner .cm-operator {
+    color: #5e81ac; /* --code-operator → --code-property → --blue (nord10) */
+}
+
+.cm-s-inner .cm-keyword {
+    color: #7c3aed;
+    font-weight: 600;
+}
+
+.cm-s-inner .cm-tag {
+    color: #a626d3; /* deep purple, better contrast on white */
+}
+
+.cm-s-inner .cm-string {
+    color: #08b94e; /* --code-string → --color-green */
+}
+
+.cm-s-inner .cm-comment,
+.cm-s-inner.cm-comment {
+    color: #068a5e; /* --code-comment → --darkgreen */
+}
+
+.cm-s-inner .cm-header,
+.cm-s-inner.cm-header {
+    color: #da7dae;
+}
+
+.cm-s-inner .cm-quote,
+.cm-s-inner.cm-quote {
+    color: #50a14f;
+}
+
+.cm-s-inner .cm-hr {
+    color: #7f7f7f; /* --code-punctuation → --text-muted */
+}
+
+.cm-s-inner .cm-link {
+    color: #5e81ac; /* → --code-property → --blue */
+}
+
+.cm-s-inner .cm-negative {
+    color: #e93147; /* --color-red */
+}
+
+.cm-s-inner .cm-positive {
+    color: #08b94e; /* --color-green */
+}
+
+.cm-s-inner .cm-string-2 {
+    color: #08b94e; /* --code-string-2 → --code-string → --color-green */
+}
+
+.cm-s-inner .cm-meta {
+    color: #068a5e; /* app.css maps .cm-meta → --code-comment → --darkgreen */
+}
+
+.cm-s-inner .cm-qualifier {
+    color: #0e7490; /* deep cyan, good contrast on white */
+}
+
+.cm-s-inner .cm-builtin {
+    color: #986801; /* deep amber, good contrast on white */
+}
+
+.cm-s-inner .cm-bracket {
+    color: #7f7f7f; /* --code-punctuation → --text-muted */
+}
+
+.cm-s-inner .cm-atom,
+.cm-s-inner.cm-atom {
+    color: #cc7523; /* --code-atom → --orange-1 */
+}
+
+.cm-s-inner .cm-number {
+    color: #cc7523; /* orange, unified with atom, distinct from string's green */
+}
+
+.cm-s-inner .cm-variable-2 {
+    color: #000000; /* unified with variable; CSS override still applies */
+}
+
+.cm-s-inner .cm-variable-3 {
+    color: #5e81ac; /* → --code-property → --blue */
+}
+
+.cm-s-inner .cm-type {
+    color: #000000; /* default text color */
+}
+
+.CodeMirror-selectedtext,
+.CodeMirror-selected {
+    background: #a9d1c859;
+}
+
+.CodeMirror-gutters {
+    background: #f6f8fa;
+    border-right: 1px solid #e6e6e6;
+}
+
+.CodeMirror-linenumber {
+    color: #999;
+}
+
+.cm-s-inner .cm-error {
+    color: #e93147; /* --color-red */
+}
+
+.CodeMirror-matchingbracket {
+    color: #0550ae !important;
+    text-decoration: underline;
+}
+
+.CodeMirror div.CodeMirror-cursor {
+    border-left: 2px solid var(--text-color);
+}
+
+.CodeMirror-activeline-background {
+    background: hsla(207, 77%, 54%, 0.05);
+}
+
+/* ========== 16. Images ========== */
+#write img {
+    max-width: 100%;
+    border-radius: 4px;
+}
+
+.md-image > .md-meta {
+    color: var(--meta-content-color);
+    font-family: var(--monospace);
+    font-size: 0.8em;
+}
+
+.md-img-error span {
+    color: #e75545;
+}
+
+/* ========== 17. Task list ========== */
+.md-task-list-item {
+    padding-left: 1.25rem;
+    list-style-type: none !important;
+}
+
+.md-task-list-item > input {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-left: -1.3em;
+    margin-top: 0.3rem;
+    top: auto;
+}
+
+.md-task-list-item > input:before {
+    content: "";
+    display: inline-block;
+    width: 0.9rem;
+    height: 0.9rem;
+    vertical-align: middle;
+    text-align: center;
+    border: 1px solid #9c9c9c;
+    border-radius: 3px;
+    background-color: var(--bg-color);
+    margin-top: -0.4rem;
+}
+
+.md-task-list-item > input:checked:before,
+.md-task-list-item > input[checked]:before {
+    content: '\2713';
+    font-size: 0.7rem;
+    line-height: 0.9rem;
+    color: white;
+    background-color: #2f92e4;
+    border-color: #2f92e4;
+}
+
+.md-task-list-item > input:not([disabled]):not(:checked):hover:before {
+    content: '\2713';
+    font-size: 0.7rem;
+    line-height: 0.9rem;
+    color: #ccc;
+}
+
+/* checked task text */
+.task-list-done {
+    text-decoration: none;
+    color: #9b9b9b;
+}
+
+/* ========== 18. Footnotes, Math, TOC, YAML, mark, kbd ========== */
+sup.md-footnote {
+    color: #468eeb;
+    background: transparent;
+}
+
+.footnotes-area {
+    color: #7f7f7f;
+    border-top: 1px solid #e6e6e6;
+    margin-top: 2em;
+    padding-top: 0.5em;
+}
+
+.md-toc {
+    font-size: 0.9em;
+}
+
+.md-toc-inner {
+    margin-left: 0;
+    color: hsl(207, 77%, 54%);
+}
+
+#write pre.md-meta-block {
+    background: #f6f8fa;
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    padding: 0.6em 1em;
+    color: #7f7f7f;
+    font-size: 0.85em;
+    font-family: var(--monospace);
+}
+
+mark {
+    background: hsla(34, 100%, 80%, 0.85);
+    color: inherit;
+    padding: 0.1em 0.2em;
+    border-radius: 3px;
+}
+
+kbd {
+    font-family: var(--monospace) !important;
+    font-size: 0.85em !important;
+    color: inherit !important;
+    background-color: #e6e6e671 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 4px !important;
+    padding: 0.1em 0.25em !important;
+}
+
+/* Math */
+.MathJax_Display {
+    font-size: 1em !important;
+}
+
+.md-mathjax-midline {
+    background: #f0f0f0;
+}
+
+/* ========== 19. Math edit panel ========== */
+.md-rawblock-tooltip {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+/* ========== 20. Diagrams (Mermaid, Flow, Sequence) ========== */
+.md-diagram-panel {
+    margin: 0.8em 0;
+}
+
+.md-diagram-panel-preview {
+    background: var(--bg-color);
+}
+
+/* Mermaid node styling — match Blue Topaz accent blue */
+.md-diagram-panel-preview .node rect,
+.md-diagram-panel-preview .node circle,
+.md-diagram-panel-preview .node ellipse,
+.md-diagram-panel-preview .node polygon,
+.md-diagram-panel-preview .node path {
+    fill: #ECECFF !important;
+    stroke: hsl(207, 77%, 54%) !important;
+    stroke-width: 1px !important;
+}
+
+.md-diagram-panel-preview .edgePath .path {
+    stroke: #666 !important;
+}
+
+.md-diagram-panel-preview .marker {
+    fill: #666 !important;
+    stroke: #666 !important;
+}
+
+.md-diagram-panel-preview .arrowheadPath {
+    fill: #666 !important;
+}
+
+.md-diagram-panel-preview .edgeLabel {
+    background-color: var(--bg-color) !important;
+}
+
+.md-diagram-panel-preview .edgeLabel rect {
+    fill: var(--bg-color) !important;
+}
+
+.md-diagram-panel-preview .label {
+    color: var(--text-color) !important;
+}
+
+.md-diagram-panel-preview .label text,
+.md-diagram-panel-preview .nodeLabel {
+    fill: var(--text-color) !important;
+}
+
+/* ========== 21. Inline element editing (.md-expand) ========== */
+.md-expand .md-meta {
+    color: var(--meta-content-color);
+    font-family: var(--monospace);
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.md-expand .md-before,
+.md-expand .md-after {
+    color: var(--md-char-color);
+}
+
+/* ========== 22. Focus mode ========== */
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) * {
+    color: #c8c8c8 !important;
+}
+
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) img {
+    opacity: 0.3;
+}
+
+.on-focus-mode .md-focus,
+.on-focus-mode .md-focus-container {
+    color: var(--text-color);
+}
+
+.on-focus-mode .md-fences.md-focus .CodeMirror-code > *:not(.CodeMirror-activeline) * {
+    color: #c8c8c8 !important;
+}
+
+.on-focus-mode .CodeMirror.cm-s-inner:not(.CodeMirror-focused) * {
+    color: #c8c8c8 !important;
+}
+
+.on-focus-mode li[cid]:not(.md-focus-container) {
+    color: #c8c8c8;
+}
+
+.on-focus-mode .task-list-item:not(.md-focus-container) > input {
+    opacity: 0.3;
+}
+
+.on-focus-mode #typora-source .CodeMirror-code > *:not(.CodeMirror-activeline) * {
+    color: #c8c8c8 !important;
+}
+
+/* ========== 23. Sidebar ========== */
+#typora-sidebar {
+    background: var(--side-bar-bg-color);
+    border-right: var(--window-border);
+    font-size: 0.9em;
+}
+
+.sidebar-tabs {
+    border-bottom: 1px solid #eee;
+}
+
+.file-list-item,
+.file-library-node {
+    padding: 6px 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.file-list-item:hover,
+.file-library-node:hover {
+    background: var(--item-hover-bg-color);
+}
+
+.file-list-item.active,
+.file-library-node.active {
+    background: var(--active-file-bg-color);
+    border-left: 3px solid var(--active-file-border-color);
+}
+
+.file-list-item-summary {
+    color: var(--control-text-color);
+    font-size: 0.85em;
+}
+
+/* Outline */
+.outline-item {
+    padding: 4px 16px;
+    color: var(--text-color);
+}
+
+.outline-item:hover {
+    background: var(--item-hover-bg-color);
+    color: var(--primary-color);
+}
+
+.outline-expander:before {
+    color: var(--control-text-color);
+}
+
+.sidebar-footer {
+    border-top: 1px solid #eee;
+}
+
+.sidebar-footer-item {
+    color: var(--control-text-color);
+}
+
+.sidebar-footer-item:hover {
+    color: var(--text-color);
+    background: var(--item-hover-bg-color);
+}
+
+/* ========== 24. Footer / Status bar ========== */
+footer.ty-footer {
+    border-top: var(--window-border);
+    background: var(--bg-color);
+}
+
+.footer-item {
+    color: var(--control-text-color);
+}
+
+#footer-word-count-info {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 4px;
+}
+
+/* ========== 25. Search, Quick Open, Auto-suggest ========== */
+#md-searchpanel {
+    background: var(--bg-color);
+    border-bottom: var(--window-border);
+}
+
+#md-searchpanel input {
+    background: #f6f8fa;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: var(--text-color);
+}
+
+.searchpanel-search-option-btn {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: var(--control-text-color);
+}
+
+.searchpanel-search-option-btn.active {
+    background: var(--active-toggle-btn-color);
+    color: var(--primary-color);
+}
+
+.md-search-hit {
+    background: #ffd1dd;
+    color: inherit;
+}
+
+#typora-quick-open {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    border-radius: 6px;
+}
+
+#typora-quick-open-input input {
+    background: #f6f8fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.typora-quick-open-item {
+    padding: 6px 12px;
+}
+
+.typora-quick-open-item:hover,
+.typora-quick-open-item.active {
+    background: var(--item-hover-bg-color);
+}
+
+.auto-suggest-container {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 4px;
+}
+
+/* ========== 26. Preferences, Mega Menu, Modals, Notifications ========== */
+.megamenu-content {
+    background: var(--bg-color);
+}
+
+.megamenu-opened header {
+    background: var(--bg-color);
+}
+
+.megamenu-menu-panel {
+    background: var(--side-bar-bg-color);
+}
+
+.megamenu-menu-list li a {
+    color: var(--text-color);
+}
+
+.megamenu-menu-list li a:hover,
+.megamenu-menu-list li a.active {
+    color: var(--primary-color);
+    background: var(--item-hover-bg-color);
+}
+
+#recent-file-panel-action-btn {
+    color: var(--primary-color);
+}
+
+.long-btn {
+    background: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+}
+
+.long-btn:hover {
+    background: hsl(207, 77%, 44%);
+}
+
+.modal-content {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #eee;
+}
+
+.modal-footer {
+    border-top: 1px solid #eee;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    border-color: var(--primary-btn-border-color);
+    color: var(--primary-btn-text-color);
+    border-radius: 4px;
+}
+
+.btn-primary:hover {
+    background: hsl(207, 77%, 44%);
+}
+
+.btn-default {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: var(--text-color);
+}
+
+.btn-default:hover {
+    background: var(--item-hover-bg-color);
+}
+
+.context-menu,
+.dropdown-menu {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+
+.dropdown-menu > li > a {
+    color: var(--text-color);
+}
+
+.dropdown-menu > li > a:hover {
+    background: var(--item-hover-bg-color);
+    color: var(--text-color);
+}
+
+.native-window #md-notification {
+    border: 1px solid #ddd;
+    background: var(--bg-color);
+    border-radius: 4px;
+}
+
+.ty-preferences {
+    background: var(--bg-color);
+}
+
+.ty-preferences .nav-group-item {
+    color: var(--text-color);
+}
+
+.ty-preferences .nav-group-item.active {
+    background: var(--active-file-bg-color);
+    color: var(--primary-color);
+}
+
+/* tooltip */
+div.code-tooltip,
+.md-hover-tip .md-arrow:after {
+    background: #f6f8fa;
+    border: 1px solid #ddd;
+}
+
+#ty-tooltip {
+    background: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8em;
+}
+
+/* ========== 27. Source mode ========== */
+.cm-s-typora-default .cm-header,
+.cm-s-typora-default .cm-property {
+    color: hsl(212, 100%, 33%);
+}
+
+.cm-s-typora-default .cm-comment,
+.cm-s-typora-default .cm-code {
+    color: #a0a1a7;
+}
+
+.cm-s-typora-default .cm-string {
+    color: #50a14f;
+}
+
+.cm-s-typora-default .cm-atom,
+.cm-s-typora-default .cm-number {
+    color: #986801;
+}
+
+.cm-s-typora-default .cm-link {
+    color: hsl(207, 77%, 54%);
+}
+
+.CodeMirror.cm-s-typora-default .CodeMirror-activeline-background {
+    background: hsla(207, 77%, 54%, 0.05);
+}
+
+.CodeMirror.cm-s-typora-default div.CodeMirror-cursor {
+    border-left: 2px solid var(--text-color);
+}
+
+/* ========== 28. Print / Export ========== */
+@media print {
+    html {
+        font-size: 13px;
+    }
+
+    h1 { color: hsl(216, 88%, 26%) !important; }
+    h2 { color: hsl(212, 100%, 33%) !important; }
+    h3 { color: hsl(210, 86%, 39%) !important; }
+    h4 { color: hsl(208, 58%, 49%) !important; }
+    h5 { color: hsl(209, 70%, 62%) !important; }
+    h6 { color: hsl(209, 65%, 72%) !important; }
+
+    pre, code {
+        border: 1px solid #e6e6e6;
+        background: #f6f8fa !important;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+
+    blockquote {
+        border-left: 4px solid #468eeb !important;
+        background: #f6f8fa !important;
+        color: #555 !important;
+        page-break-inside: avoid;
+    }
+
+    table {
+        page-break-inside: avoid;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+    }
+
+    #write a {
+        color: hsl(207, 77%, 54%) !important;
+    }
+
+    mark {
+        background: hsla(34, 100%, 80%, 0.85) !important;
+    }
+
+    img {
+        page-break-inside: avoid;
+    }
+}
+
+.typora-export {
+    background: var(--bg-color);
+}
+
+.typora-export #write {
+    padding-bottom: 2em;
+}
+
+/* ========== 29. Scrollbar ========== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #dcdcdcbe;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ccc;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #bbb;
+}
+
+/* ========== 30. Text selection ========== */
+::selection {
+    background: #a9d1c859;
+}
+
+*.in-text-selection,
+*.in-text-selection * {
+    color: inherit !important;
+}
+
+/* ========== GFM Alerts ========== */
+/* Using ::before + gradient instead of border-left for unified coloring */
+.md-alert {
+    position: relative !important;
+    border-radius: 4px !important;
+    padding: 0.45em 1em 0.8em 1em !important;
+    margin: 1em 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+    /* gradient offset 3px to avoid overlap with ::before left bar */
+    background-position: 3px 0 !important;
+    background-size: calc(100% - 3px) 100% !important;
+    background-repeat: no-repeat !important;
+}
+
+/* Left bar: ::before absolutely positioned, full height */
+.md-alert::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 3px !important;
+}
+
+/* Neutralize nested blockquote styles inside alerts */
+.md-alert blockquote,
+.md-alert > blockquote {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+.md-alert p {
+    margin: 0 !important;
+}
+
+.md-alert .md-alert-text {
+    display: block;
+    margin: 0 0 0.3em 0;
+    font-weight: 600;
+    font-size: 0.98em;
+}
+
+/* Note — blue */
+.md-alert.md-alert-note,
+.md-alert.note {
+    background-image: linear-gradient(to bottom, rgba(9, 105, 218, 0.10) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-note::before,
+.md-alert.note::before {
+    background: rgba(9, 105, 218, 0.10) !important;
+}
+.md-alert-text-note {
+    color: rgb(9, 105, 218);
+}
+
+/* Important — purple */
+.md-alert.md-alert-important,
+.md-alert.important {
+    background-image: linear-gradient(to bottom, rgba(130, 80, 223, 0.10) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-important::before,
+.md-alert.important::before {
+    background: rgba(130, 80, 223, 0.10) !important;
+}
+.md-alert-text-important {
+    color: rgb(130, 80, 223);
+}
+
+/* Warning — amber */
+.md-alert.md-alert-warning,
+.md-alert.warning {
+    background-image: linear-gradient(to bottom, rgba(154, 103, 0, 0.10) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-warning::before,
+.md-alert.warning::before {
+    background: rgba(154, 103, 0, 0.10) !important;
+}
+.md-alert-text-warning {
+    color: rgb(154, 103, 0);
+}
+
+/* Tip — green */
+.md-alert.md-alert-tip,
+.md-alert.tip {
+    background-image: linear-gradient(to bottom, rgba(31, 136, 61, 0.10) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-tip::before,
+.md-alert.tip::before {
+    background: rgba(31, 136, 61, 0.10) !important;
+}
+.md-alert-text-tip {
+    color: rgb(31, 136, 61);
+}
+
+/* Caution — red */
+.md-alert.md-alert-caution,
+.md-alert.caution {
+    background-image: linear-gradient(to bottom, rgba(207, 34, 46, 0.10) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-caution::before,
+.md-alert.caution::before {
+    background: rgba(207, 34, 46, 0.10) !important;
+}
+.md-alert-text-caution {
+    color: rgb(207, 34, 46);
+}
+
+/* ========== Strong & Em ========== */
+strong, b {
+    color: #000000;
+    font-weight: 700;
+}
+
+em, i {
+    color: #099d4e;
+}
+
+em strong, em b,
+strong em, strong i {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(120deg, #1048ff 0%, #14c8ff 80%);
+}
+
+del {
+    color: inherit; /* follows original: strikethrough keeps text color */
+}
+
+/* ========== Misc ========== */
+.file-node-expanded > .file-node-children {
+    display: grid;
+}
+
+#toc-dropmenu {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
