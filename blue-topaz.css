@@ -1,0 +1,1884 @@
+/*
+ * Theme:    Blue Topaz (Light)
+ * Author:   Cyrus Cui <https://github.com/qishaoyumu>
+ * Homepage: https://github.com/qishaoyumu/typora-blue-topaz-theme
+ * License:  MIT
+ * Typora:   >= 1.13
+ * Based on: Blue Topaz for Obsidian v2025052001 by WhyI & Pkmer
+ *           https://github.com/PKM-er/Blue-Topaz_Obsidian-css
+ */
+
+/* ========== 1. @import ========== */
+@import "blue-topaz/font.css";
+
+/* ========== 2. Fonts ========== */
+/* Inter + JetBrains Mono are bundled locally (blue-topaz/font.css uses local()
+   first, then woff2). No remote @include-when-export, so HTML/PDF export stays
+   offline-friendly and free of third-party font requests. */
+
+/* ========== 3. :root variables ========== */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #0e0e0e;
+    --md-char-color: #c7c5c5;
+    --meta-content-color: #5b808d;
+    --heading-char-color: #3498db;
+
+    /* Heading cascade (shared by base, focus mode, and the light print path).
+       Dark overrides these in its own :root; dark print keeps light values. */
+    --h1-color: hsl(216, 88%, 26%);
+    --h2-color: hsl(212, 100%, 33%);
+    --h3-color: hsl(210, 86%, 39%);
+    --h4-color: hsl(208, 58%, 49%);
+    --h5-color: hsl(209, 70%, 62%);
+    --h6-color: hsl(209, 65%, 72%);
+
+    --primary-color: #2f93e4;
+    --primary-btn-border-color: #2e7fc2;
+    --primary-btn-text-color: #ffffff;
+
+    --window-border: 1px solid #dddddd;
+
+    --side-bar-bg-color: #fcfcfc;
+    --active-file-bg-color: hsla(207, 77%, 54%, 0.14);
+    --active-file-text-color: #0e0e0e;
+    --active-file-border-color: #2f93e4;
+
+    --item-hover-bg-color: #f0f0f0;
+    --item-hover-text-color: #0e0e0e;
+    --control-text-color: #7f7f7f;
+    --control-text-hover-color: #0e0e0e;
+
+    --select-text-bg-color: #a9d1c859;
+    --select-text-font-color: inherit;
+    --search-select-bg-color: #ffd1dd;
+    --search-select-text-color: #0e0e0e;
+
+    --blur-text-color: rgba(14, 14, 14, 0.33);
+    --active-toggle-btn-color: #e8f0fe;
+    --rawblock-edit-panel-bd: #f3f3f3;
+    --monospace: "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Sarasa Mono SC", monospace;
+
+    --mermaid-theme: default;
+    --mermaid-font-family: inherit;
+
+    --primary-color-01: hsla(207, 77%, 54%, 0.1);
+    --primary-color-02: hsla(207, 77%, 54%, 0.2);
+    --folder-hover-bg: rgba(0, 0, 0, 0.08);
+
+    --file-text-color: #272727;
+
+    --sequence-theme: simple;
+
+    /* GFM Alert backgrounds (light) */
+    --alert-note-bg: rgba(9, 105, 218, 0.10);
+    --alert-important-bg: rgba(130, 80, 223, 0.10);
+    --alert-warning-bg: rgba(154, 103, 0, 0.10);
+    --alert-tip-bg: rgba(31, 136, 61, 0.10);
+    --alert-caution-bg: rgba(207, 34, 46, 0.10);
+
+    /* Focus mode: decorative muting for non-focused blocks */
+    --focus-muted-decoration-bg: transparent;
+    --focus-muted-decoration-border: #e5e5e5;
+}
+
+/* ========== 4. html base ========== */
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* ========== 5. body ========== */
+body {
+    font-family: "Inter", "LXGW WenKai GB", "LXGW WenKai",
+        -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Microsoft YaHei", sans-serif;
+    color: var(--text-color);
+    line-height: 1.5;
+    background: var(--bg-color);
+}
+
+/* ========== 6. #write ========== */
+#write {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 30px;
+    padding-bottom: 50vh;
+}
+
+@media only screen and (min-width: 1400px) {
+    #write { max-width: 1024px; }
+}
+
+@media only screen and (min-width: 1800px) {
+    #write { max-width: 1200px; }
+}
+
+#write > ul:first-child,
+#write > ol:first-child {
+    margin-top: 30px;
+}
+
+content {
+    background-color: var(--bg-color);
+}
+
+/* ========== 7. Headings h1~h6 ========== */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    clear: both;
+    overflow-wrap: break-word;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 1.5625rem;
+    line-height: 1.5;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--h1-color);
+}
+
+h2 {
+    font-size: 1.4375rem;
+    line-height: 1.5;
+    margin-top: 1.4rem;
+    margin-bottom: 0.9rem;
+    color: var(--h2-color);
+}
+
+h3 {
+    font-size: 1.3125rem;
+    line-height: 1.5;
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: var(--h3-color);
+}
+
+h4 {
+    font-size: 1.1875rem;
+    line-height: 1.5;
+    margin-top: 1rem;
+    margin-bottom: 0.6rem;
+    color: var(--h4-color);
+}
+
+h5 {
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    margin-top: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: var(--h5-color);
+}
+
+h6 {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-top: 0.8rem;
+    margin-bottom: 0.5rem;
+    color: var(--h6-color);
+}
+
+/* heading focus label */
+@media (min-width: 980px) {
+    h3.md-focus:before,
+    h4.md-focus:before,
+    h5.md-focus:before,
+    h6.md-focus:before {
+        color: #aaa;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        position: absolute;
+        left: -1.65rem;
+        top: 0.36rem;
+        font-size: 9px;
+        padding: 0 3px;
+        vertical-align: bottom;
+        font-weight: normal;
+        line-height: normal;
+    }
+    h3.md-focus:before { content: 'h3'; }
+    h4.md-focus:before { content: 'h4'; }
+    h5.md-focus:before { content: 'h5'; }
+    h6.md-focus:before { content: 'h6'; }
+}
+
+/* ========== 8. Paragraphs & Lists ========== */
+/* Long unbreakable strings (URLs, hashes, paths) wrap instead of overflowing
+   #write horizontally; fenced code keeps its own horizontal scroll. */
+#write p,
+#write li,
+#write td,
+#write th {
+    overflow-wrap: break-word;
+}
+
+#write p {
+    margin: 0 !important;
+}
+
+#write p + p {
+    margin-top: 1rem !important;
+}
+
+#write ul, #write ol {
+    padding-left: 1.6em;
+}
+
+#write ul {
+    list-style-type: disc;
+}
+
+#write li {
+    margin: 0.2em 0;
+}
+
+#write li > p {
+    margin: 0;
+}
+
+/* Gray list markers */
+#write ul > li::marker,
+#write ol > li::marker {
+    color: #999;
+}
+
+/* Nested list indent guide lines, aligned with parent bullet */
+#write li > ul,
+#write li > ol {
+    position: relative;
+    padding-left: 2.3em;
+}
+
+#write li > ul::before,
+#write li > ol::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+#write li > ul::before {
+    left: -0.95em;
+}
+
+#write li > ol::before {
+    left: -1.2em;
+}
+
+/* ========== 9. Links ========== */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: opacity 0.2s ease-in-out;
+}
+
+a:hover {
+    opacity: 0.8;
+    text-decoration: none;
+}
+
+#write a {
+    text-decoration: underline;
+}
+
+#write a:hover {
+    text-decoration: none;
+}
+
+/* ========== 10. Blockquote ========== */
+blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding: 0.5em 0.5em 0.5em 0.6em;
+    color: inherit;
+    background: #d5d5d52c;
+    margin: 1em 0;
+    margin-inline-start: 2.5%;
+    margin-inline-end: 2.5%;
+    border-radius: 4px;
+}
+
+/* ========== 11. Horizontal rule ========== */
+hr {
+    height: 2px;
+    border: 0;
+    background-color: #bfbfbf;
+    margin: 1.5em 0 !important;
+}
+
+/* ========== 12. Table ========== */
+#write table {
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9375em;
+    border-right: 1px solid #e8e8e8;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+#write th,
+#write td {
+    padding: 4px 10px;
+    border: none;
+}
+
+#write th {
+    font-weight: 600;
+    color: var(--text-color);
+    background-color: hsla(207, 77%, 54%, 0.1);
+}
+
+#write tbody tr {
+    background-color: #f1f1f176;
+}
+
+#write tbody tr:nth-child(odd) {
+    background-color: #ffffff70;
+}
+
+/* table row hover */
+#write tbody tr:hover {
+    background-color: #85bfee2f;
+}
+
+/* table cell hover */
+#write td:hover {
+    background-color: #5dacec34;
+}
+
+/* table header hover */
+#write th:hover {
+    background-color: #ddefff;
+}
+
+/* ========== 13. Table edit UI ========== */
+.md-table-resize-popover {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+}
+
+.ty-table-edit {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+}
+
+/* ========== 14. Inline code & Code blocks ========== */
+/* Scope to #write to avoid leaking into <code> inside preferences / modals / sidebar tooltips. */
+#write code {
+    color: #e95d00;
+    background: #cccccc62;
+    font-weight: bold;
+    padding: 2px 2px 1px;
+    border-radius: 3px;
+    font-size: 0.825em;
+    font-family: var(--monospace);
+    overflow-wrap: break-word;
+}
+
+.md-fences {
+    background: #f5f5f5;
+    border: none;
+    border-radius: 5px;
+    padding: 1em 1.5em;
+    margin: 0.8em 0;
+    font-size: 0.825em;
+    font-family: var(--monospace);
+}
+
+.md-fences .code-tooltip {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* ========== 15. Code highlight .cm-s-inner ========== */
+/* Based on CodeMirror's classic default token colors (not GitHub Light);
+   operator and error are tweaked. */
+
+.cm-s-inner .cm-keyword {
+    color: #708;
+}
+
+.cm-s-inner .cm-atom {
+    color: #219;
+}
+
+.cm-s-inner .cm-number {
+    color: #164;
+}
+
+.cm-s-inner .cm-def {
+    color: #00f;
+}
+
+.cm-s-inner .cm-variable {
+    color: #000;
+}
+
+.cm-s-inner .cm-variable-2 {
+    color: #05a;
+}
+
+.cm-s-inner .cm-variable-3 {
+    color: #085;
+}
+
+.cm-s-inner .cm-string {
+    color: #a11;
+}
+
+.cm-s-inner .cm-property {
+    color: #000;
+}
+
+.cm-s-inner .cm-operator {
+    color: #981a1a;
+}
+
+.cm-s-inner .cm-comment {
+    color: #a50;
+}
+
+.cm-s-inner .cm-string-2 {
+    color: #f50;
+}
+
+.cm-s-inner .cm-meta {
+    color: #555;
+}
+
+.cm-s-inner .cm-qualifier {
+    color: #555;
+}
+
+.cm-s-inner .cm-builtin {
+    color: #30a;
+}
+
+.cm-s-inner .cm-bracket {
+    color: #997;
+}
+
+.cm-s-inner .cm-tag {
+    color: #170;
+}
+
+.cm-s-inner .cm-attribute {
+    color: #00c;
+}
+
+.cm-s-inner .cm-header {
+    color: #00f;
+}
+
+.cm-s-inner .cm-quote {
+    color: #090;
+}
+
+.cm-s-inner .cm-hr {
+    color: #999;
+}
+
+.cm-s-inner .cm-link {
+    color: #00c;
+}
+
+.cm-s-inner .cm-negative {
+    color: #d44;
+}
+
+.cm-s-inner .cm-positive {
+    color: #292;
+}
+
+.cm-s-inner .cm-type {
+    color: #085;
+}
+
+.CodeMirror-selectedtext,
+.CodeMirror-selected {
+    background: #a9d1c859;
+}
+
+.CodeMirror-gutters {
+    background: #f6f8fa;
+    border-right: 1px solid #e6e6e6;
+}
+
+.CodeMirror-linenumber {
+    color: #999;
+}
+
+.cm-s-inner .cm-error {
+    color: #e93147; /* --color-red */
+}
+
+.CodeMirror-matchingbracket {
+    color: #0550ae !important;
+    text-decoration: underline;
+}
+
+.CodeMirror div.CodeMirror-cursor {
+    border-left: 2px solid var(--text-color);
+}
+
+.CodeMirror-activeline-background {
+    background: hsla(207, 77%, 54%, 0.05);
+}
+
+/* ========== 16. Images ========== */
+#write img {
+    max-width: 100%;
+    border-radius: 4px;
+}
+
+.md-image > .md-meta {
+    color: var(--meta-content-color);
+    font-family: var(--monospace);
+    font-size: 0.8em;
+}
+
+.md-img-error span {
+    color: #e75545;
+}
+
+/* ========== 17. Task list ========== */
+.md-task-list-item {
+    padding-left: 1.25rem;
+    list-style-type: none !important;
+}
+
+.md-task-list-item > input {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-left: -1.3em;
+    margin-top: 0.3rem;
+    top: auto;
+}
+
+.md-task-list-item > input:before {
+    content: "";
+    display: inline-block;
+    width: 0.9rem;
+    height: 0.9rem;
+    vertical-align: middle;
+    text-align: center;
+    border: 1px solid #9c9c9c;
+    border-radius: 3px;
+    background-color: var(--bg-color);
+    margin-top: -0.4rem;
+}
+
+.md-task-list-item > input:checked:before,
+.md-task-list-item > input[checked]:before {
+    content: '\2713';
+    font-size: 0.7rem;
+    line-height: 0.9rem;
+    color: white;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.md-task-list-item > input:not([disabled]):not(:checked):hover:before {
+    content: '\2713';
+    font-size: 0.7rem;
+    line-height: 0.9rem;
+    color: #ccc;
+}
+
+/* checked task text */
+.task-list-done {
+    text-decoration: none;
+    color: #9b9b9b;
+}
+
+/* ========== 18. Footnotes, Math, TOC, YAML, mark, kbd ========== */
+sup.md-footnote {
+    color: var(--primary-color);
+    background: transparent;
+}
+
+.md-def-footnote {
+    color: #7f7f7f;
+    border-top: 1px solid #e6e6e6;
+    margin-top: 2em;
+    padding-top: 0.5em;
+}
+
+.md-toc {
+    font-size: 0.9em;
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.md-toc-content {
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    padding: 10px 16px;
+}
+
+.md-toc-inner {
+    margin-left: 0;
+    color: var(--primary-color);
+}
+
+#write pre.md-meta-block {
+    background: #f6f8fa;
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    padding: 0.6em 1em;
+    color: #7f7f7f;
+    font-size: 0.85em;
+    font-family: var(--monospace);
+}
+
+mark {
+    background: hsla(34, 100%, 80%, 0.85);
+    color: inherit;
+    padding: 0.1em 0.2em;
+    border-radius: 3px;
+}
+
+kbd {
+    font-family: var(--monospace) !important;
+    font-size: 0.85em !important;
+    color: inherit !important;
+    background-color: #e6e6e671 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 4px !important;
+    padding: 0.1em 0.25em !important;
+}
+
+/* Math */
+.MathJax_Display {
+    font-size: 1em !important;
+}
+
+.md-mathjax-midline {
+    background: #f0f0f0;
+}
+
+/* ========== 19. Math edit panel ========== */
+.md-rawblock-tooltip {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+/* ========== 20. Diagrams (Mermaid, Flow, Sequence) ========== */
+.md-diagram-panel {
+    margin: 0.8em 0;
+}
+
+.md-diagram-panel-preview {
+    background: var(--bg-color);
+}
+
+/* Mermaid node styling, matching Blue Topaz accent blue */
+.md-diagram-panel-preview .node rect,
+.md-diagram-panel-preview .node circle,
+.md-diagram-panel-preview .node ellipse,
+.md-diagram-panel-preview .node polygon,
+.md-diagram-panel-preview .node path {
+    fill: #ECECFF !important;
+    stroke: hsl(207, 77%, 54%) !important;
+    stroke-width: 1px !important;
+}
+
+.md-diagram-panel-preview .edgePath .path {
+    stroke: #666 !important;
+}
+
+.md-diagram-panel-preview .marker {
+    fill: #666 !important;
+    stroke: #666 !important;
+}
+
+.md-diagram-panel-preview .arrowheadPath {
+    fill: #666 !important;
+}
+
+.md-diagram-panel-preview .edgeLabel {
+    background-color: var(--bg-color) !important;
+}
+
+.md-diagram-panel-preview .edgeLabel rect {
+    fill: var(--bg-color) !important;
+}
+
+.md-diagram-panel-preview .label {
+    color: var(--text-color) !important;
+}
+
+.md-diagram-panel-preview .label text,
+.md-diagram-panel-preview .nodeLabel {
+    fill: var(--text-color) !important;
+}
+
+/* ========== 21. Inline element editing (.md-expand) ========== */
+.md-expand .md-meta {
+    color: var(--meta-content-color);
+    font-family: var(--monospace);
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.md-expand .md-before,
+.md-expand .md-after {
+    color: var(--md-char-color);
+}
+
+/* ========== 22. Focus mode ========== */
+/* Opacity-only fade with color preserved. Non-focused blocks share
+ * opacity:0.4, so every color cue (task checkmarks, math, code tokens, links,
+ * the five GFM Alert hues, bold-italic gradients) still reads through, just
+ * dimmer. Focused blocks match no rule and default to opacity:1.
+ *
+ * Non-opacity rules retained for cases opacity cannot cover or that would
+ * fight back against the parent fade:
+ * - Decorative backgrounds (mark / GFM Alerts / blockquote / TOC card fills)
+ *   stay loud after the 0.4 fade, so their backgrounds are reset to
+ *   transparent; the blockquote left border and footnotes top border are
+ *   softened to a muted tone (--focus-muted-decoration-border) instead.
+ * - Tables go fully transparent: tr/td/th hover and stripe colors layer on
+ *   top of the parent opacity and have to be neutralized explicitly.
+ * - TOC inline + dropdown hover neutralized: hover opacity 0.8 stacks with
+ *   the focus opacity and produces visual jitter.
+ * - Rawblock tooltip hidden: the edit panel should disappear in focus mode.
+ * - Mermaid grayscale: a diagram has many generated SVG fills/strokes, so
+ *   recoloring each one is brittle; filter:grayscale(1) desaturates the
+ *   whole preview at once.
+ */
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) {
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+}
+
+/* Typora's built-in rules give .md-focus (0,1,0) and
+ * .md-end-block:not(.md-focus) (0,2,0) a color: var(--text-color). Both
+ * outrank h1-h6's own (0,0,1), so headings lose their theme color in focus
+ * mode: focused blocks turn text-color, non-focused blocks turn Typora's
+ * muted tone.
+ * Re-assert the theme color on h1-h6 here; opacity:0.4 handles the dimming
+ * for non-focused blocks. */
+.on-focus-mode h1 { color: var(--h1-color) !important; }
+.on-focus-mode h2 { color: var(--h2-color) !important; }
+.on-focus-mode h3 { color: var(--h3-color) !important; }
+.on-focus-mode h4 { color: var(--h4-color) !important; }
+.on-focus-mode h5 { color: var(--h5-color) !important; }
+.on-focus-mode h6 { color: var(--h6-color) !important; }
+
+/* Reset decorative backgrounds in non-focused blocks: mark, GFM Alerts,
+ * blockquote.
+ *
+ * mark is inline and sits on the .md-end-block boundary, so it needs no
+ * :has(). Keep it in its own rule so the muting survives on engines that drop
+ * the :has() selector list below. */
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) mark {
+    background: var(--focus-muted-decoration-bg) !important;
+    background-image: none !important;
+}
+
+/* DOM inspection showed .md-alert and <blockquote> themselves carry no
+ * .md-end-block class (their child <p> does), so :not(:has(.md-focus)) is the
+ * correct way to skip containers that hold the focused block. */
+.on-focus-mode .md-alert:not(:has(.md-focus)),
+.on-focus-mode .md-alert:not(:has(.md-focus))::before {
+    background: var(--focus-muted-decoration-bg) !important;
+    background-image: none !important;
+}
+
+.on-focus-mode blockquote:not(:has(.md-focus)) {
+    border-left-color: var(--focus-muted-decoration-border) !important;
+    background: var(--focus-muted-decoration-bg) !important;
+}
+
+/* TOC inline card background goes transparent; footnotes top border goes muted. */
+.on-focus-mode .md-end-block.md-toc:not(.md-focus):not(.md-focus-container) .md-toc-content,
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-toc-content {
+    background-color: var(--focus-muted-decoration-bg) !important;
+}
+
+.on-focus-mode .md-def-footnote:not(.md-focus):not(.md-focus-container) {
+    border-top-color: var(--focus-muted-decoration-border) !important;
+}
+
+/* Task checkbox carries no .md-end-block (its child <p> does), so the opacity
+ * fade on .md-end-block never reaches the input; mute it here so a non-focused
+ * checkbox does not stay full-strength while its task text dims. */
+.on-focus-mode .md-task-list-item:not(:has(.md-focus)) > input {
+    opacity: 0.4;
+    transition: opacity 0.15s ease;
+}
+
+/* Tables go fully transparent: tr is itself a .md-end-block, so the boundary
+ * selector is not usable here; the hover and stripe backgrounds layer over the
+ * parent opacity and must be neutralized explicitly. */
+.on-focus-mode #write table th,
+.on-focus-mode #write table tr,
+.on-focus-mode #write table tr:nth-child(odd),
+.on-focus-mode #write table th:hover,
+.on-focus-mode #write table td:hover,
+.on-focus-mode #write table tr:hover {
+    background-color: transparent !important;
+}
+
+/* Neutralize TOC inline + dropdown hover: hover opacity 0.8 and the
+ * dropdown a:hover background stack with the focus opacity and produce
+ * visual jitter. #toc-dropmenu sits outside #write and has no focus
+ * opacity parent, so its hover effect is always suppressed. */
+.on-focus-mode .md-end-block.md-toc:not(.md-focus):not(.md-focus-container) .md-toc-content a:hover,
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-toc-content a:hover {
+    opacity: 1 !important;
+    text-decoration: none !important;
+}
+
+.on-focus-mode #toc-dropmenu a:hover {
+    opacity: 1 !important;
+    background: transparent !important;
+    text-decoration: none !important;
+}
+
+/* Block math (.md-rawblock) in focus mode: hide the "formula </>" tooltip
+ * button and the border/background changes on container hover/active. */
+.on-focus-mode .md-rawblock-tooltip {
+    display: none !important;
+}
+.on-focus-mode .md-rawblock-container,
+.on-focus-mode .md-rawblock-container:hover,
+.on-focus-mode .md-rawblock:hover,
+.on-focus-mode .md-rawblock-panel,
+.on-focus-mode .md-rawblock-panel:hover {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Mermaid diagrams: a diagram has many generated SVG fills/strokes, so
+ * recoloring each one is brittle, and opacity alone leaves them saturated
+ * (just translucent). filter: grayscale(1) flattens the whole preview, and
+ * the 0.4 opacity from above carries the dimming. */
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-diagram-panel-preview,
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-diagram-panel {
+    filter: grayscale(1) !important;
+}
+
+/* ========== 23. Sidebar ========== */
+#typora-sidebar {
+    background: var(--side-bar-bg-color);
+    border-right: var(--window-border);
+    font-size: 0.9em;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+.sidebar-tab.active {
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+/* Windows/Linux tab indicator */
+.info-panel-tab-border {
+    background-color: var(--primary-color);
+}
+
+/* File list view: shares card visual language with file tree.
+   Specificity strategy: base-control.css loads AFTER theme; same-specificity
+   rules win by source order. Theme rules use the
+   .use-file-list-style #file-library-list-children prefix to reach (1,1,0)
+   on root and (1,2,0) on children, beating base's (0,2,0) selectors
+   (.file-list-item:not(.active), .show-folder-name .file-list-item, etc.).
+   Active uses a 4-class combo (0,4,0) to override .file-list-item.active.
+   The list is flat, so no :has() is needed. !important is not used anywhere here. */
+
+.use-file-list-style #file-library-list-children {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 3px 0;
+}
+
+.use-file-list-style #file-library-list-children .file-list-item {
+    /* (1,2,0) overrides base:
+         .file-list-item { padding: 12px 8px 12px 24px; border-bottom; overflow:hidden }
+         .show-folder-name .file-list-item { padding-top: 8px }
+         .file-list-item:not(.active) { opacity: .8 } */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0 8px;
+    padding: 8px 14px;
+    min-width: 0;                          /* flex item; prevents content overflow */
+    border-bottom: none;
+    border-radius: 4px;
+    opacity: 1;                            /* cancels base :not(.active) opacity:.8 */
+    color: var(--file-text-color);
+    overflow: visible;                     /* cancels base overflow:hidden so time positioning works */
+}
+
+.use-file-list-style #file-library-list-children .file-list-item:hover {
+    background-color: var(--primary-color-01);
+}
+
+/* (0,4,0) overrides base .file-list-item.active (0,2,0); resets base's
+   color: var(--active-file-text-color) so active matches hover. */
+.file-library-node.file-library-file-node.file-list-item.active {
+    background: var(--primary-color-01);
+    color: var(--file-text-color);
+    opacity: 1;
+}
+
+/* CSS order rearranges visual flow (name -> parent-loc -> summary; time
+   absolute top-right); DOM order preserved so keyboard Tab is unaffected. */
+
+.use-file-list-style #file-library-list-children .file-list-item .file-list-item-file-name {
+    /* overrides base .file-list-item-file-name { font-weight:700; width:100%; margin-bottom:3px } */
+    order: 1;
+    color: var(--file-text-color);
+    font-size: 13px;
+    font-weight: 400;                      /* bundled Inter has no Medium (500); the
+                                              deeper file-name color already sets it
+                                              apart from the dimmer meta text */
+    line-height: 1.4;
+    margin-bottom: 0;
+    max-width: calc(100% - 56px);          /* reserves room for the top-right time
+                                               (max-width:48px + right:14px - padding:14px
+                                                ~56px safety margin) */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.use-file-list-style #file-library-list-children .file-list-item .file-list-item-parent-loc {
+    /* overrides base .file-list-item-parent-loc { opacity:.5; width:50%; float:left; display:none;
+       font-family "PT Mono"...; font-size:12px } */
+    order: 2;
+    display: block;
+    float: none;
+    width: auto;
+    opacity: 1;
+    color: var(--control-text-color);
+    font-family: inherit;
+    font-size: 11px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.use-file-list-style #file-library-list-children .file-list-item .file-list-item-summary {
+    /* overrides base .file-list-item-summary { height:38px; opacity:.8;
+       font-family Raleway/Source-Sans-Pro; white-space:initial; line-height:18px } */
+    order: 3;
+    height: auto;
+    opacity: 1;
+    color: var(--control-text-color);
+    font-family: inherit;
+    font-size: 0.82em;
+    line-height: 1.4;
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+.use-file-list-style #file-library-list-children .file-list-item .file-list-item-time {
+    /* display:block must be explicit: base defaults to display:none and only
+       flips to block under .show-folder-name; without an explicit declaration
+       the time element has no box and absolute positioning fails. */
+    display: block;
+    position: absolute;
+    top: 8px;
+    right: 14px;
+    float: none;
+    width: auto;
+    max-width: 48px;                       /* fallback cap for long time strings */
+    opacity: 1;
+    color: var(--control-text-color);
+    font-family: inherit;
+    font-size: 10.5px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    text-align: right;
+    padding: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.use-file-list-style #file-library-list-children .file-list-item .file-list-item-file-ext-part {
+    /* overrides base .file-list-item-file-ext-part { opacity:.2; font-weight:400 }
+       opacity 0.2 is too dim, almost invisible on hover; 0.6 keeps it
+       subordinate but still readable. */
+    opacity: 0.6;
+    font-weight: inherit;
+}
+
+/* Drop the dashed outline on pointer focus (overrides base-control.css) but
+   keep a clear ring on :focus-visible, so keyboard Tab navigation stays
+   visible while mouse clicks do not flash an outline. */
+.file-library-node:not(.file-node-root):focus > .file-node-content {
+    outline: none;
+}
+.file-library-node:not(.file-node-root):focus-visible > .file-node-content {
+    /* Box-shadow ring (not outline) so the blue ring sits against a
+       --bg-color liner, keeping it >=3:1 even on the light-blue selected row
+       (a bare blue outline on that row is only ~2.9:1). */
+    outline: none;
+    box-shadow: inset 0 0 0 1px var(--bg-color), inset 0 0 0 3px var(--primary-color);
+    border-radius: 4px;
+}
+
+.file-tree-node {
+    padding-left: 0;
+}
+
+/* File tree: filename extension dim */
+.file-node-title-ext-part {
+    opacity: 0.5;
+}
+
+/* File tree view: .file-node-background renders hover/active card.
+   It keeps position:absolute from base-control.css, positioned relative to
+   #file-library-tree (which has position:relative). This gives ALL cards
+   the same width regardless of nesting depth; only text indents deeper.
+   Override base defaults: left:0, width:100%, height:29px. */
+.file-tree-node:not(.file-node-root) > .file-node-background {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    height: 28px;
+    border-radius: 4px;
+    border-left: none;
+}
+
+/* Hard 28px height, perfectly aligned with .file-node-background to remove
+   the 2px visual drift. line-height: 28px replaces 1.5 so a single line is
+   vertically centered and content height stays constant. Padding is
+   horizontal only; height controls vertical size, so no vertical padding is needed.
+   .file-node-title already declares white-space:nowrap + ellipsis and never
+   wraps, so line-height = height does not damage multi-line layout
+   (and multi-line nodes do not exist in this view). */
+.file-node-content {
+    display: flex;
+    align-items: center;
+    color: var(--file-text-color);
+    font-size: 13px;
+    height: 28px;
+    line-height: 28px;
+    padding-top: 0;
+    padding-right: 10px;
+    border-radius: 4px;
+}
+
+/* Hover text color for file nodes (folders already use --text-color,
+   so this is a no-op for them, keeping the selector simple). */
+.file-tree-node:not(.file-node-root) > .file-node-content:hover {
+    color: var(--text-color);
+}
+
+/* Hover/active backgrounds on .file-node-background for uniform card width.
+   :has(> .file-node-content:hover) targets only when direct child content
+   is hovered, so it does NOT bubble from nested child tree nodes. */
+.file-tree-node:not(.file-node-root):not(.active):not([data-is-directory="true"]):has(> .file-node-content:hover) > .file-node-background {
+    background-color: var(--primary-color-01);
+}
+
+.file-tree-node:not(.file-node-root):not(.active)[data-is-directory="true"]:has(> .file-node-content:hover) > .file-node-background {
+    background-color: var(--folder-hover-bg);
+}
+
+/* Active file: background card on .file-node-background.
+   Active distinction relies on background and icon opacity only; there
+   is no text color or font-weight change, matching Obsidian behavior. */
+.file-library-node.active > .file-node-background {
+    background-color: var(--primary-color-01);
+}
+
+.file-library-node.active .file-node-icon {
+    color: var(--primary-color);
+    opacity: 1;
+}
+
+/* Obsidian signature: active file icon shifts to orange-red on hover.
+   Use direct color (not filter: hue-rotate) to avoid GPU compositing layer
+   creation which causes subpixel icon shift on hover in Typora. */
+.file-library-node.active > .file-node-content:hover .file-node-icon {
+    color: #eb7c46;
+}
+
+.file-node-icon {
+    color: var(--primary-color);
+    opacity: 0.7;
+    margin-right: 6px;
+}
+
+/* Directory nodes: icon uses neutral control-text instead of theme blue,
+   creating a container/content visual hierarchy with file icons. */
+.file-tree-node[data-is-directory="true"] > .file-node-content .file-node-icon {
+    color: var(--control-text-color);
+}
+
+/* Directory nodes: text uses --text-color (more prominent) while files
+   keep --file-text-color (softer), creating folder/file visual hierarchy
+   (matches Obsidian: folders use --text-normal, files use --text-folder-file). */
+.file-tree-node[data-is-directory="true"] > .file-node-content {
+    color: var(--text-color);
+}
+
+/* Folder title: 600 baseline (semi-bold). Obsidian CSS defines hover
+   bold but the visual difference is imperceptible at this size, so keep it stable. */
+.file-tree-node[data-is-directory="true"] .file-node-title-name-part {
+    font-weight: 600;
+}
+
+/* Cancels base's min-height: 22px and line-height: 22px. Through the flex
+   container those two base rules push .file-node-content up to 30px
+   (22 + padding 8 = 30), which no longer matches the 28px
+   .file-node-background. !important is required: the base rules share the
+   same specificity and load after the theme. */
+.file-node-open-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--control-text-color);
+    width: 20px;
+    min-height: 0 !important;
+    line-height: 28px !important;
+    transition: opacity 0.15s ease;
+}
+
+.file-node-open-state > i {
+    font-size: 10px;
+}
+
+/* Single-icon + rotate strategy: always use fa-caret-right, hide
+   fa-caret-down, and express the expanded state through transform: rotate.
+   display:none/inline-block follow base's boundary exactly: visible only
+   under .file-node-collapsed / .file-node-expanded ancestors. File nodes
+   (which carry neither class) keep base's * { display:none } intact. */
+.file-node-open-state .fa-caret-down {
+    display: none !important;
+}
+
+.file-node-collapsed > .file-node-content > .file-node-open-state .fa-caret-right,
+.file-node-expanded > .file-node-content > .file-node-open-state .fa-caret-right {
+    display: inline-block !important;
+    margin-left: 0 !important;
+    transition: transform 0.12s ease;
+}
+
+.file-node-expanded > .file-node-content > .file-node-open-state .fa-caret-right {
+    transform: rotate(90deg);
+}
+
+.file-node-collapsed > .file-node-content > .file-node-open-state {
+    opacity: 0.55;
+}
+
+.file-node-expanded > .file-node-content > .file-node-open-state {
+    opacity: 0.85;
+}
+
+/* Uniform 3px spacing at all levels (fixes 6px in subfolders caused by
+   grid preventing margin collapse). Root needs explicit grid too since
+   .file-node-root has no .file-node-expanded class. */
+.file-node-expanded > .file-node-children,
+.file-node-root > .file-node-children {
+    display: grid;
+    gap: 3px;
+}
+
+/* Explicit 3px at the parent-child seam, matching the sibling grid gap:3px.
+   Before this rule, parent-child spacing was 2px, an incidental side effect
+   of the content/background height difference. After height:28px +
+   line-height:28px fully aligned content with background, that spacing
+   collapsed to 0. This margin-top restores it so every gap is uniform. */
+.file-node-expanded > .file-node-children {
+    margin-top: 3px;
+}
+
+.file-tree-node:not(.file-node-root) > .file-node-children {
+    margin-left: 10px;
+}
+
+/* File tree overflow containment:
+   (1) Switch #file-library-tree from base's display:table to block; table
+       sizing lets long filenames stretch past sidebar width with no ellipsis.
+   (2) min-width:0 on .file-library-node (covers both root and grid items)
+       and .file-node-title (flex item) breaks default min-width:auto.
+   (3) Ellipsis on .file-node-title; the name-part + ext-part inline spans
+       share one formatting context so ".md" truncates naturally.
+
+   !important on display/width/min-width: base-control.css defines same-
+   specificity rules that load AFTER theme. Class-gated by .use-file-tree-style
+   so display:block doesn't bleed into file-list mode (where the tree must
+   stay display:none). */
+
+.use-file-tree-style #file-library-tree {
+    display: block !important;
+    width: 100% !important;
+    padding-left: 20px;
+    padding-right: 8px;
+}
+
+.use-file-tree-style .file-library-node {
+    min-width: 0 !important;
+}
+
+.file-node-content > .file-node-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Outline */
+.outline-label {
+    font-size: 13px;
+}
+
+/* Single-line height = padding(4+4) + line-height(20) = 28px, exactly
+   matching the file tree. height is intentionally omitted so multi-line
+   outline items can grow naturally. font-size: 13px is explicit to
+   override the sidebar's inherited 14.4px. */
+.outline-item {
+    padding: 4px 10px;
+    margin: 3px 0;
+    border-radius: 4px;
+    color: var(--control-text-color);
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-size: 13px;
+    line-height: 20px;
+}
+
+.outline-item:hover {
+    margin-left: 0;
+    margin-right: 0;
+    border-left: none;
+    border-right: none;
+    background: var(--item-hover-bg-color);
+    color: var(--text-color);
+}
+
+.outline-label:hover {
+    text-decoration: none;
+}
+
+.outline-content {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* Explicit height/line-height/font-size flatten Typora base's 22.857px
+   stray value, stopping the expander from inflating the first line box
+   and keeping a single-line outline-item at exactly 28px. */
+.outline-expander {
+    width: 26px;
+    padding-left: 9px;
+    font-size: 13px;
+    line-height: 20px;
+    height: 20px;
+}
+
+/* Use \f125 (Ionicons right-caret) + rotate(90deg) for both states, so the
+   expand/collapse change happens through transform, enabling the
+   transition. This overrides Typora base.css, which swaps content between
+   \f125 (collapsed) and \f123 (expanded) and breaks the transition.
+   !important is required: base's same-specificity rule loads after this. */
+.outline-expander:before {
+    content: "\f125" !important;
+    font-size: 10px;
+    color: var(--primary-color);
+    display: inline-block;
+    transition: transform 0.12s ease;
+}
+
+.outline-expander:hover:before {
+    content: "\f125" !important;
+}
+
+.outline-item-open > .outline-item > .outline-expander:before {
+    content: "\f125" !important;
+    transform: rotate(90deg);
+}
+
+.outline-item-wrapper:not(.outline-item-open) > .outline-item > .outline-expander:before {
+    opacity: 0.5;
+}
+
+.outline-item-active {
+    background: var(--item-hover-bg-color);
+    color: var(--text-color);
+}
+
+.pin-outline .outline-active {
+    font-weight: 400;
+}
+
+/* Search results */
+.ty-file-search-match-text {
+    background-color: var(--primary-color-02) !important;
+    color: inherit;
+}
+
+.ty-search-item-line:hover {
+    background: var(--item-hover-bg-color);
+}
+
+.ty-search-item-line.active {
+    background: var(--primary-color-01);
+}
+
+.ty-search-item-collapse-icon {
+    color: var(--primary-color);
+}
+
+.file-list-item-count {
+    color: var(--primary-color);
+}
+
+/* Search input */
+#file-library-search-input {
+    border-radius: 4px;
+}
+
+#file-library-search-input:focus {
+    border-color: var(--primary-color);
+}
+
+.sidebar-footer {
+    border-top: 1px solid #eee;
+}
+
+.sidebar-footer-item {
+    color: var(--control-text-color);
+}
+
+.sidebar-footer-item:hover {
+    color: var(--text-color);
+    background: var(--item-hover-bg-color);
+}
+
+/* ========== 24. Footer / Status bar ========== */
+footer.ty-footer {
+    border-top: var(--window-border);
+    background: var(--bg-color);
+}
+
+.footer-item {
+    color: var(--control-text-color);
+}
+
+#footer-word-count-info {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 4px;
+}
+
+/* ========== 25. Search, Quick Open, Auto-suggest ========== */
+#md-searchpanel {
+    background: var(--bg-color);
+    border-bottom: var(--window-border);
+}
+
+#md-searchpanel input {
+    background: #f6f8fa;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: var(--text-color);
+}
+
+.searchpanel-search-option-btn {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: var(--control-text-color);
+}
+
+.searchpanel-search-option-btn.active {
+    background: var(--active-toggle-btn-color);
+    color: var(--primary-color);
+}
+
+.md-search-hit {
+    background: #ffd1dd;
+    color: inherit;
+}
+
+#typora-quick-open {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    border-radius: 6px;
+}
+
+#typora-quick-open-input input {
+    background: #f6f8fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.typora-quick-open-item {
+    padding: 6px 12px;
+}
+
+.typora-quick-open-item:hover,
+.typora-quick-open-item.active {
+    background: var(--item-hover-bg-color);
+}
+
+.auto-suggest-container {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-radius: 4px;
+}
+
+/* ========== 26. Preferences, Mega Menu, Modals, Notifications ========== */
+.megamenu-content {
+    background: var(--bg-color);
+}
+
+.megamenu-opened header {
+    background: var(--bg-color);
+}
+
+.megamenu-menu-panel {
+    background: var(--side-bar-bg-color);
+}
+
+.megamenu-menu-list li a {
+    color: var(--text-color);
+}
+
+.megamenu-menu-list li a:hover,
+.megamenu-menu-list li a.active {
+    color: var(--primary-color);
+    background: var(--item-hover-bg-color);
+}
+
+#recent-file-panel-action-btn {
+    color: var(--primary-color);
+}
+
+.long-btn {
+    background: var(--primary-color);
+    color: var(--primary-btn-text-color);
+    border-radius: 4px;
+}
+
+.long-btn:hover {
+    background: hsl(207, 77%, 44%);
+}
+
+.modal-content {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #eee;
+}
+
+.modal-footer {
+    border-top: 1px solid #eee;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    border-color: var(--primary-btn-border-color);
+    color: var(--primary-btn-text-color);
+    border-radius: 4px;
+}
+
+.btn-primary:hover {
+    background: hsl(207, 77%, 44%);
+}
+
+.btn-default {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: var(--text-color);
+}
+
+.btn-default:hover {
+    background: var(--item-hover-bg-color);
+}
+
+.context-menu,
+.dropdown-menu {
+    background: var(--bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+
+.dropdown-menu > li > a {
+    color: var(--text-color);
+}
+
+.dropdown-menu > li > a:hover {
+    background: var(--item-hover-bg-color);
+    color: var(--text-color);
+}
+
+.native-window #md-notification {
+    border: 1px solid #ddd;
+    background: var(--bg-color);
+    border-radius: 4px;
+}
+
+.ty-preferences {
+    background: var(--bg-color);
+}
+
+.ty-preferences .nav-group-item {
+    color: var(--text-color);
+}
+
+.ty-preferences .nav-group-item.active {
+    background: var(--active-file-bg-color);
+    color: var(--primary-color);
+}
+
+/* tooltip */
+div.code-tooltip,
+.md-hover-tip .md-arrow:after {
+    background: #f6f8fa;
+    border: 1px solid #ddd;
+}
+
+#ty-tooltip {
+    background: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8em;
+}
+
+/* ========== 27. Source mode ========== */
+.cm-s-typora-default .cm-header,
+.cm-s-typora-default .cm-property {
+    color: hsl(212, 100%, 33%);
+}
+
+.cm-s-typora-default .cm-comment,
+.cm-s-typora-default .cm-code {
+    color: #a0a1a7;
+}
+
+.cm-s-typora-default .cm-string {
+    color: #50a14f;
+}
+
+.cm-s-typora-default .cm-atom,
+.cm-s-typora-default .cm-number {
+    color: #986801;
+}
+
+.cm-s-typora-default .cm-link {
+    color: var(--primary-color);
+}
+
+.CodeMirror.cm-s-typora-default .CodeMirror-activeline-background {
+    background: hsla(207, 77%, 54%, 0.05);
+}
+
+.CodeMirror.cm-s-typora-default div.CodeMirror-cursor {
+    border-left: 2px solid var(--text-color);
+}
+
+/* ========== 28. Print / Export ========== */
+@media print {
+    html {
+        font-size: 13px;
+    }
+
+    h1 { color: var(--h1-color) !important; }
+    h2 { color: var(--h2-color) !important; }
+    h3 { color: var(--h3-color) !important; }
+    h4 { color: var(--h4-color) !important; }
+    h5 { color: var(--h5-color) !important; }
+    h6 { color: var(--h6-color) !important; }
+
+    /* If focus mode is still on when printing, drop its dimming so every
+       block prints at full opacity. */
+    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) {
+        opacity: 1 !important;
+    }
+
+    /* Separate rule: a `:has()` in a grouped selector list invalidates the
+       WHOLE list on engines without :has(), which would drop the
+       .md-end-block reset above. Keep it standalone. */
+    .on-focus-mode .md-task-list-item:not(:has(.md-focus)) > input {
+        opacity: 1 !important;
+    }
+
+    pre, code {
+        border: 1px solid #e6e6e6;
+        background: #f6f8fa !important;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+
+    blockquote {
+        border-left: 4px solid #2f93e4 !important;
+        background: #f6f8fa !important;
+        color: #555 !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    table {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    #write a {
+        color: hsl(207, 77%, 54%) !important;
+    }
+
+    mark {
+        background: hsla(34, 100%, 80%, 0.85) !important;
+    }
+
+    /* bold-italic uses a gradient + transparent text-fill on screen. Most
+     * print engines drop background-image but keep text-fill:transparent,
+     * which makes the text invisible. Reset to a solid color for print. */
+    #write em strong, #write em b,
+    #write strong em, #write strong i {
+        -webkit-text-fill-color: initial !important;
+        background-image: none !important;
+        color: #1048ff !important;
+    }
+
+    img {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+}
+
+.typora-export {
+    background: var(--bg-color);
+}
+
+.typora-export #write {
+    padding-bottom: 2em;
+}
+
+/* ========== 29. Scrollbar ========== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #dcdcdcbe;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ccc;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #bbb;
+}
+
+/* ========== 30. Text selection ========== */
+::selection {
+    background: #a9d1c859;
+}
+
+*.in-text-selection,
+*.in-text-selection * {
+    color: inherit !important;
+}
+
+/* ========== GFM Alerts ========== */
+/* Using ::before + gradient instead of border-left for unified coloring */
+.md-alert {
+    position: relative !important;
+    border-radius: 4px !important;
+    padding: 0.45em 1em 0.8em 1em !important;
+    margin: 1em 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+    /* gradient offset 3px to avoid overlap with ::before left bar */
+    background-position: 3px 0 !important;
+    background-size: calc(100% - 3px) 100% !important;
+    background-repeat: no-repeat !important;
+}
+
+/* Left bar: ::before absolutely positioned, full height */
+.md-alert::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 3px !important;
+}
+
+/* Neutralize nested blockquote styles inside alerts */
+.md-alert blockquote {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+.md-alert p {
+    margin: 0 !important;
+}
+
+.md-alert .md-alert-text {
+    display: block;
+    margin: 0 0 0.3em 0;
+    font-weight: 600;
+    font-size: 0.98em;
+}
+
+/* Note: blue */
+.md-alert.md-alert-note,
+.md-alert.note {
+    background-image: linear-gradient(to bottom, var(--alert-note-bg) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-note::before,
+.md-alert.note::before {
+    background: var(--alert-note-bg) !important;
+}
+.md-alert-text-note {
+    color: rgb(9, 105, 218);
+}
+
+/* Important: purple */
+.md-alert.md-alert-important,
+.md-alert.important {
+    background-image: linear-gradient(to bottom, var(--alert-important-bg) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-important::before,
+.md-alert.important::before {
+    background: var(--alert-important-bg) !important;
+}
+.md-alert-text-important {
+    color: rgb(130, 80, 223);
+}
+
+/* Warning: amber */
+.md-alert.md-alert-warning,
+.md-alert.warning {
+    background-image: linear-gradient(to bottom, var(--alert-warning-bg) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-warning::before,
+.md-alert.warning::before {
+    background: var(--alert-warning-bg) !important;
+}
+.md-alert-text-warning {
+    color: rgb(154, 103, 0);
+}
+
+/* Tip: green */
+.md-alert.md-alert-tip,
+.md-alert.tip {
+    background-image: linear-gradient(to bottom, var(--alert-tip-bg) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-tip::before,
+.md-alert.tip::before {
+    background: var(--alert-tip-bg) !important;
+}
+.md-alert-text-tip {
+    color: rgb(31, 136, 61);
+}
+
+/* Caution: red */
+.md-alert.md-alert-caution,
+.md-alert.caution {
+    background-image: linear-gradient(to bottom, var(--alert-caution-bg) 2.1em, transparent 2.1em) !important;
+}
+.md-alert.md-alert-caution::before,
+.md-alert.caution::before {
+    background: var(--alert-caution-bg) !important;
+}
+.md-alert-text-caution {
+    color: rgb(207, 34, 46);
+}
+
+/* ========== Strong & Em ========== */
+#write strong, #write b {
+    color: #000000;
+    font-weight: 700;
+}
+
+#write em, #write i {
+    color: #099d4e;
+}
+
+#write em strong, #write em b,
+#write strong em, #write strong i {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(120deg, #1048ff 0%, #14c8ff 80%);
+}
+
+del {
+    color: inherit; /* follows original: strikethrough keeps text color */
+}
+
+/* ========== Details / Summary (collapsible block) ========== */
+#write details {
+    margin: 1em 0;
+    padding: 0.4em 1em;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+
+#write summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* ========== Misc ========== */
+
+#toc-dropmenu {
+    background: var(--side-bar-bg-color);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* ========== Reduced motion ========== */
+/* Honor the OS "reduce motion" setting: collapse the theme's hover/focus
+   transitions so motion-sensitive users get instant state changes. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

@@ -1,0 +1,776 @@
+/*
+ * Theme:    Blue Topaz (Dark)
+ * Author:   Cyrus Cui <https://github.com/qishaoyumu>
+ * Homepage: https://github.com/qishaoyumu/typora-blue-topaz-theme
+ * License:  MIT
+ * Typora:   >= 1.13
+ * Based on: Blue Topaz for Obsidian v2025052001 by WhyI & Pkmer
+ *           https://github.com/PKM-er/Blue-Topaz_Obsidian-css
+ *
+ * Note: this file @imports blue-topaz.css, then overrides the dark palette
+ * plus dark-specific rules for surfaces that plain color variables cannot
+ * cover (code highlighting, print, etc.).
+ * Both files must live in Typora's theme folder for dark to work.
+ */
+
+@import "blue-topaz.css";
+
+/* ========== :root overrides ========== */
+:root {
+    --bg-color: #202020;
+    --text-color: #c6c6c6;
+    --md-char-color: #5c6370;
+    --meta-content-color: #8a8a8a;
+    --heading-char-color: #7ac12d;
+
+    /* Rainbow heading cascade for dark screen display (base + focus mode).
+       Dark print intentionally keeps the light blue values, not these. */
+    --h1-color: hsl(78, 62%, 47%);
+    --h2-color: hsl(118, 42%, 49%);
+    --h3-color: hsl(180, 53%, 48%);
+    --h4-color: hsl(216, 69%, 68%);
+    --h5-color: hsl(258, 79%, 77%);
+    --h6-color: hsl(290, 85%, 81%);
+
+    --primary-color: rgb(45, 130, 204);
+    --primary-btn-border-color: #2574a8;
+    --primary-btn-text-color: #e4e4e4;
+
+    --dark-border-color: #343434;
+    --window-border: 1px solid var(--dark-border-color);
+
+    --side-bar-bg-color: #151515;
+    --active-file-bg-color: hsla(208, 64%, 49%, 0.15);
+    --active-file-text-color: #e4e4e4;
+    --active-file-border-color: var(--primary-color);
+
+    --item-hover-bg-color: #2a2a2a;
+    --item-hover-text-color: #e4e4e4;
+    --control-text-color: #8a8a8a;
+    --control-text-hover-color: #c6c6c6;
+
+    --select-text-bg-color: #3b767160;
+    --select-text-font-color: inherit;
+    --search-select-bg-color: #bb4361;
+    --search-select-text-color: #e0e0e0;
+
+    --blur-text-color: rgba(200, 200, 200, 0.33);
+    --active-toggle-btn-color: #1a2a3a;
+    --rawblock-edit-panel-bd: #2b2b2b;
+    --monospace: "JetBrains Mono", "Fira Code", "Cascadia Code",
+        Menlo, Consolas, "Sarasa Mono SC", monospace;
+
+    --mermaid-theme: dark;
+    --mermaid-font-family: inherit;
+
+    /* Translucent variants: match --primary-color (hsl 208) but with
+     * higher saturation/lightness so they read as theme blue against
+     * the dark background instead of flat gray. */
+    --primary-color-01: hsla(208, 72%, 58%, 0.14);
+    --primary-color-02: hsla(208, 72%, 58%, 0.26);
+    --folder-hover-bg: rgba(255, 255, 255, 0.08);
+
+    --file-text-color: #b3b3b3;
+
+    --sequence-theme: simple;
+
+    /* GFM Alert backgrounds (dark, slightly higher opacity) */
+    --alert-note-bg: rgba(58, 150, 255, 0.14);
+    --alert-important-bg: rgba(163, 130, 240, 0.14);
+    --alert-warning-bg: rgba(210, 167, 60, 0.14);
+    --alert-tip-bg: rgba(63, 185, 95, 0.12);
+    --alert-caution-bg: rgba(248, 81, 73, 0.14);
+
+    /* Focus mode: decorative muting for non-focused blocks (dark override) */
+    --focus-muted-decoration-bg: transparent;
+    --focus-muted-decoration-border: #2a2a2a;
+}
+
+/* ========== Body ========== */
+html, body {
+    color: var(--text-color);
+}
+
+/* Form-control default border aligns with the dark theme boundary; explicit
+   border-color on individual controls still wins. */
+button, input, select, textarea {
+    color: var(--text-color);
+    border-color: var(--dark-border-color);
+}
+
+content {
+    background-color: var(--bg-color) !important;
+}
+
+#write {
+    background-color: var(--bg-color);
+}
+
+/* ========== Headings ========== */
+/* Rainbow h1-h6 colors live in --h1-color..--h6-color in the dark :root above;
+   the heading rules that consume them come from the @imported blue-topaz.css. */
+
+/* heading focus label */
+@media (min-width: 980px) {
+    h3.md-focus:before,
+    h4.md-focus:before,
+    h5.md-focus:before,
+    h6.md-focus:before {
+        color: #666;
+        border-color: #555;
+    }
+}
+
+/* ========== Blockquote ========== */
+/* Border color follows --primary-color (inherited from light); only the
+   background tint is dark-specific. */
+blockquote {
+    background: #9191911c;
+}
+
+/* ========== Horizontal rule ========== */
+hr {
+    background-color: #3f3f3f;
+}
+
+/* ========== Table ========== */
+#write table {
+    border-right: 1px solid #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+#write th {
+    background-color: hsla(208, 64%, 49%, 0.1);
+}
+
+#write tbody tr {
+    background-color: #2f2f2f32;
+}
+
+#write tbody tr:nth-child(odd) {
+    background-color: #00000033;
+}
+
+/* table row hover */
+#write tbody tr:hover {
+    background-color: #08569a21;
+}
+
+/* table cell hover */
+#write td:hover {
+    background-color: #1f65a221;
+}
+
+/* table header hover */
+#write th:hover {
+    background-color: #21395bc7;
+}
+
+/* ========== Table edit UI ========== */
+.md-table-resize-popover {
+    background: var(--bg-color);
+    border-color: var(--dark-border-color);
+}
+
+.ty-table-edit {
+    background: var(--bg-color);
+    border-color: var(--dark-border-color);
+}
+
+/* ========== Code ========== */
+#write code {
+    color: #d58000;
+    background: #4c4c4cb0;
+}
+
+.md-fences {
+    background: #1a1a1a;
+}
+
+.md-fences .code-tooltip {
+    background: #2b2b2b;
+    border-color: var(--dark-border-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* .md-rawblock-tooltip: in dark, give it the panel background and border. */
+.md-rawblock-tooltip {
+    background: #2b2b2b;
+    border-color: var(--dark-border-color);
+}
+
+/* ========== Code highlight (Dark: GitHub Dark-based) ========== */
+
+.cm-s-inner .cm-keyword,
+.cm-s-inner .cm-variable-3,
+.cm-s-inner .cm-operator {
+    color: #ff7b72;
+}
+
+.cm-s-inner .cm-atom,
+.cm-s-inner .cm-comment,
+.cm-s-inner .cm-meta,
+.cm-s-inner .cm-bracket,
+.cm-s-inner .cm-hr {
+    color: #8b949e;
+}
+
+.cm-s-inner .cm-number,
+.cm-s-inner .cm-builtin,
+.cm-s-inner .cm-attribute,
+.cm-s-inner .cm-header {
+    color: #79c0ff;
+}
+
+.cm-s-inner .cm-def,
+.cm-s-inner .cm-variable,
+.cm-s-inner .cm-variable-2 {
+    color: var(--text-color);
+}
+
+.cm-s-inner .cm-string,
+.cm-s-inner .cm-string-2,
+.cm-s-inner .cm-quote,
+.cm-s-inner .cm-link {
+    color: #a5d6ff;
+}
+
+.cm-s-inner .cm-property {
+    color: #d2a8ff;
+}
+
+.cm-s-inner .cm-qualifier {
+    color: #50fa7b;
+}
+
+.cm-s-inner .cm-tag,
+.cm-s-inner .cm-positive {
+    color: #7ee787;
+}
+
+.cm-s-inner .cm-negative,
+.cm-s-inner .cm-error {
+    color: #ffa198;
+}
+
+.cm-s-inner .cm-type {
+    color: #ffb86c;
+}
+
+.CodeMirror-matchingbracket {
+    color: var(--text-color) !important;
+    text-decoration: underline;
+}
+
+.CodeMirror-selectedtext,
+.CodeMirror-selected {
+    background: #3b767160;
+}
+
+.CodeMirror-gutters {
+    background: #1a1a1a;
+    border-right-color: var(--dark-border-color);
+}
+
+.CodeMirror-linenumber {
+    color: #555;
+}
+
+.CodeMirror div.CodeMirror-cursor {
+    border-left-color: #c6c6c6;
+}
+
+.CodeMirror-activeline-background {
+    background: hsla(208, 64%, 49%, 0.05);
+}
+
+/* Gray list markers */
+#write ul > li::marker,
+#write ol > li::marker {
+    color: #777;
+}
+
+/* Nested list guide line: structure and offsets are inherited from light;
+   dark only swaps the hairline to a light (white) tint. */
+#write li > ul::before,
+#write li > ol::before {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ========== Images ========== */
+.md-img-error span {
+    color: #e16d76;
+}
+
+/* ========== Task list ========== */
+.md-task-list-item > input:before {
+    border-color: #7b7b7b;
+    background-color: var(--bg-color);
+}
+
+.md-task-list-item > input:checked:before,
+.md-task-list-item > input[checked]:before {
+    background-color: #3187d3;
+    border-color: #3187d3;
+    color: white;
+}
+
+.md-task-list-item > input:not([disabled]):not(:checked):hover:before {
+    color: #555;
+}
+
+.task-list-done {
+    color: #8e8e8e;
+}
+
+/* ========== Footnotes, YAML, mark, kbd ========== */
+.md-def-footnote {
+    color: #8a8a8a;
+    border-top-color: var(--dark-border-color);
+}
+
+.md-toc-content {
+    background-color: #1a1a1a;
+}
+
+#write pre.md-meta-block {
+    background: #1a1a1a;
+    border-color: var(--dark-border-color);
+    color: #8a8a8a;
+}
+
+mark {
+    background: hsla(57, 40%, 38%, 0.54);
+}
+
+kbd {
+    color: inherit !important;
+    background-color: #1111118c !important;
+}
+
+/* ========== MathJax ========== */
+.md-mathjax-midline {
+    background: #3a3a3a;
+}
+
+/* ========== Inline element editing ========== */
+.md-expand .md-meta {
+    color: #8a8a8a;
+}
+
+.md-expand .md-before,
+.md-expand .md-after {
+    color: #5c6370;
+}
+
+/* ========== Mermaid diagram: Dark overrides ========== */
+.md-diagram-panel-preview .node rect,
+.md-diagram-panel-preview .node circle,
+.md-diagram-panel-preview .node ellipse,
+.md-diagram-panel-preview .node polygon,
+.md-diagram-panel-preview .node path {
+    fill: #101027 !important;
+}
+
+.md-diagram-panel-preview .edgePath .path {
+    stroke: #aaa !important;
+}
+
+.md-diagram-panel-preview .marker,
+.md-diagram-panel-preview .arrowheadPath {
+    fill: #aaa !important;
+    stroke: #aaa !important;
+}
+
+.md-diagram-panel-preview .edgeLabel,
+.md-diagram-panel-preview .labelBkg,
+.md-diagram-panel-preview .edgeLabel p {
+    background-color: #1111118c !important;
+}
+
+.md-diagram-panel-preview .edgeLabel rect {
+    fill: #111111 !important;
+    opacity: 0.55 !important;
+}
+
+/* ========== Focus mode ========== */
+/* Opacity-only fade with color preserved. Dark has no focus rules of its
+ * own; light drives everything through variables, including the
+ * .on-focus-mode h1-h6 color rules (which read --h1-color..--h6-color
+ * overridden in the dark :root) and the decorative-mute vars
+ * (--focus-muted-decoration-bg / --focus-muted-decoration-border). */
+
+/* ========== Sidebar ========== */
+#typora-sidebar {
+    background: var(--side-bar-bg-color);
+    border-right-color: var(--dark-border-color);
+}
+
+.sidebar-footer {
+    border-top-color: var(--dark-border-color);
+}
+
+/* ========== Footer ========== */
+footer.ty-footer {
+    background: var(--bg-color);
+    border-top-color: var(--dark-border-color);
+}
+
+#footer-word-count-info {
+    background: #2b2b2b;
+    border-color: var(--dark-border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ========== Search, Quick Open ========== */
+#md-searchpanel {
+    background: var(--bg-color);
+    border-bottom-color: var(--dark-border-color);
+}
+
+#md-searchpanel input {
+    background: #2b2b2b;
+    border-color: var(--dark-border-color);
+    color: var(--text-color);
+}
+
+.searchpanel-search-option-btn {
+    border-color: var(--dark-border-color);
+}
+
+.md-search-hit {
+    background: #bb4361;
+    color: #fff;
+}
+
+#typora-quick-open {
+    background: #2b2b2b;
+    border-color: var(--dark-border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+#typora-quick-open-input input {
+    background: #1a1a1a;
+    border-color: var(--dark-border-color);
+}
+
+.auto-suggest-container {
+    background: #2b2b2b;
+    border-color: var(--dark-border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ========== Preferences, Mega Menu, Modals ========== */
+.megamenu-content {
+    background: var(--bg-color);
+}
+
+.megamenu-opened header {
+    background: var(--bg-color);
+}
+
+.megamenu-menu-panel {
+    background: var(--side-bar-bg-color);
+}
+
+.modal-content {
+    background: #2b2b2b;
+    border-color: var(--dark-border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.modal-header {
+    border-bottom-color: #444;
+}
+
+.modal-footer {
+    border-top-color: #444;
+}
+
+/* The light hover uses hsl(207,77%,44%), sharing the 77% saturation of light
+ * --primary-color. Dark --primary-color = rgb(45,130,204), approx
+ * hsl(208,64%,49%), has lower saturation, so reusing the light hover would
+ * paradoxically make hover more vivid than the base color. Dark gets its own
+ * one-step-darker hover so the base-to-hover direction is preserved. */
+.btn-primary:hover,
+.long-btn:hover {
+    background: hsl(208, 64%, 39%);
+}
+
+.btn-default {
+    border-color: #555;
+    color: var(--text-color);
+    background: transparent;
+}
+
+.btn-default:hover {
+    background: var(--item-hover-bg-color);
+}
+
+.context-menu,
+.dropdown-menu {
+    background: #2b2b2b;
+    border-color: var(--dark-border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.dropdown-menu > li > a {
+    color: var(--text-color);
+}
+
+.dropdown-menu > li > a:hover {
+    background: var(--item-hover-bg-color);
+}
+
+.native-window #md-notification {
+    border-color: #555;
+    background: #2b2b2b;
+}
+
+div.code-tooltip,
+.md-hover-tip .md-arrow:after {
+    background: #2b2b2b;
+    border-color: var(--dark-border-color);
+}
+
+#ty-tooltip {
+    background: #555;
+    color: #e4e4e4;
+}
+
+/* ========== Source mode ========== */
+.cm-s-typora-default .cm-header,
+.cm-s-typora-default .cm-property {
+    color: #cebcca;
+}
+
+.cm-s-typora-default .cm-comment,
+.cm-s-typora-default .cm-code {
+    color: #8aa1e1;
+}
+
+.cm-s-typora-default .cm-string {
+    color: #A7A7D9;
+}
+
+.cm-s-typora-default .cm-atom,
+.cm-s-typora-default .cm-number {
+    color: #848695;
+    font-style: italic;
+}
+
+.CodeMirror.cm-s-typora-default .CodeMirror-activeline-background {
+    background: rgba(51, 51, 51, 0.72);
+}
+
+.CodeMirror.cm-s-typora-default div.CodeMirror-cursor {
+    border-left-color: #c6c6c6;
+}
+
+/* ========== Print (Dark, force readable) ========== */
+@media print {
+    html, body {
+        background: white !important;
+        color: #0e0e0e !important;
+    }
+
+    /* dark `--bg-color` is #202020; force every dark surface inside the
+       export container to white paper. `#write` and `.md-toc-content`
+       carry their own background-color in dark mode and would otherwise
+       leak through .typora-export. */
+    .typora-export,
+    content,
+    #write,
+    .md-toc-content {
+        background: white !important;
+        background-color: white !important;
+    }
+
+    /* Headings reuse the light-print blue gradient; rainbow colors apply
+       on screen only. */
+    h1, .on-focus-mode h1 { color: hsl(216, 88%, 26%) !important; }
+    h2, .on-focus-mode h2 { color: hsl(212, 100%, 33%) !important; }
+    h3, .on-focus-mode h3 { color: hsl(210, 86%, 39%) !important; }
+    h4, .on-focus-mode h4 { color: hsl(208, 58%, 49%) !important; }
+    h5, .on-focus-mode h5 { color: hsl(209, 70%, 62%) !important; }
+    h6, .on-focus-mode h6 { color: hsl(209, 65%, 72%) !important; }
+
+    pre, code {
+        background: #f6f8fa !important;
+        border-color: #e6e6e6 !important;
+        color: #24292f !important;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+
+    kbd {
+        background-color: #e6e6e671 !important;
+        color: #0e0e0e !important;
+    }
+
+    /* Code-fence line-number gutter (when enabled) is a dark UI strip on
+       screen; reset it to white paper so it does not print as a dark band. */
+    .CodeMirror-gutters {
+        background: white !important;
+        border-right-color: #e6e6e6 !important;
+    }
+
+    .CodeMirror-linenumber {
+        color: #999 !important;
+    }
+
+    .md-mathjax-midline {
+        background: transparent !important;
+    }
+
+    /* Dark table rows/cells use translucent dark fills; reset to white
+       paper for print. */
+    #write table tr,
+    #write tbody tr,
+    #write tbody tr:nth-child(odd),
+    #write td,
+    #write td:hover,
+    #write tbody tr:hover {
+        background: transparent !important;
+        background-color: transparent !important;
+    }
+
+    #write th,
+    #write th:hover {
+        background: hsla(207, 77%, 54%, 0.1) !important;
+        color: #0e0e0e !important;
+    }
+
+    /* Unchecked boxes fill with the dark --bg-color (#202020) on screen;
+       reset only that fill so empty boxes don't print as solid dark squares.
+       Checked boxes keep their #3187d3 fill and white tick to stay legible. */
+    .md-task-list-item > input:not(:checked):not([checked]):before {
+        background-color: transparent !important;
+    }
+
+    blockquote {
+        border-left: 4px solid #2f93e4 !important;
+        background: #f6f8fa !important;
+        color: #555 !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    a {
+        color: hsl(207, 77%, 54%) !important;
+    }
+
+    mark {
+        background: hsla(34, 100%, 80%, 0.85) !important;
+        color: inherit !important;
+    }
+
+    #write strong, #write b {
+        color: #000 !important;
+    }
+
+    #write em, #write i {
+        color: #099d4e !important;
+    }
+
+    /* bold-italic uses a gradient + transparent text-fill on screen. Most
+     * print engines drop background-image but keep text-fill:transparent,
+     * which makes the text invisible. Reset to a solid color, matching
+     * light print. */
+    #write em strong, #write em b,
+    #write strong em, #write strong i {
+        -webkit-text-fill-color: initial !important;
+        background-image: none !important;
+        color: #1048ff !important;
+    }
+
+    del {
+        color: inherit !important;
+    }
+
+    hr {
+        background-color: #bfbfbf !important;
+    }
+
+    img {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Dark screen code tokens use light hues; on white paper reset them to
+       a dark ink so code stays readable. */
+    .cm-s-inner span {
+        color: #24292f !important;
+    }
+
+    /* Alert text uses dark screen hues; reset to the light alert palette so
+       it stays readable on white paper. */
+    .md-alert-text-note { color: rgb(9, 105, 218) !important; }
+    .md-alert-text-important { color: rgb(130, 80, 223) !important; }
+    .md-alert-text-warning { color: rgb(154, 103, 0) !important; }
+    .md-alert-text-tip { color: rgb(31, 136, 61) !important; }
+    .md-alert-text-caution { color: rgb(207, 34, 46) !important; }
+}
+
+/* ========== Scrollbar ========== */
+::-webkit-scrollbar-thumb {
+    background: #3f3f3f7e;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #666;
+}
+
+/* ========== Text selection ========== */
+::selection {
+    background: #3b767160;
+}
+
+/* ========== GFM Alerts (dark: text colors only; backgrounds via :root vars) ========== */
+
+.md-alert-text-note { color: rgb(58, 150, 255); }
+.md-alert-text-important { color: rgb(163, 130, 240); }
+.md-alert-text-warning { color: rgb(210, 167, 60); }
+.md-alert-text-tip { color: rgb(63, 185, 95); }
+.md-alert-text-caution { color: rgb(248, 81, 73); }
+
+/* ========== Strong & Em ========== */
+#write strong, #write b {
+    color: #e7e7e7;
+}
+
+#write em, #write i {
+    color: #a4ca8e;
+}
+
+#write em strong, #write em b,
+#write strong em, #write strong i {
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(120deg, #43d3ff 0%, #baaaff 80%);
+}
+
+
+/* ========== TOC dropdown ========== */
+#toc-dropmenu {
+    background: var(--side-bar-bg-color);
+    border-color: var(--dark-border-color);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* ========== Details / Summary ========== */
+/* summary color follows --primary-color (inherited); only the border tint is
+   dark-specific. */
+#write details {
+    border-color: var(--dark-border-color);
+}
