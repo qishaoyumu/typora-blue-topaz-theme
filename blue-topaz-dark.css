@@ -23,8 +23,9 @@
     --meta-content-color: #8a8a8a;
     --heading-char-color: #7ac12d;
 
-    /* Rainbow heading cascade for dark screen display (base + focus mode).
-       Dark print intentionally keeps the light blue values, not these. */
+    /* Rainbow heading cascade (dark). Base, focus mode, and print all read these
+       through var(); dark export prints the rainbow too, since the imported
+       light print path uses var(--hN-color). */
     --h1-color: hsl(78, 62%, 47%);
     --h2-color: hsl(118, 42%, 49%);
     --h3-color: hsl(180, 53%, 48%);
@@ -74,12 +75,16 @@
 
     --sequence-theme: simple;
 
-    /* GFM Alert backgrounds (dark, slightly higher opacity) */
-    --alert-note-bg: rgba(58, 150, 255, 0.14);
-    --alert-important-bg: rgba(163, 130, 240, 0.14);
-    --alert-warning-bg: rgba(210, 167, 60, 0.14);
-    --alert-tip-bg: rgba(63, 185, 95, 0.12);
-    --alert-caution-bg: rgba(248, 81, 73, 0.14);
+    /* GFM Alert backgrounds (dark) */
+    /* Opaque tints pre-blended onto the dark page (#202020); --alert-body-bg fills
+       the alert body in place of the gradient's `transparent` stop. Rationale:
+       dev/color-mapping.md "GFM Alerts". */
+    --alert-note-bg: #24313f;
+    --alert-important-bg: #322e3d;
+    --alert-warning-bg: #393324;
+    --alert-tip-bg: #243228;
+    --alert-caution-bg: #3e2726;
+    --alert-body-bg: #202020;
 
     /* Focus mode: decorative muting for non-focused blocks (dark override) */
     --focus-muted-decoration-bg: transparent;
@@ -364,31 +369,34 @@ kbd {
 }
 
 /* ========== Mermaid diagram: Dark overrides ========== */
-.md-diagram-panel-preview .node rect,
-.md-diagram-panel-preview .node circle,
-.md-diagram-panel-preview .node ellipse,
-.md-diagram-panel-preview .node polygon,
-.md-diagram-panel-preview .node path {
+.md-diagram-panel .node rect,
+.md-diagram-panel .node circle,
+.md-diagram-panel .node ellipse,
+.md-diagram-panel .node polygon,
+.md-diagram-panel .node path {
     fill: #101027 !important;
 }
 
-.md-diagram-panel-preview .edgePath .path {
+/* mermaid 11 emits `path.flowchart-link`; keep the legacy `.edgePath .path`
+   too. See blue-topaz.css section 20 for the version note. */
+.md-diagram-panel .flowchart-link,
+.md-diagram-panel .edgePath .path {
     stroke: #aaa !important;
 }
 
-.md-diagram-panel-preview .marker,
-.md-diagram-panel-preview .arrowheadPath {
+.md-diagram-panel .marker,
+.md-diagram-panel .arrowheadPath {
     fill: #aaa !important;
     stroke: #aaa !important;
 }
 
-.md-diagram-panel-preview .edgeLabel,
-.md-diagram-panel-preview .labelBkg,
-.md-diagram-panel-preview .edgeLabel p {
+.md-diagram-panel .edgeLabel,
+.md-diagram-panel .labelBkg,
+.md-diagram-panel .edgeLabel p {
     background-color: #1111118c !important;
 }
 
-.md-diagram-panel-preview .edgeLabel rect {
+.md-diagram-panel .edgeLabel rect {
     fill: #111111 !important;
     opacity: 0.55 !important;
 }
@@ -567,154 +575,67 @@ div.code-tooltip,
     border-left-color: #c6c6c6;
 }
 
-/* ========== Print (Dark, force readable) ========== */
+/* ========== Print / Export (Dark, keep the dark palette) ========== */
+/* True-dark export: the dark theme prints AS dark (dark surfaces, light ink).
+ * This block re-asserts the surfaces the imported light print block
+ * (blue-topaz.css section 28) forces light (code, inline code, quote, mark)
+ * back to opaque dark, plus an opaque dark table zebra (light print sets no
+ * table colours, so this solidifies the translucent dark screen fills).
+ * Page-breaks, the blockquote border, and rainbow headings (var(--hN-color))
+ * carry through from that imported block and are not repeated. For the Typora
+ * export model these rely on, see dev/color-mapping.md "Print / export path". */
 @media print {
-    html, body {
-        background: white !important;
-        color: #0e0e0e !important;
-    }
-
-    /* dark `--bg-color` is #202020; force every dark surface inside the
-       export container to white paper. `#write` and `.md-toc-content`
-       carry their own background-color in dark mode and would otherwise
-       leak through .typora-export. */
-    .typora-export,
-    content,
-    #write,
-    .md-toc-content {
-        background: white !important;
-        background-color: white !important;
-    }
-
-    /* Headings reuse the light-print blue gradient; rainbow colors apply
-       on screen only. */
-    h1, .on-focus-mode h1 { color: hsl(216, 88%, 26%) !important; }
-    h2, .on-focus-mode h2 { color: hsl(212, 100%, 33%) !important; }
-    h3, .on-focus-mode h3 { color: hsl(210, 86%, 39%) !important; }
-    h4, .on-focus-mode h4 { color: hsl(208, 58%, 49%) !important; }
-    h5, .on-focus-mode h5 { color: hsl(209, 70%, 62%) !important; }
-    h6, .on-focus-mode h6 { color: hsl(209, 65%, 72%) !important; }
-
-    pre, code {
-        background: #f6f8fa !important;
-        border-color: #e6e6e6 !important;
-        color: #24292f !important;
+    /* Code blocks: dark surface (#1a1a1a). Tokens (.cm-s-inner span) are already
+       light on dark, so leave them. Do NOT add inline `code` to this selector;
+       it would flatten its grey+amber chip. */
+    pre, .md-fences {
+        background: #1a1a1a !important;
+        border-color: #2b2b2b !important;
+        color: var(--text-color) !important;
         word-wrap: break-word;
         white-space: pre-wrap;
     }
 
-    kbd {
-        background-color: #e6e6e671 !important;
-        color: #0e0e0e !important;
+    /* Inline code chip: grey bg (#3e3e3e = screen #4c4c4cb0 pre-blended on
+       #202020) + amber text. */
+    #write code {
+        background: #3e3e3e !important;
+        color: #d58000 !important;
     }
 
-    /* Code-fence line-number gutter (when enabled) is a dark UI strip on
-       screen; reset it to white paper so it does not print as a dark band. */
-    .CodeMirror-gutters {
-        background: white !important;
-        border-right-color: #e6e6e6 !important;
-    }
-
-    .CodeMirror-linenumber {
-        color: #999 !important;
-    }
-
-    .md-mathjax-midline {
-        background: transparent !important;
-    }
-
-    /* Dark table rows/cells use translucent dark fills; reset to white
-       paper for print. */
-    #write table tr,
-    #write tbody tr,
-    #write tbody tr:nth-child(odd),
-    #write td,
-    #write td:hover,
-    #write tbody tr:hover {
-        background: transparent !important;
-        background-color: transparent !important;
-    }
-
-    #write th,
-    #write th:hover {
-        background: hsla(207, 77%, 54%, 0.1) !important;
-        color: #0e0e0e !important;
-    }
-
-    /* Unchecked boxes fill with the dark --bg-color (#202020) on screen;
-       reset only that fill so empty boxes don't print as solid dark squares.
-       Checked boxes keep their #3187d3 fill and white tick to stay legible. */
-    .md-task-list-item > input:not(:checked):not([checked]):before {
-        background-color: transparent !important;
-    }
-
+    /* Blockquote: opaque dark fill + light ink. (Left border #2f93e4 and the
+       page-break rules carry through from light print, so not repeated here.) */
     blockquote {
-        border-left: 4px solid #2f93e4 !important;
-        background: #f6f8fa !important;
-        color: #555 !important;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        background: #2b2b2b !important;
+        color: var(--text-color) !important;
     }
 
-    h1, h2, h3, h4, h5, h6 {
-        page-break-after: avoid;
-        break-after: avoid;
+    /* Table: light print sets no table colours, so export would fall back to the
+       translucent dark screen fills; re-assert an opaque dark zebra instead. */
+    #write th {
+        background: #25303f !important;
+        color: var(--text-color) !important;
+    }
+    #write tbody tr {
+        background: #202020 !important;
+    }
+    #write tbody tr:nth-child(odd) {
+        background: #1a1a1a !important;
     }
 
-    a {
-        color: hsl(207, 77%, 54%) !important;
-    }
-
+    /* Highlight (mark): dark olive (#58562e, screen mark pre-blended opaque) +
+       light ink. The light print's peach (hsla(34,100%,80%,0.85)) is unreadable
+       on dark. */
     mark {
-        background: hsla(34, 100%, 80%, 0.85) !important;
-        color: inherit !important;
+        background: #58562e !important;
+        color: var(--text-color) !important;
     }
 
-    #write strong, #write b {
-        color: #000 !important;
-    }
+    /* bold-italic keeps its screen gradient in print (Chromium renders
+       background-clip:text), so no solid-colour override here. */
 
-    #write em, #write i {
-        color: #099d4e !important;
-    }
-
-    /* bold-italic uses a gradient + transparent text-fill on screen. Most
-     * print engines drop background-image but keep text-fill:transparent,
-     * which makes the text invisible. Reset to a solid color, matching
-     * light print. */
-    #write em strong, #write em b,
-    #write strong em, #write strong i {
-        -webkit-text-fill-color: initial !important;
-        background-image: none !important;
-        color: #1048ff !important;
-    }
-
-    del {
-        color: inherit !important;
-    }
-
-    hr {
-        background-color: #bfbfbf !important;
-    }
-
-    img {
-        page-break-inside: avoid;
-        break-inside: avoid;
-    }
-
-    /* Dark screen code tokens use light hues; on white paper reset them to
-       a dark ink so code stays readable. */
-    .cm-s-inner span {
-        color: #24292f !important;
-    }
-
-    /* Alert text uses dark screen hues; reset to the light alert palette so
-       it stays readable on white paper. */
-    .md-alert-text-note { color: rgb(9, 105, 218) !important; }
-    .md-alert-text-important { color: rgb(130, 80, 223) !important; }
-    .md-alert-text-warning { color: rgb(154, 103, 0) !important; }
-    .md-alert-text-tip { color: rgb(31, 136, 61) !important; }
-    .md-alert-text-caution { color: rgb(207, 34, 46) !important; }
+    /* Page-break rules (h1~h6, img) carry through from the imported light print
+       block, not repeated here, per "dark overrides only the diff". */
 }
 
 /* ========== Scrollbar ========== */

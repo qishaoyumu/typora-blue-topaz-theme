@@ -24,7 +24,7 @@ This theme ports the [Blue Topaz](https://github.com/PKM-er/Blue-Topaz_Obsidian-
 - **Code highlighting**: `cm-s-inner` tokens are based on CodeMirror's default palette in light mode and GitHub Dark in dark mode.
 - **Mermaid diagrams**: accent-blue nodes in light mode, and a dark preset with custom node, edge, and label colors in dark mode.
 - **Focus mode**: dims non-focused blocks while keeping their heading and text colors.
-- **Print optimization**: when printing, the dark theme's core content uses a light palette, with blue accents and black text.
+- **Print and export**: output follows the selected theme: dark stays dark (dark surfaces, light text), and light stays light.
 - **Typora UI theming**: sidebar, file tree, search, Quick Open, preferences, modals, and source mode.
 - **Markdown elements**: styled tables, task lists, blockquotes, and details/summary, plus reduced-motion handling.
 - **Chinese text**: a CJK fallback chain with optional LXGW WenKai, alongside bundled Inter and JetBrains Mono for Latin and code.

@@ -24,8 +24,9 @@
     --meta-content-color: #5b808d;
     --heading-char-color: #3498db;
 
-    /* Heading cascade (shared by base, focus mode, and the light print path).
-       Dark overrides these in its own :root; dark print keeps light values. */
+    /* Heading cascade (shared by base, focus mode, and both print paths via
+       var()). Dark overrides these in its own :root, so dark export prints the
+       rainbow values too. */
     --h1-color: hsl(216, 88%, 26%);
     --h2-color: hsl(212, 100%, 33%);
     --h3-color: hsl(210, 86%, 39%);
@@ -72,11 +73,15 @@
     --sequence-theme: simple;
 
     /* GFM Alert backgrounds (light) */
-    --alert-note-bg: rgba(9, 105, 218, 0.10);
-    --alert-important-bg: rgba(130, 80, 223, 0.10);
-    --alert-warning-bg: rgba(154, 103, 0, 0.10);
-    --alert-tip-bg: rgba(31, 136, 61, 0.10);
-    --alert-caution-bg: rgba(207, 34, 46, 0.10);
+    /* Opaque tints (each pre-blended onto the white page) + --alert-body-bg for
+       the alert body, replacing the gradient's `transparent` stop (which prints
+       black in Typora export; see dev/color-mapping.md "GFM Alerts"). */
+    --alert-note-bg: #e6f0fb;
+    --alert-important-bg: #f3eefc;
+    --alert-warning-bg: #f5f0e6;
+    --alert-tip-bg: #e9f3ec;
+    --alert-caution-bg: #fae9ea;
+    --alert-body-bg: #ffffff;
 
     /* Focus mode: decorative muting for non-focused blocks */
     --focus-muted-decoration-bg: transparent;
@@ -674,50 +679,55 @@ kbd {
 /* ========== 20. Diagrams (Mermaid, Flow, Sequence) ========== */
 .md-diagram-panel {
     margin: 0.8em 0;
-}
-
-.md-diagram-panel-preview {
     background: var(--bg-color);
 }
 
 /* Mermaid node styling, matching Blue Topaz accent blue */
-.md-diagram-panel-preview .node rect,
-.md-diagram-panel-preview .node circle,
-.md-diagram-panel-preview .node ellipse,
-.md-diagram-panel-preview .node polygon,
-.md-diagram-panel-preview .node path {
+.md-diagram-panel .node rect,
+.md-diagram-panel .node circle,
+.md-diagram-panel .node ellipse,
+.md-diagram-panel .node polygon,
+.md-diagram-panel .node path {
     fill: #ECECFF !important;
     stroke: hsl(207, 77%, 54%) !important;
     stroke-width: 1px !important;
 }
 
-.md-diagram-panel-preview .edgePath .path {
+/* mermaid 11 (Typora's bundled version) emits `path.flowchart-link`; the older
+   `.edgePath .path` no longer matches, so keep both to own the edge color. */
+.md-diagram-panel .flowchart-link,
+.md-diagram-panel .edgePath .path {
     stroke: #666 !important;
 }
 
-.md-diagram-panel-preview .marker {
+.md-diagram-panel .marker {
     fill: #666 !important;
     stroke: #666 !important;
 }
 
-.md-diagram-panel-preview .arrowheadPath {
+.md-diagram-panel .arrowheadPath {
     fill: #666 !important;
 }
 
-.md-diagram-panel-preview .edgeLabel {
+.md-diagram-panel .edgeLabel {
     background-color: var(--bg-color) !important;
 }
 
-.md-diagram-panel-preview .edgeLabel rect {
+.md-diagram-panel .edgeLabel rect {
     fill: var(--bg-color) !important;
 }
 
-.md-diagram-panel-preview .label {
+/* Node labels are `.label`/`.nodeLabel`; edge labels live in `span.edgeLabel`
+   whose color mermaid sets directly, so an inherited color can't reach them;
+   target `.edgeLabel`/`p` explicitly. Dark mode inherits this via @import. */
+.md-diagram-panel .label,
+.md-diagram-panel .edgeLabel,
+.md-diagram-panel .edgeLabel p {
     color: var(--text-color) !important;
 }
 
-.md-diagram-panel-preview .label text,
-.md-diagram-panel-preview .nodeLabel {
+.md-diagram-panel .label text,
+.md-diagram-panel .nodeLabel {
     fill: var(--text-color) !important;
 }
 
@@ -864,7 +874,6 @@ kbd {
  * recoloring each one is brittle, and opacity alone leaves them saturated
  * (just translucent). filter: grayscale(1) flattens the whole preview, and
  * the 0.4 opacity from above carries the dimming. */
-.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-diagram-panel-preview,
 .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-diagram-panel {
     filter: grayscale(1) !important;
 }
@@ -1628,8 +1637,10 @@ div.code-tooltip,
         opacity: 1 !important;
     }
 
+    /* No border on code: inline code is borderless on screen, and code blocks
+       are distinguished by their background. The old 1px border only showed up
+       on inline code in print (an unwanted box), so drop it. */
     pre, code {
-        border: 1px solid #e6e6e6;
         background: #f6f8fa !important;
         word-wrap: break-word;
         white-space: pre-wrap;
@@ -1661,15 +1672,9 @@ div.code-tooltip,
         background: hsla(34, 100%, 80%, 0.85) !important;
     }
 
-    /* bold-italic uses a gradient + transparent text-fill on screen. Most
-     * print engines drop background-image but keep text-fill:transparent,
-     * which makes the text invisible. Reset to a solid color for print. */
-    #write em strong, #write em b,
-    #write strong em, #write strong i {
-        -webkit-text-fill-color: initial !important;
-        background-image: none !important;
-        color: #1048ff !important;
-    }
+    /* bold-italic keeps its screen gradient in print: Typora exports via
+       Chromium, which renders background-clip:text gradients on paper, so the
+       old solid-colour fallback (which flattened the gradient) is removed. */
 
     img {
         page-break-inside: avoid;
@@ -1766,7 +1771,7 @@ div.code-tooltip,
 /* Note: blue */
 .md-alert.md-alert-note,
 .md-alert.note {
-    background-image: linear-gradient(to bottom, var(--alert-note-bg) 2.1em, transparent 2.1em) !important;
+    background-image: linear-gradient(to bottom, var(--alert-note-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
 }
 .md-alert.md-alert-note::before,
 .md-alert.note::before {
@@ -1779,7 +1784,7 @@ div.code-tooltip,
 /* Important: purple */
 .md-alert.md-alert-important,
 .md-alert.important {
-    background-image: linear-gradient(to bottom, var(--alert-important-bg) 2.1em, transparent 2.1em) !important;
+    background-image: linear-gradient(to bottom, var(--alert-important-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
 }
 .md-alert.md-alert-important::before,
 .md-alert.important::before {
@@ -1792,7 +1797,7 @@ div.code-tooltip,
 /* Warning: amber */
 .md-alert.md-alert-warning,
 .md-alert.warning {
-    background-image: linear-gradient(to bottom, var(--alert-warning-bg) 2.1em, transparent 2.1em) !important;
+    background-image: linear-gradient(to bottom, var(--alert-warning-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
 }
 .md-alert.md-alert-warning::before,
 .md-alert.warning::before {
@@ -1805,7 +1810,7 @@ div.code-tooltip,
 /* Tip: green */
 .md-alert.md-alert-tip,
 .md-alert.tip {
-    background-image: linear-gradient(to bottom, var(--alert-tip-bg) 2.1em, transparent 2.1em) !important;
+    background-image: linear-gradient(to bottom, var(--alert-tip-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
 }
 .md-alert.md-alert-tip::before,
 .md-alert.tip::before {
@@ -1818,7 +1823,7 @@ div.code-tooltip,
 /* Caution: red */
 .md-alert.md-alert-caution,
 .md-alert.caution {
-    background-image: linear-gradient(to bottom, var(--alert-caution-bg) 2.1em, transparent 2.1em) !important;
+    background-image: linear-gradient(to bottom, var(--alert-caution-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
 }
 .md-alert.md-alert-caution::before,
 .md-alert.caution::before {

@@ -24,11 +24,10 @@
 | `--h6-color` | `hsl(209, 65%, 72%)` | h6 color (lightest blue) |
 
 The `--h1-color` .. `--h6-color` tokens are a single source of truth: base
-headings, focus mode, and the light print path all read them through `var()`
-rather than repeating the literals. Dark overrides the six values to its
-rainbow palette in its own `:root`; only the dark print path keeps the light
-blue literals, since it cannot use the rainbow `var()` (see the print-path
-section).
+headings, focus mode, and both print paths read them through `var()` rather
+than repeating the literals. Dark overrides the six values to its rainbow
+palette in its own `:root`, so dark export prints the rainbow headings too; the
+dark print block no longer hard-codes light-blue heading literals.
 
 ### Sidebar & File Tree (Light)
 
@@ -177,29 +176,37 @@ part of the rendered output.
 
 ## GFM Alerts
 
-The five GFM Alert backgrounds (translucent fills) were promoted from
-literals to `:root` variables, giving light and dark a single source of
-truth.
+The five GFM Alert backgrounds were promoted from literals to `:root`
+variables, giving light and dark a single source of truth. The values are
+**opaque, pre-blended** onto the page colour (each is the old `rgba(...)` tint
+composited onto white / `#202020`). The alert paints them as
+`linear-gradient(tint 2.1em, var(--alert-body-bg) 2.1em)`: a tinted title
+band over a body that matches the page. They must stay opaque: Typora's PDF
+export renders a `transparent` gradient stop as solid black, so
+`--alert-body-bg` replaces the old `transparent` body stop and the alert body
+prints clean. (See the Print / export path section for the alpha rule.)
 
-### Light
+### Light (pre-blended on `#ffffff`)
 
 | Variable | Value | Usage |
 |---|---|---|
-| `--alert-note-bg` | `rgba(9, 105, 218, 0.10)` | Note alert background + left bar |
-| `--alert-important-bg` | `rgba(130, 80, 223, 0.10)` | Important alert background + left bar |
-| `--alert-warning-bg` | `rgba(154, 103, 0, 0.10)` | Warning alert background + left bar |
-| `--alert-tip-bg` | `rgba(31, 136, 61, 0.10)` | Tip alert background + left bar |
-| `--alert-caution-bg` | `rgba(207, 34, 46, 0.10)` | Caution alert background + left bar |
+| `--alert-note-bg` | `#e6f0fb` | Note alert title band + left bar |
+| `--alert-important-bg` | `#f3eefc` | Important alert title band + left bar |
+| `--alert-warning-bg` | `#f5f0e6` | Warning alert title band + left bar |
+| `--alert-tip-bg` | `#e9f3ec` | Tip alert title band + left bar |
+| `--alert-caution-bg` | `#fae9ea` | Caution alert title band + left bar |
+| `--alert-body-bg` | `#ffffff` | Alert body fill below the title band (was `transparent`) |
 
-### Dark
+### Dark (pre-blended on `#202020`)
 
 | Variable | Value | Note |
 |---|---|---|
-| `--alert-note-bg` | `rgba(58, 150, 255, 0.14)` | RGB brightened, alpha lifted |
-| `--alert-important-bg` | `rgba(163, 130, 240, 0.14)` | Same treatment |
-| `--alert-warning-bg` | `rgba(210, 167, 60, 0.14)` | Same treatment |
-| `--alert-tip-bg` | `rgba(63, 185, 95, 0.12)` | RGB brightened, alpha lifted only slightly to 0.12 |
-| `--alert-caution-bg` | `rgba(248, 81, 73, 0.14)` | Same treatment |
+| `--alert-note-bg` | `#24313f` | was `rgba(58, 150, 255, 0.14)` |
+| `--alert-important-bg` | `#322e3d` | was `rgba(163, 130, 240, 0.14)` |
+| `--alert-warning-bg` | `#393324` | was `rgba(210, 167, 60, 0.14)` |
+| `--alert-tip-bg` | `#243228` | was `rgba(63, 185, 95, 0.12)` |
+| `--alert-caution-bg` | `#3e2726` | was `rgba(248, 81, 73, 0.14)` |
+| `--alert-body-bg` | `#202020` | Alert body fill below the title band (was `transparent`) |
 
 `.md-alert-text-*` foreground colors stay as literals (dark uses different
 RGB) and are intentionally not promoted to variables.
@@ -233,53 +240,61 @@ Not replaced (kept as literals, by design):
 - Alpha variants written as `hsla(...)` (these are stable derivations of
   the primary HSL; promoting them to `--primary-color-NN` is a separate
   exercise)
-- mermaid stroke (`.md-diagram-panel-preview .node` block); dark theme does not override stroke
-- `@media print` rules that deliberately decouple from the runtime theme
-  (see "Print-path exception" below)
+- mermaid stroke (`.md-diagram-panel .node` block); dark theme does not override stroke
+- `@media print` surface literals (see "Print / export path" below); both
+  print blocks hard-code their surfaces instead of reading `var(--primary-color)`
 
-## Print-path exception (force-readable design)
+## Print / export path (light prints light, dark prints dark)
 
-The `@media print` blocks in both light and dark themes deliberately use
-**light-style blue / orange / green literals**, decoupled from the
-runtime theme. This is intentional, and these literals **must not be
-replaced with `var(--primary-color)` or other dark-semantic variables**.
+Each theme prints in its own palette: the light theme exports light, and the
+dark theme exports **true dark** (dark surfaces, light ink) rather than being
+force-converted to white paper. Typora injects
+`@media print { .typora-export * { print-color-adjust: exact } }`, so opaque
+backgrounds print, and the page paints from the theme's own
+`.typora-export { background: var(--bg-color) }` (plus `body` / `content` /
+`#write`), which resolves to the dark `--bg-color` in dark export.
 
-### Design rationale
+### How the dark print block stays minimal
 
-Print output is a traditional white-paper + black-ink visual environment:
+`blue-topaz-dark.css` opens its print block with the comment
+`Print / Export (Dark, keep the dark palette)`. Because the dark file
+`@import`s the light one, the light `@media print` block (blue-topaz.css
+section 28) is already active in dark export. The dark print block therefore
+only **re-asserts the surfaces the light print block forces light** (code,
+inline code, quote, and mark) back to opaque dark, plus an opaque dark table
+zebra (not an override: the light print sets no table colours, so this just
+solidifies the translucent dark screen fills). Everything else (page-breaks,
+blockquote border, rainbow `h1~h6` via `var(--hN-color)`, links, code tokens,
+alert text) carries through. Per "dark overrides only the diff", it does not
+repeat the page-break or border rules.
 
-- Dark theme on-screen colors (deep blue, dim gray) lose contrast on
-  white paper.
-- Forcing the light theme palette (bright-blue link, orange highlight,
-  green italic) keeps ink-printed output legible.
-- The dark print block opens with a `Print (Dark, force readable)`
-  comment that records this intent.
-
-### Literals retained in the dark print path
-
-All inside the `@media print` block at the bottom of
-`blue-topaz-dark.css` (search for `Print (Dark, force readable)`):
-
-| Selector | Literal | Purpose |
+| Selector (dark print) | Value | Purpose |
 |---|---|---|
-| `blockquote { border-left }` | `#2f93e4` | Light theme blue |
-| `a { color }` | `hsl(207, 77%, 54%)` | Same blue, expressed in hsl |
-| `mark { background }` | `hsla(34, 100%, 80%, 0.85)` | mark highlight orange |
-| `#write em, #write i { color }` | `#099d4e` | em italic green |
+| `pre, .md-fences { background }` | `#1a1a1a` | Dark code surface (overrides light `#f6f8fa`) |
+| `#write code { background / color }` | `#3e3e3e` / `#d58000` | Inline-code chip (grey + amber), pre-blended on `#202020` |
+| `blockquote { background / color }` | `#2b2b2b` / `--text-color` | Dark quote fill + light ink |
+| `#write th / tbody tr / odd` | `#25303f` / `#202020` / `#1a1a1a` | Opaque dark table zebra |
+| `mark { background }` | `#58562e` | Dark olive highlight (overrides the light print peach) |
 
-### Light print path shares the palette
+### Typora export gotchas (verified by real PDF export)
 
-The light `@media print` block (also at the bottom of `blue-topaz.css`)
-uses the same `#2f93e4` and light-style literals, so both print paths
-share the paper-output palette. The dark block additionally resets
-dark-only screen surfaces (table fills, code tokens, alert text) back to
-ink on white.
+- **`transparent` in a gradient stop prints as solid black.** This is why GFM
+  alerts replace the old `transparent` body stop with `--alert-body-bg`. A plain
+  `background-color` with an rgba/hsla tint, by contrast, keeps its alpha in
+  export (a light table header at `hsla(207, 77%, 54%, 0.1)` prints as a faint
+  tint, not a saturated band), so opacity is only mandatory where a gradient or
+  the `transparent` keyword is involved.
+- **`background-clip:text` gradients survive export**, so the bold-italic
+  gradient prints as a gradient in both schemes; no solid-colour fallback is
+  needed (the old `#1048ff` / `#099d4e` print fallbacks were removed).
+- **The mermaid container in export DOM is `.md-diagram-panel`** (no `-preview`
+  suffix), which is why the diagram rules target `.md-diagram-panel`.
 
 ### Modification rule
 
-Future changes to the print palette **must touch both the light and dark
-print blocks together** to keep the force-readable design consistent. Do
-not migrate the dark print block to dark variables in isolation.
+The two print blocks are no longer a shared "force-readable" white-paper
+palette: light prints light, dark prints dark. When changing one, check the
+other still makes sense, but do not re-introduce a dark-to-light conversion.
 
 ## Mermaid variables (consumed by the Typora engine)
 
