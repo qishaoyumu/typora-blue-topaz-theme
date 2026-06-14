@@ -26,7 +26,8 @@ This theme ports the [Blue Topaz](https://github.com/PKM-er/Blue-Topaz_Obsidian-
 - **Focus mode**: dims non-focused blocks while keeping their heading and text colors.
 - **Print and export**: output follows the selected theme: dark stays dark (dark surfaces, light text), and light stays light.
 - **Typora UI theming**: sidebar, file tree, search, Quick Open, preferences, modals, and source mode.
-- **Markdown elements**: styled tables, task lists, blockquotes, and details/summary, plus reduced-motion handling.
+- **Markdown elements**: styled tables, task lists, blockquotes, details/summary, definition lists, multi-color highlights, superscript and subscript, plus reduced-motion handling.
+- **Accessibility**: high-frequency colored text (links, inline code, emphasis, headings, and alert labels) meets WCAG AA contrast.
 - **Chinese text**: a CJK fallback chain with optional LXGW WenKai, alongside bundled Inter and JetBrains Mono for Latin and code.
 
 ## Installation
@@ -63,6 +64,7 @@ Without LXGW WenKai, Chinese text falls back to the default system font (PingFan
 - **The theme has no styling, especially the dark one**: `blue-topaz.css` and the `blue-topaz/` folder must sit in the same theme folder as `blue-topaz-dark.css`. The dark theme imports the light one and needs both.
 - **The theme is missing from the menu**: make sure the files sit directly in the theme folder, not inside a nested subfolder created when extracting the archive, then restart Typora fully (Cmd+Q on macOS), not just the window.
 - **Text or layout looks wrong**: confirm Typora is 1.13 or later.
+- **Exported HTML uses different fonts**: Typora removes the theme's bundled `@font-face` rules during HTML export, so text falls back to system fonts on machines without Inter or JetBrains Mono installed (document structure and colors are unaffected). This is Typora's export behavior, not a theme issue; PDF export embeds the fonts, so use PDF for reliable sharing, or ask recipients to install the fonts.
 
 ## Credits
 

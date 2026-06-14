@@ -1,7 +1,6 @@
 ---
 title: Blue Topaz Theme Test Document
 author: Blue Topaz
-date: 2026-03-15
 ---
 
 # Heading 1 - Blue Topaz
@@ -25,6 +24,10 @@ This is **bold text**, this is *italic text*, and this is ***bold italic***. Her
 This is a [link](https://github.com) and [another link](https://google.com). Here is `inline code` within text.
 
 A long unbroken URL exercises word wrapping: https://example.com/a/very/long/path/segment/that/keeps/going/without/any/spaces/to/test/overflow-wrap/and/break-word/handling.
+
+Multi-color highlight: plain ==highlight==, italic *==highlight==* (red), bold **==highlight==** (green), and bold-italic ***==highlight==*** (blue).
+
+Superscript and subscript: x^2^ and H~2~O, plus raw <sup>sup</sup> and <sub>sub</sub>.
 
 ## Lists
 
@@ -181,6 +184,12 @@ graph LR
 
 > [!CAUTION]
 > This is a caution alert.
+
+> [!NOTE]
+> This note embeds a blockquote, exercising `.md-alert blockquote`:
+>
+> > Nested quote inside an alert. On export it should stay transparent over the
+> > alert body and show no black box, per the plain-transparent export rule.
 
 ## Chinese and English Mixed Text
 

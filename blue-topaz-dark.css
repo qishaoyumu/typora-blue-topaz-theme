@@ -34,11 +34,23 @@
     --h6-color: hsl(290, 85%, 81%);
 
     --primary-color: rgb(45, 130, 204);
+    /* Link text: lighter than --primary-color so links clear WCAG AA on the
+       dark page; --primary-color stays for buttons/borders/icons. */
+    --link-color: #3a8cd4;
     --primary-btn-border-color: #2574a8;
     --primary-btn-text-color: #e4e4e4;
 
     --dark-border-color: #343434;
+    /* Shared UI border token. The generic 1px border rules live in
+       blue-topaz.css and read var(--ui-border-color); dark MUST define it too,
+       otherwise that shorthand is invalid here and the border vanishes
+       (border-color overrides alone cannot restore a missing border-style). */
+    --ui-border-color: var(--dark-border-color);
     --window-border: 1px solid var(--dark-border-color);
+    --dark-panel-bg: #2b2b2b;
+    --dark-surface-2: #1a1a1a;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
 
     --side-bar-bg-color: #151515;
     --active-file-bg-color: hsla(208, 64%, 49%, 0.15);
@@ -85,6 +97,11 @@
     --alert-tip-bg: #243228;
     --alert-caution-bg: #3e2726;
     --alert-body-bg: #202020;
+
+    /* Multi-color highlight (dark variants) */
+    --hl-italic: #c865656f;
+    --hl-bold: #54b94763;
+    --hl-bolditalic: #1e83d086;
 
     /* Focus mode: decorative muting for non-focused blocks (dark override) */
     --focus-muted-decoration-bg: transparent;
@@ -140,8 +157,8 @@ hr {
 
 /* ========== Table ========== */
 #write table {
-    border-right: 1px solid #1a1a1a;
-    border-bottom: 1px solid #1a1a1a;
+    border-right: 1px solid var(--dark-surface-2);
+    border-bottom: 1px solid var(--dark-surface-2);
 }
 
 #write th {
@@ -184,30 +201,29 @@ hr {
 
 /* ========== Code ========== */
 #write code {
-    color: #d58000;
+    color: #f49200;
     background: #4c4c4cb0;
 }
 
 .md-fences {
-    background: #1a1a1a;
+    background: var(--dark-surface-2);
 }
 
 .md-fences .code-tooltip {
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-sm);
 }
 
 /* .md-rawblock-tooltip: in dark, give it the panel background and border. */
 .md-rawblock-tooltip {
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
 }
 
 /* ========== Code highlight (Dark: GitHub Dark-based) ========== */
 
 .cm-s-inner .cm-keyword,
-.cm-s-inner .cm-variable-3,
 .cm-s-inner .cm-operator {
     color: #ff7b72;
 }
@@ -258,6 +274,7 @@ hr {
     color: #ffa198;
 }
 
+.cm-s-inner .cm-variable-3,
 .cm-s-inner .cm-type {
     color: #ffb86c;
 }
@@ -269,11 +286,11 @@ hr {
 
 .CodeMirror-selectedtext,
 .CodeMirror-selected {
-    background: #3b767160;
+    background: var(--select-text-bg-color);
 }
 
 .CodeMirror-gutters {
-    background: #1a1a1a;
+    background: var(--dark-surface-2);
     border-right-color: var(--dark-border-color);
 }
 
@@ -330,18 +347,18 @@ hr {
 
 /* ========== Footnotes, YAML, mark, kbd ========== */
 .md-def-footnote {
-    color: #8a8a8a;
+    color: var(--control-text-color);
     border-top-color: var(--dark-border-color);
 }
 
 .md-toc-content {
-    background-color: #1a1a1a;
+    background-color: var(--dark-surface-2);
 }
 
 #write pre.md-meta-block {
-    background: #1a1a1a;
+    background: var(--dark-surface-2);
     border-color: var(--dark-border-color);
-    color: #8a8a8a;
+    color: var(--control-text-color);
 }
 
 mark {
@@ -360,7 +377,7 @@ kbd {
 
 /* ========== Inline element editing ========== */
 .md-expand .md-meta {
-    color: #8a8a8a;
+    color: var(--meta-content-color);
 }
 
 .md-expand .md-before,
@@ -409,25 +426,21 @@ kbd {
  * (--focus-muted-decoration-bg / --focus-muted-decoration-border). */
 
 /* ========== Sidebar ========== */
-#typora-sidebar {
-    background: var(--side-bar-bg-color);
-    border-right-color: var(--dark-border-color);
-}
+/* #typora-sidebar: background and border resolve to dark via --side-bar-bg-color
+   and --window-border (both overridden in :root), so no dark block is needed. */
 
 .sidebar-footer {
     border-top-color: var(--dark-border-color);
 }
 
 /* ========== Footer ========== */
-footer.ty-footer {
-    background: var(--bg-color);
-    border-top-color: var(--dark-border-color);
-}
+/* footer.ty-footer: background and border resolve to dark via --bg-color and
+   --window-border (both overridden in :root), so no dark block is needed. */
 
 #footer-word-count-info {
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-sm);
 }
 
 /* ========== Search, Quick Open ========== */
@@ -437,7 +450,7 @@ footer.ty-footer {
 }
 
 #md-searchpanel input {
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
     color: var(--text-color);
 }
@@ -452,39 +465,31 @@ footer.ty-footer {
 }
 
 #typora-quick-open {
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 #typora-quick-open-input input {
-    background: #1a1a1a;
+    background: var(--dark-surface-2);
     border-color: var(--dark-border-color);
 }
 
 .auto-suggest-container {
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-sm);
 }
 
 /* ========== Preferences, Mega Menu, Modals ========== */
-.megamenu-content {
-    background: var(--bg-color);
-}
-
-.megamenu-opened header {
-    background: var(--bg-color);
-}
-
-.megamenu-menu-panel {
-    background: var(--side-bar-bg-color);
-}
+/* megamenu-content / megamenu-opened header / megamenu-menu-panel: identical to
+   blue-topaz.css and the vars they read are overridden in the dark :root, so the
+   imported rules already resolve to dark values. No dark-specific block needed. */
 
 .modal-content {
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 .modal-header {
@@ -517,27 +522,22 @@ footer.ty-footer {
 
 .context-menu,
 .dropdown-menu {
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-sm);
 }
 
-.dropdown-menu > li > a {
-    color: var(--text-color);
-}
-
-.dropdown-menu > li > a:hover {
-    background: var(--item-hover-bg-color);
-}
+/* .dropdown-menu > li > a (+ :hover): identical to blue-topaz.css; the vars
+   resolve to dark values via the :root override, so no dark block is needed. */
 
 .native-window #md-notification {
     border-color: #555;
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
 }
 
 div.code-tooltip,
 .md-hover-tip .md-arrow:after {
-    background: #2b2b2b;
+    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
 }
 
@@ -580,14 +580,14 @@ div.code-tooltip,
  * This block re-asserts the surfaces the imported light print block
  * (blue-topaz.css section 28) forces light (code, inline code, quote, mark)
  * back to opaque dark, plus an opaque dark table zebra (light print sets no
- * table colours, so this solidifies the translucent dark screen fills).
+ * table colors, so this solidifies the translucent dark screen fills).
  * Page-breaks, the blockquote border, and rainbow headings (var(--hN-color))
  * carry through from that imported block and are not repeated. For the Typora
  * export model these rely on, see dev/color-mapping.md "Print / export path". */
 @media print {
     /* Code blocks: dark surface (#1a1a1a). Tokens (.cm-s-inner span) are already
        light on dark, so leave them. Do NOT add inline `code` to this selector;
-       it would flatten its grey+amber chip. */
+       it would flatten its gray+amber chip. */
     pre, .md-fences {
         background: #1a1a1a !important;
         border-color: #2b2b2b !important;
@@ -596,11 +596,11 @@ div.code-tooltip,
         white-space: pre-wrap;
     }
 
-    /* Inline code chip: grey bg (#3e3e3e = screen #4c4c4cb0 pre-blended on
+    /* Inline code chip: gray bg (#3e3e3e = screen #4c4c4cb0 pre-blended on
        #202020) + amber text. */
     #write code {
         background: #3e3e3e !important;
-        color: #d58000 !important;
+        color: #f49200 !important;
     }
 
     /* Blockquote: opaque dark fill + light ink. (Left border #2f93e4 and the
@@ -610,7 +610,7 @@ div.code-tooltip,
         color: var(--text-color) !important;
     }
 
-    /* Table: light print sets no table colours, so export would fall back to the
+    /* Table: light print sets no table colors, so export would fall back to the
        translucent dark screen fills; re-assert an opaque dark zebra instead. */
     #write th {
         background: #25303f !important;
@@ -631,8 +631,21 @@ div.code-tooltip,
         color: var(--text-color) !important;
     }
 
+    /* Focus-mode decoration reset, dark surfaces. The mermaid filter:none and
+       the theme-aware alert tint restore are inherited from the light print
+       block; these re-assert the dark mark / blockquote / TOC fills. */
+    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) mark {
+        background: #58562e !important;
+    }
+    .on-focus-mode blockquote:not(:has(.md-focus)) {
+        background: #2b2b2b !important;
+    }
+    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-toc-content {
+        background-color: #1a1a1a !important;
+    }
+
     /* bold-italic keeps its screen gradient in print (Chromium renders
-       background-clip:text), so no solid-colour override here. */
+       background-clip:text), so no solid-color override here. */
 
     /* Page-break rules (h1~h6, img) carry through from the imported light print
        block, not repeated here, per "dark overrides only the diff". */
@@ -653,16 +666,16 @@ div.code-tooltip,
 
 /* ========== Text selection ========== */
 ::selection {
-    background: #3b767160;
+    background: var(--select-text-bg-color);
 }
 
 /* ========== GFM Alerts (dark: text colors only; backgrounds via :root vars) ========== */
 
-.md-alert-text-note { color: rgb(58, 150, 255); }
-.md-alert-text-important { color: rgb(163, 130, 240); }
+.md-alert-text-note { color: #429aff; }
+.md-alert-text-important { color: #a687f1; }
 .md-alert-text-warning { color: rgb(210, 167, 60); }
 .md-alert-text-tip { color: rgb(63, 185, 95); }
-.md-alert-text-caution { color: rgb(248, 81, 73); }
+.md-alert-text-caution { color: #f9645d; }
 
 /* ========== Strong & Em ========== */
 #write strong, #write b {
@@ -675,9 +688,7 @@ div.code-tooltip,
 
 #write em strong, #write em b,
 #write strong em, #write strong i {
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    /* clip + text-fill inherited from blue-topaz.css; only the gradient differs */
     background-image: linear-gradient(120deg, #43d3ff 0%, #baaaff 80%);
 }
 
@@ -686,7 +697,7 @@ div.code-tooltip,
 #toc-dropmenu {
     background: var(--side-bar-bg-color);
     border-color: var(--dark-border-color);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    box-shadow: var(--shadow-md);
 }
 
 /* ========== Details / Summary ========== */

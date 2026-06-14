@@ -21,7 +21,7 @@
     --bg-color: #ffffff;
     --text-color: #0e0e0e;
     --md-char-color: #c7c5c5;
-    --meta-content-color: #5b808d;
+    --meta-content-color: #577a87;
     --heading-char-color: #3498db;
 
     /* Heading cascade (shared by base, focus mode, and both print paths via
@@ -31,14 +31,20 @@
     --h2-color: hsl(212, 100%, 33%);
     --h3-color: hsl(210, 86%, 39%);
     --h4-color: hsl(208, 58%, 49%);
-    --h5-color: hsl(209, 70%, 62%);
-    --h6-color: hsl(209, 65%, 72%);
+    --h5-color: hsl(209, 70%, 58%);
+    --h6-color: hsl(209, 65%, 58%);
 
     --primary-color: #2f93e4;
+    /* Link text: a darker blue than --primary-color so body/UI links clear
+       WCAG AA (4.5:1) on white; --primary-color stays for buttons/borders/icons. */
+    --link-color: #1a79c6;
     --primary-btn-border-color: #2e7fc2;
     --primary-btn-text-color: #ffffff;
 
-    --window-border: 1px solid #dddddd;
+    --ui-border-color: #dddddd;
+    --window-border: 1px solid var(--ui-border-color);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
 
     --side-bar-bg-color: #fcfcfc;
     --active-file-bg-color: hsla(207, 77%, 54%, 0.14);
@@ -47,7 +53,7 @@
 
     --item-hover-bg-color: #f0f0f0;
     --item-hover-text-color: #0e0e0e;
-    --control-text-color: #7f7f7f;
+    --control-text-color: #747474;
     --control-text-hover-color: #0e0e0e;
 
     --select-text-bg-color: #a9d1c859;
@@ -82,6 +88,12 @@
     --alert-tip-bg: #e9f3ec;
     --alert-caution-bg: #fae9ea;
     --alert-body-bg: #ffffff;
+
+    /* Multi-color highlight (Blue Topaz): italic ==x== red, bold green,
+       bold+italic blue. Translucent so they read over the page. */
+    --hl-italic: #ff000034;
+    --hl-bold: #0fc41835;
+    --hl-bolditalic: #4ca6ff51;
 
     /* Focus mode: decorative muting for non-focused blocks */
     --focus-muted-decoration-bg: transparent;
@@ -140,7 +152,6 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
     font-size: 1.5625rem;
-    line-height: 1.5;
     margin-top: 1.5rem;
     margin-bottom: 1rem;
     color: var(--h1-color);
@@ -148,7 +159,6 @@ h1 {
 
 h2 {
     font-size: 1.4375rem;
-    line-height: 1.5;
     margin-top: 1.4rem;
     margin-bottom: 0.9rem;
     color: var(--h2-color);
@@ -156,7 +166,6 @@ h2 {
 
 h3 {
     font-size: 1.3125rem;
-    line-height: 1.5;
     margin-top: 1.2rem;
     margin-bottom: 0.8rem;
     color: var(--h3-color);
@@ -164,7 +173,6 @@ h3 {
 
 h4 {
     font-size: 1.1875rem;
-    line-height: 1.5;
     margin-top: 1rem;
     margin-bottom: 0.6rem;
     color: var(--h4-color);
@@ -172,7 +180,6 @@ h4 {
 
 h5 {
     font-size: 1.0625rem;
-    line-height: 1.5;
     margin-top: 0.9rem;
     margin-bottom: 0.5rem;
     color: var(--h5-color);
@@ -180,7 +187,6 @@ h5 {
 
 h6 {
     font-size: 1rem;
-    line-height: 1.5;
     margin-top: 0.8rem;
     margin-bottom: 0.5rem;
     color: var(--h6-color);
@@ -247,7 +253,7 @@ h6 {
 /* Gray list markers */
 #write ul > li::marker,
 #write ol > li::marker {
-    color: #999;
+    color: #939393;
 }
 
 /* Nested list indent guide lines, aligned with parent bullet */
@@ -275,9 +281,23 @@ h6 {
     left: -1.2em;
 }
 
+/* ========== Definition lists ========== */
+#write dl {
+    margin: 1em 0;
+}
+
+#write dt {
+    font-weight: 600;
+    margin-top: 0.6em;
+}
+
+#write dd {
+    margin: 0.2em 0 0.6em 1.4em;
+}
+
 /* ========== 9. Links ========== */
 a {
-    color: var(--primary-color);
+    color: var(--link-color);
     text-decoration: none;
     transition: opacity 0.2s ease-in-out;
 }
@@ -292,7 +312,10 @@ a:hover {
 }
 
 #write a:hover {
+    /* Body links keep full contrast on hover (AA); the underline going away is
+       the hover affordance, so do not inherit the global a:hover opacity dim. */
     text-decoration: none;
+    opacity: 1;
 }
 
 /* ========== 10. Blockquote ========== */
@@ -333,7 +356,7 @@ hr {
 #write th {
     font-weight: 600;
     color: var(--text-color);
-    background-color: hsla(207, 77%, 54%, 0.1);
+    background-color: var(--primary-color-01);
 }
 
 #write tbody tr {
@@ -362,18 +385,18 @@ hr {
 /* ========== 13. Table edit UI ========== */
 .md-table-resize-popover {
     background: var(--bg-color);
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
 }
 
 .ty-table-edit {
     background: var(--bg-color);
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
 }
 
 /* ========== 14. Inline code & Code blocks ========== */
 /* Scope to #write to avoid leaking into <code> inside preferences / modals / sidebar tooltips. */
 #write code {
-    color: #e95d00;
+    color: #b34800;
     background: #cccccc62;
     font-weight: bold;
     padding: 2px 2px 1px;
@@ -395,9 +418,9 @@ hr {
 
 .md-fences .code-tooltip {
     background: var(--bg-color);
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
     border-radius: 3px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-sm);
 }
 
 /* ========== 15. Code highlight .cm-s-inner ========== */
@@ -429,7 +452,7 @@ hr {
 }
 
 .cm-s-inner .cm-variable-3 {
-    color: #085;
+    color: #008050;
 }
 
 .cm-s-inner .cm-string {
@@ -449,7 +472,7 @@ hr {
 }
 
 .cm-s-inner .cm-string-2 {
-    color: #f50;
+    color: #c74200;
 }
 
 .cm-s-inner .cm-meta {
@@ -465,7 +488,7 @@ hr {
 }
 
 .cm-s-inner .cm-bracket {
-    color: #997;
+    color: #717155;
 }
 
 .cm-s-inner .cm-tag {
@@ -481,11 +504,11 @@ hr {
 }
 
 .cm-s-inner .cm-quote {
-    color: #090;
+    color: #008200;
 }
 
 .cm-s-inner .cm-hr {
-    color: #999;
+    color: #707070;
 }
 
 .cm-s-inner .cm-link {
@@ -493,20 +516,31 @@ hr {
 }
 
 .cm-s-inner .cm-negative {
-    color: #d44;
+    color: #d62727;
 }
 
 .cm-s-inner .cm-positive {
-    color: #292;
+    color: #1c801c;
 }
 
 .cm-s-inner .cm-type {
-    color: #085;
+    color: #008050;
+}
+
+/* cm-em / cm-strong: fenced markdown shows *italic* / **bold** markers. The
+   classic CodeMirror default (this theme's basis) styles them; colors stay
+   inherited so it works in both light and dark. */
+.cm-s-inner .cm-em {
+    font-style: italic;
+}
+
+.cm-s-inner .cm-strong {
+    font-weight: 700;
 }
 
 .CodeMirror-selectedtext,
 .CodeMirror-selected {
-    background: #a9d1c859;
+    background: var(--select-text-bg-color);
 }
 
 .CodeMirror-gutters {
@@ -515,11 +549,11 @@ hr {
 }
 
 .CodeMirror-linenumber {
-    color: #999;
+    color: #707070;
 }
 
 .cm-s-inner .cm-error {
-    color: #e93147; /* --color-red */
+    color: #dc182f; /* --color-red */
 }
 
 .CodeMirror-matchingbracket {
@@ -539,6 +573,11 @@ hr {
 #write img {
     max-width: 100%;
     border-radius: 4px;
+}
+
+/* Subtle lift on hover, matching the theme's card language */
+#write img:hover {
+    box-shadow: var(--shadow-sm);
 }
 
 .md-image > .md-meta {
@@ -598,7 +637,7 @@ hr {
 /* checked task text */
 .task-list-done {
     text-decoration: none;
-    color: #9b9b9b;
+    color: #939393;
 }
 
 /* ========== 18. Footnotes, Math, TOC, YAML, mark, kbd ========== */
@@ -607,11 +646,35 @@ sup.md-footnote {
     background: transparent;
 }
 
+/* Superscript / subscript (^x^ / ~x~), scoped so footnote refs keep their style */
+#write sub,
+#write sup:not(.md-footnote) {
+    font-size: 0.75em;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+#write sup:not(.md-footnote) {
+    top: -0.5em;
+}
+#write sub {
+    bottom: -0.25em;
+}
+
 .md-def-footnote {
-    color: #7f7f7f;
+    color: var(--control-text-color);
     border-top: 1px solid #e6e6e6;
     margin-top: 2em;
     padding-top: 0.5em;
+}
+
+/* Footnote number + back-link echo the accent, matching the inline ref */
+.md-def-footnote .md-fn-count {
+    color: var(--primary-color);
+}
+
+.reversefootnote {
+    color: var(--primary-color);
 }
 
 .md-toc {
@@ -637,7 +700,7 @@ sup.md-footnote {
     border: 1px solid #e6e6e6;
     border-radius: 3px;
     padding: 0.6em 1em;
-    color: #7f7f7f;
+    color: var(--control-text-color);
     font-size: 0.85em;
     font-family: var(--monospace);
 }
@@ -648,6 +711,24 @@ mark {
     padding: 0.1em 0.2em;
     border-radius: 3px;
 }
+
+/* Multi-color highlight: the wrapping emphasis (em / strong) picks the hue; the
+   mark text is reset to normal ink so the em green and the strong gradient do
+   not bleed into the highlighted text. Plain ==x== keeps the amber above. */
+#write em mark,
+#write strong mark {
+    color: var(--text-color);
+    -webkit-text-fill-color: var(--text-color);
+    font-style: normal;
+    /* Match upstream: all three highlight variants render normal weight; the
+       emphasis only selects the band color (upstream --font-weight-highlight-*
+       are all `normal`). Without this, bold/bold-italic highlights stay bold. */
+    font-weight: normal;
+}
+#write em mark { background: var(--hl-italic); }
+#write strong mark { background: var(--hl-bold); }
+#write strong em mark,
+#write em strong mark { background: var(--hl-bolditalic); }
 
 kbd {
     font-family: var(--monospace) !important;
@@ -672,7 +753,7 @@ kbd {
 /* ========== 19. Math edit panel ========== */
 .md-rawblock-tooltip {
     background: var(--bg-color);
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
     border-radius: 3px;
 }
 
@@ -1393,8 +1474,8 @@ footer.ty-footer {
 
 #footer-word-count-info {
     background: var(--bg-color);
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid var(--ui-border-color);
+    box-shadow: var(--shadow-sm);
     border-radius: 4px;
 }
 
@@ -1406,13 +1487,13 @@ footer.ty-footer {
 
 #md-searchpanel input {
     background: #f6f8fa;
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
     border-radius: 3px;
     color: var(--text-color);
 }
 
 .searchpanel-search-option-btn {
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
     border-radius: 3px;
     color: var(--control-text-color);
 }
@@ -1429,14 +1510,14 @@ footer.ty-footer {
 
 #typora-quick-open {
     background: var(--bg-color);
-    border: 1px solid #ddd;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    border: 1px solid var(--ui-border-color);
+    box-shadow: var(--shadow-md);
     border-radius: 6px;
 }
 
 #typora-quick-open-input input {
     background: #f6f8fa;
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
     border-radius: 4px;
 }
 
@@ -1451,8 +1532,8 @@ footer.ty-footer {
 
 .auto-suggest-container {
     background: var(--bg-color);
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid var(--ui-border-color);
+    box-shadow: var(--shadow-sm);
     border-radius: 4px;
 }
 
@@ -1495,7 +1576,7 @@ footer.ty-footer {
 
 .modal-content {
     background: var(--bg-color);
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
     border-radius: 6px;
 }
 
@@ -1519,7 +1600,7 @@ footer.ty-footer {
 }
 
 .btn-default {
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
     border-radius: 4px;
     color: var(--text-color);
 }
@@ -1531,8 +1612,8 @@ footer.ty-footer {
 .context-menu,
 .dropdown-menu {
     background: var(--bg-color);
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid var(--ui-border-color);
+    box-shadow: var(--shadow-sm);
     border-radius: 4px;
 }
 
@@ -1546,7 +1627,7 @@ footer.ty-footer {
 }
 
 .native-window #md-notification {
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
     background: var(--bg-color);
     border-radius: 4px;
 }
@@ -1568,7 +1649,7 @@ footer.ty-footer {
 div.code-tooltip,
 .md-hover-tip .md-arrow:after {
     background: #f6f8fa;
-    border: 1px solid #ddd;
+    border: 1px solid var(--ui-border-color);
 }
 
 #ty-tooltip {
@@ -1637,6 +1718,35 @@ div.code-tooltip,
         opacity: 1 !important;
     }
 
+    /* Focus mode also grays out non-focused Mermaid (filter:grayscale) and
+       clears decorative fills (mark / alert bar / blockquote / TOC) to
+       transparent. If focus mode is still on at export, undo those too so
+       non-focused blocks print in full color. */
+    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-diagram-panel {
+        filter: none !important;
+    }
+    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) mark {
+        background: hsla(34, 100%, 80%, 0.85) !important;
+    }
+    .on-focus-mode .md-alert:not(:has(.md-focus)) {
+        background-image: linear-gradient(to bottom, var(--alert-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
+    }
+    .on-focus-mode .md-alert:not(:has(.md-focus))::before {
+        background: var(--alert-bg) !important;
+    }
+    .on-focus-mode blockquote:not(:has(.md-focus)) {
+        border-left-color: var(--primary-color) !important;
+        background: #f6f8fa !important;
+    }
+    /* Blockquotes nested inside an alert stay transparent (the alert paints the
+       surface); re-assert so the restore above does not box them in export. */
+    .on-focus-mode .md-alert blockquote:not(:has(.md-focus)) {
+        background: transparent !important;
+    }
+    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-toc-content {
+        background-color: #f5f5f5 !important;
+    }
+
     /* No border on code: inline code is borderless on screen, and code blocks
        are distinguished by their background. The old 1px border only showed up
        on inline code in print (an unwanted box), so drop it. */
@@ -1665,16 +1775,27 @@ div.code-tooltip,
     }
 
     #write a {
-        color: hsl(207, 77%, 54%) !important;
+        color: var(--link-color) !important;
     }
 
     mark {
         background: hsla(34, 100%, 80%, 0.85) !important;
     }
 
+    /* Multi-color highlight in export: the plain `mark` !important above (and the
+       dark print olive override, and the focus-mode mark reset) would otherwise
+       flatten every highlight to one color in PDF. These win via the #write id;
+       var(--hl-*) resolves per theme (dark :root overrides them), so this one set
+       covers both light and dark export. The screen text reset (color /
+       -webkit-text-fill-color / font-style) is not media-gated and still applies. */
+    #write em mark { background: var(--hl-italic) !important; }
+    #write strong mark { background: var(--hl-bold) !important; }
+    #write em strong mark,
+    #write strong em mark { background: var(--hl-bolditalic) !important; }
+
     /* bold-italic keeps its screen gradient in print: Typora exports via
        Chromium, which renders background-clip:text gradients on paper, so the
-       old solid-colour fallback (which flattened the gradient) is removed. */
+       old solid-color fallback (which flattened the gradient) is removed. */
 
     img {
         page-break-inside: avoid;
@@ -1715,7 +1836,7 @@ div.code-tooltip,
 
 /* ========== 30. Text selection ========== */
 ::selection {
-    background: #a9d1c859;
+    background: var(--select-text-bg-color);
 }
 
 *.in-text-selection,
@@ -1736,6 +1857,12 @@ div.code-tooltip,
     background-position: 3px 0 !important;
     background-size: calc(100% - 3px) 100% !important;
     background-repeat: no-repeat !important;
+    /* Default so an unknown/future alert type degrades to no tint instead of an
+       invalid var(); each known type overrides --alert-bg below. */
+    --alert-bg: transparent;
+    /* Tint gradient; each type maps --alert-bg below. --alert-body-bg replaces
+       the old transparent stop (which prints black in Typora export). */
+    background-image: linear-gradient(to bottom, var(--alert-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
 }
 
 /* Left bar: ::before absolutely positioned, full height */
@@ -1746,6 +1873,7 @@ div.code-tooltip,
     top: 0 !important;
     bottom: 0 !important;
     width: 3px !important;
+    background: var(--alert-bg) !important;
 }
 
 /* Neutralize nested blockquote styles inside alerts */
@@ -1768,66 +1896,32 @@ div.code-tooltip,
     font-size: 0.98em;
 }
 
-/* Note: blue */
+/* Each type only maps --alert-bg to its tint; the shared .md-alert and
+   .md-alert::before rules above draw the gradient body and the left bar. */
 .md-alert.md-alert-note,
-.md-alert.note {
-    background-image: linear-gradient(to bottom, var(--alert-note-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
-}
-.md-alert.md-alert-note::before,
-.md-alert.note::before {
-    background: var(--alert-note-bg) !important;
-}
+.md-alert.note { --alert-bg: var(--alert-note-bg); }
+.md-alert.md-alert-important,
+.md-alert.important { --alert-bg: var(--alert-important-bg); }
+.md-alert.md-alert-warning,
+.md-alert.warning { --alert-bg: var(--alert-warning-bg); }
+.md-alert.md-alert-tip,
+.md-alert.tip { --alert-bg: var(--alert-tip-bg); }
+.md-alert.md-alert-caution,
+.md-alert.caution { --alert-bg: var(--alert-caution-bg); }
+
+/* Label text colors, tuned to clear WCAG AA on each tint. note + caution
+   already pass and keep their original values. */
 .md-alert-text-note {
     color: rgb(9, 105, 218);
 }
-
-/* Important: purple */
-.md-alert.md-alert-important,
-.md-alert.important {
-    background-image: linear-gradient(to bottom, var(--alert-important-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
-}
-.md-alert.md-alert-important::before,
-.md-alert.important::before {
-    background: var(--alert-important-bg) !important;
-}
 .md-alert-text-important {
-    color: rgb(130, 80, 223);
-}
-
-/* Warning: amber */
-.md-alert.md-alert-warning,
-.md-alert.warning {
-    background-image: linear-gradient(to bottom, var(--alert-warning-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
-}
-.md-alert.md-alert-warning::before,
-.md-alert.warning::before {
-    background: var(--alert-warning-bg) !important;
+    color: #7f4cde;
 }
 .md-alert-text-warning {
-    color: rgb(154, 103, 0);
-}
-
-/* Tip: green */
-.md-alert.md-alert-tip,
-.md-alert.tip {
-    background-image: linear-gradient(to bottom, var(--alert-tip-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
-}
-.md-alert.md-alert-tip::before,
-.md-alert.tip::before {
-    background: var(--alert-tip-bg) !important;
+    color: #926200;
 }
 .md-alert-text-tip {
-    color: rgb(31, 136, 61);
-}
-
-/* Caution: red */
-.md-alert.md-alert-caution,
-.md-alert.caution {
-    background-image: linear-gradient(to bottom, var(--alert-caution-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
-}
-.md-alert.md-alert-caution::before,
-.md-alert.caution::before {
-    background: var(--alert-caution-bg) !important;
+    color: #1c7c37;
 }
 .md-alert-text-caution {
     color: rgb(207, 34, 46);
@@ -1840,7 +1934,7 @@ div.code-tooltip,
 }
 
 #write em, #write i {
-    color: #099d4e;
+    color: #088743;
 }
 
 #write em strong, #write em b,
@@ -1873,8 +1967,8 @@ del {
 
 #toc-dropmenu {
     background: var(--side-bar-bg-color);
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid var(--ui-border-color);
+    box-shadow: var(--shadow-sm);
 }
 
 /* ========== Reduced motion ========== */

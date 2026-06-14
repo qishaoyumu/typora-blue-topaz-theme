@@ -8,10 +8,11 @@
 | `--background-secondary` | `#fcfcfc` | `--side-bar-bg-color` |
 | `--text-normal` | `#0e0e0e` | `--text-color` |
 | `--color-accent` | `hsl(207, 77%, 54%)` | `--primary-color` |
+| (link text) | `#1a79c6` | `--link-color` (body/UI link color, deepened from `--primary-color` for AA; `--primary-color` stays for buttons/borders/icons) |
 | `--text-folder-file` | `#272727` | `--file-text-color` |
-| `--accent-em` | `#099d4e` | em color |
+| `--accent-em` | `#088743` | em color (deepened from upstream `#099d4e` for WCAG AA) |
 | `--accent-strong` | `#000000` | strong color |
-| `--text-color-code` | `#e95d00` | code color |
+| `--text-color-code` | `#b34800` | code color (deepened from upstream `#e95d00` for AA) |
 | `--background-code` | `#e6e6e671` | code block bg (Typora `.md-fences` adapts to `#f5f5f5`) |
 | `--background-code-2` | `#cccccc62` | inline code background |
 | `--background-blockquote` | `#d5d5d52c` | blockquote bg |
@@ -20,8 +21,8 @@
 | `--h2-color` | `hsl(212, 100%, 33%)` | h2 color |
 | `--h3-color` | `hsl(210, 86%, 39%)` | h3 color |
 | `--h4-color` | `hsl(208, 58%, 49%)` | h4 color |
-| `--h5-color` | `hsl(209, 70%, 62%)` | h5 color |
-| `--h6-color` | `hsl(209, 65%, 72%)` | h6 color (lightest blue) |
+| `--h5-color` | `hsl(209, 70%, 58%)` | h5 color |
+| `--h6-color` | `hsl(209, 65%, 58%)` | h6 color (lightest blue) |
 
 The `--h1-color` .. `--h6-color` tokens are a single source of truth: base
 headings, focus mode, and both print paths read them through `var()` rather
@@ -43,7 +44,7 @@ helpers.
 | `--file-text-color` | `#272727` | Default file-node text color (folders override to `--text-color` for stronger contrast) |
 | `--active-file-text-color` | `#0e0e0e` | Retained for Typora base compatibility; the theme's own file-list active rules override the active text color |
 | Hard-coded `#eb7c46` | `#eb7c46` | Active-file icon hover color (Obsidian's signature orange-red), shared between light and dark. A decorative hover accent, not body text; ~2.5:1 on the light background, kept for brand identity |
-| `--control-text-color` | `#7f7f7f` | File-list-view meta info (parent-loc / summary / time text color) |
+| `--control-text-color` | `#747474` | File-list-view meta info (parent-loc / summary / time text color); deepened from `#7f7f7f` for AA |
 
 ## Dark Mode
 
@@ -55,7 +56,7 @@ helpers.
 | `--text-folder-file` | `#b3b3b3` | `--file-text-color` |
 | `--accent-em` | `#a4ca8e` | em color |
 | `--accent-strong` | `#e7e7e7` | strong color |
-| `--text-color-code` | `#d58000` | code color |
+| `--text-color-code` | `#f49200` | code color (lightened from upstream `#d58000` for AA) |
 | `--background-code` | `#1111118c` | code block bg (Typora `.md-fences` adapts to `#1a1a1a`) |
 | `--background-code-2` | `#4c4c4cb0` | inline code background |
 | `--background-blockquote` | `#9191911c` | blockquote bg |
@@ -74,6 +75,8 @@ up** (64 → 72, 49 → 58) so the blue still reads as blue on `#151515` /
 `#202020` rather than collapsing to gray. The hue stays at 208 to match
 `--primary-color`.
 
+A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `--primary-color` itself, base saturation/lightness, not the pushed-up 72/58 sidebar variant), is used at lower alpha for `--active-file-bg-color`, the `#write th` header tint, and the code active-line background. Do not "fix" these to 72/58: the base formula and the brightened sidebar formula are intentionally distinct.
+
 | Typora Variable | Value | Usage |
 |---|---|---|
 | `--primary-color-01` | `hsla(208, 72%, 58%, 0.14)` | File hover / active file background / search-active background (hover and active share one color) |
@@ -84,11 +87,16 @@ up** (64 → 72, 49 → 58) so the blue still reads as blue on `#151515` /
 | Hard-coded `#eb7c46` | `#eb7c46` | Active-file icon hover color, shared with light; clears WCAG AA (>4.5:1) on the dark background |
 | `--control-text-color` | `#8a8a8a` | File-list-view meta info (parent-loc / summary / time text color) |
 | `--dark-border-color` | `#343434` | Generic 1px border tone for the dark scheme: window, code tooltip, sidebar, search, modals, table edit UI, etc. (the table body's cell dividers use a darker `#1a1a1a`) |
+| `--dark-panel-bg` | `#2b2b2b` | Raised-panel fill: tooltip, search input, quick-open, auto-suggest, modal, context/dropdown menu, notification, footer word-count |
+| `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, TOC content, meta block, quick-open input, table cell dividers |
 
 ## Code Highlighting: Light (.cm-s-inner)
 
-Based on CodeMirror's classic default palette (not GitHub Light), with two
-tweaked tokens (operator `#981a1a`, error `#e93147`). The Obsidian original
+Based on CodeMirror's classic default palette (not GitHub Light). A 2026-06 AA
+pass deepened several tokens (string-2, bracket, quote, positive, negative,
+error, variable-3, type, hr) on the `#f5f5f5` code background, keeping each hue
+and only lowering lightness; operator keeps its tweaked `#981a1a`. The line
+number gutter (`.CodeMirror-linenumber`) was likewise deepened to `#707070`. The Obsidian original
 ships a multi-scheme code palette through Style Settings (bt-default, Dracula,
 Gruvbox, Monokai, and more); Typora has no equivalent scheme selector, so this
 port keeps the editor's single default palette rather than replicating one of
@@ -102,26 +110,26 @@ those schemes.
 | `.cm-def` | `#00f` | definition |
 | `.cm-variable` | `#000` | variable |
 | `.cm-variable-2` | `#05a` | block-level variable |
-| `.cm-variable-3` | `#085` | type reference |
+| `.cm-variable-3` | `#008050` | type reference |
 | `.cm-string` | `#a11` | string |
-| `.cm-string-2` | `#f50` | template string |
+| `.cm-string-2` | `#c74200` | template string |
 | `.cm-property` | `#000` | property access |
 | `.cm-operator` | `#981a1a` | operator |
 | `.cm-comment` | `#a50` | comment |
 | `.cm-meta` | `#555` | metadata |
 | `.cm-qualifier` | `#555` | CSS qualifier |
 | `.cm-builtin` | `#30a` | built-in |
-| `.cm-bracket` | `#997` | bracket |
+| `.cm-bracket` | `#717155` | bracket |
 | `.cm-tag` | `#170` | HTML/XML tag |
 | `.cm-attribute` | `#00c` | attribute name |
 | `.cm-header` | `#00f` | heading |
-| `.cm-quote` | `#090` | quote |
-| `.cm-hr` | `#999` | horizontal rule |
+| `.cm-quote` | `#008200` | quote |
+| `.cm-hr` | `#707070` | horizontal rule |
 | `.cm-link` | `#00c` | link |
-| `.cm-negative` | `#d44` | negative number |
-| `.cm-positive` | `#292` | positive number |
-| `.cm-type` | `#085` | type annotation |
-| `.cm-error` | `#e93147` | error |
+| `.cm-negative` | `#d62727` | negative number |
+| `.cm-positive` | `#1c801c` | positive number |
+| `.cm-type` | `#008050` | type annotation |
+| `.cm-error` | `#dc182f` | error |
 
 ## Code Highlighting: Dark (.cm-s-inner)
 
@@ -136,7 +144,7 @@ GitHub Dark-based palette, with a couple of brighter carryover accents
 | `.cm-def` | `var(--text-color)` | definition |
 | `.cm-variable` | `var(--text-color)` | variable |
 | `.cm-variable-2` | `var(--text-color)` | block-level variable |
-| `.cm-variable-3` | `#ff7b72` red | type reference |
+| `.cm-variable-3` | `#ffb86c` orange | type reference (now grouped with `.cm-type`, was keyword-red) |
 | `.cm-string` | `#a5d6ff` light blue | string |
 | `.cm-string-2` | `#a5d6ff` light blue | template string |
 | `.cm-property` | `#d2a8ff` purple | property access |
@@ -178,7 +186,7 @@ part of the rendered output.
 
 The five GFM Alert backgrounds were promoted from literals to `:root`
 variables, giving light and dark a single source of truth. The values are
-**opaque, pre-blended** onto the page colour (each is the old `rgba(...)` tint
+**opaque, pre-blended** onto the page color (each is the old `rgba(...)` tint
 composited onto white / `#202020`). The alert paints them as
 `linear-gradient(tint 2.1em, var(--alert-body-bg) 2.1em)`: a tinted title
 band over a body that matches the page. They must stay opaque: Typora's PDF
@@ -208,8 +216,13 @@ prints clean. (See the Print / export path section for the alpha rule.)
 | `--alert-caution-bg` | `#3e2726` | was `rgba(248, 81, 73, 0.14)` |
 | `--alert-body-bg` | `#202020` | Alert body fill below the title band (was `transparent`) |
 
-`.md-alert-text-*` foreground colors stay as literals (dark uses different
-RGB) and are intentionally not promoted to variables.
+Each type now only maps `--alert-bg` to its tint; shared `.md-alert` and
+`.md-alert::before` rules draw the gradient body and the left bar from it, so
+the gradient lives in one place instead of being repeated per color. The
+`.md-alert-text-*` label colors stay literals; the 2026-06 AA pass deepened the
+light important / warning / tip labels and lightened the dark note / important /
+caution labels so every label clears 4.5:1 on its tint (light note + caution and
+dark warning + tip already passed and were left unchanged).
 
 ## Call sites of `--primary-color`
 
@@ -262,7 +275,7 @@ backgrounds print, and the page paints from the theme's own
 section 28) is already active in dark export. The dark print block therefore
 only **re-asserts the surfaces the light print block forces light** (code,
 inline code, quote, and mark) back to opaque dark, plus an opaque dark table
-zebra (not an override: the light print sets no table colours, so this just
+zebra (not an override: the light print sets no table colors, so this just
 solidifies the translucent dark screen fills). Everything else (page-breaks,
 blockquote border, rainbow `h1~h6` via `var(--hN-color)`, links, code tokens,
 alert text) carries through. Per "dark overrides only the diff", it does not
@@ -271,7 +284,7 @@ repeat the page-break or border rules.
 | Selector (dark print) | Value | Purpose |
 |---|---|---|
 | `pre, .md-fences { background }` | `#1a1a1a` | Dark code surface (overrides light `#f6f8fa`) |
-| `#write code { background / color }` | `#3e3e3e` / `#d58000` | Inline-code chip (grey + amber), pre-blended on `#202020` |
+| `#write code { background / color }` | `#3e3e3e` / `#f49200` | Inline-code chip (gray + amber), pre-blended on `#202020` |
 | `blockquote { background / color }` | `#2b2b2b` / `--text-color` | Dark quote fill + light ink |
 | `#write th / tbody tr / odd` | `#25303f` / `#202020` / `#1a1a1a` | Opaque dark table zebra |
 | `mark { background }` | `#58562e` | Dark olive highlight (overrides the light print peach) |
@@ -285,10 +298,32 @@ repeat the page-break or border rules.
   tint, not a saturated band), so opacity is only mandatory where a gradient or
   the `transparent` keyword is involved.
 - **`background-clip:text` gradients survive export**, so the bold-italic
-  gradient prints as a gradient in both schemes; no solid-colour fallback is
+  gradient prints as a gradient in both schemes; no solid-color fallback is
   needed (the old `#1048ff` / `#099d4e` print fallbacks were removed).
 - **The mermaid container in export DOM is `.md-diagram-panel`** (no `-preview`
   suffix), which is why the diagram rules target `.md-diagram-panel`.
+
+### Font embedding in export (HTML vs PDF, verified 2026-06)
+
+The bundled faces (`blue-topaz/font.css`: Inter ×4, JetBrains Mono ×2) behave
+differently across the two export paths:
+
+- **PDF embeds them.** `pdffonts` on a real export shows all six faces
+  subset-embedded (`emb: yes`) in both schemes: PDF renders through Typora's
+  internal Chromium where `@import "font.css"` resolves, so the faces load and
+  are subset into the file. No action needed.
+- **HTML drops them.** Typora strips theme `@font-face` from exported HTML: it
+  blanks `@import` to `@import "";`, removes a `@font-face` written directly in
+  the main CSS (base64 *or* url), and leaves `@include-when-export` as a literal,
+  browser-ignored at-rule. This guards against the old `file://` path leak
+  (typora-issues #1980). The only surviving `@font-face` is MathJax's, injected
+  into the document DOM at render time, a channel a theme CSS cannot use.
+
+Net: **HTML export cannot self-contain the bundled fonts.** Without Inter /
+JetBrains Mono installed, exported HTML falls back to system fonts (document
+structure and colors unaffected). Platform limitation, not theme-fixable:
+documented as a README Troubleshooting note, with PDF as the reliable-sharing
+path. base64-inlining (~840 KB) was tested and rejected as ineffective.
 
 ### Modification rule
 
@@ -384,29 +419,35 @@ Heading sizes and body line-height are copied from the Obsidian original
 
 ## Contrast / accessibility notes
 
-Blue Topaz inherits a bright, saturated palette from the Obsidian original.
-Many foreground colors sit below the WCAG AA bar (4.5:1 for normal text,
-3:1 for large text) by design. This is faithful to upstream, not an
-oversight. The table below is representative, not exhaustive:
+A 2026-06 accessibility pass deepened the high-frequency colored text so it
+clears WCAG AA (4.5:1 for normal text, 3:1 for large text / headings), while
+preserving each hue and saturation (only lightness shifted). The values below
+are the post-pass state, measured against the real backgrounds.
 
-| Element | Value | ~Contrast | Note |
+| Element | Value (light / dark) | Contrast | Status |
 |---|---|---|---|
-| Links (light) | `--primary-color` `#2f93e4` | 3.3:1 | Brand blue; prose links also underline |
-| Links (dark) | `--primary-color` | ~4.0:1 base, ~3.0:1 hover | `a:hover` dims via opacity |
-| h5 / h6 (light) | `--h5-color` / `--h6-color` | 2.8:1 / 2.1:1 | Lowest cascade levels, faded by design |
-| Inline code | `#e95d00` (light) / `#d58000` (dark) | 2.9:1 / 3.5:1 | Brand orange (upstream `--text-color-code`) |
-| Italic / em (light) | `#099d4e` | 3.5:1 | Brand green (upstream `--accent-em`) |
+| Body links | `--link-color` `#1a79c6` / `#3a8cd4` | 4.57 / 4.56 | AA (decoupled from `--primary-color`) |
+| Inline code | `#b34800` / `#f49200` on the chip | 4.58 / 4.56 | AA |
+| Italic / em | `#088743` (light) | 4.61 | AA (dark `#a4ca8e` already ~8.9) |
+| h5 / h6 (light) | `hsl(209,70%,58%)` / `hsl(209,65%,58%)` | 3.12 / 3.13 | AA large-text (3:1) |
+| Muted UI text | `--control-text-color` `#747474` / `#8a8a8a` | 4.56 / 4.72 | AA |
+| Meta text | `--meta-content-color` `#577a87` (light) | 4.61 | AA |
+| List markers / done tasks | `#939393` (light) | 3.07 | 3:1 (decorative / secondary) |
+| Code tokens (light) | deepened set on `#f5f5f5` | >= 4.5 | AA (see Code Highlighting: Light) |
+| GFM alert labels | tuned per tint, both schemes | >= 4.5 | AA |
 
-The same holds for other inherited, non-body surfaces: rendered code-block
-tokens and source-mode (`.cm-s-typora-default`) tokens (the CodeMirror
-default and One-Light-style palettes), de-emphasized UI text (sidebar meta
-`--control-text-color`, dimmed file extensions), footnote references, and
-GFM alert titles all sit near or below AA in one or both schemes. Focus
-mode is intentionally low-contrast: it fades non-focused blocks to
-`opacity: 0.4`.
+`--primary-color` (`#2f93e4` / `rgb(45,130,204)`) is kept for UI accents
+(buttons, borders, icons, focus ring), which are components or large text where
+3:1 is sufficient; only body and link text use the deepened `--link-color`.
 
-All of these are upstream design choices kept for fidelity. Body text
-(`--text-color`) clears AA in both schemes, and large headings (h1-h4)
-clear the 3:1 large-text bar. Readers who need higher contrast can override
-the relevant variables (`--primary-color`, `--h5-color`, `--h6-color`,
-`--control-text-color`) or the inline-code / em literals in a personal copy.
+Intentionally left below AA (documented, by design, not bugs):
+
+- `#eb7c46` active-file icon hover (~2.5:1 light): a decorative icon hover, not
+  body text; kept for Obsidian brand identity.
+- Focus mode: non-focused blocks fade to `opacity: 0.4` on purpose.
+- Source-mode (`.cm-s-typora-default`) editing tokens: an editing-surface
+  palette, not rendered output.
+
+Readers who want still higher contrast can override `--link-color`, `--h5-color`,
+`--h6-color`, `--control-text-color`, or the inline-code / em literals in a
+personal copy.
