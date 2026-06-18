@@ -4,7 +4,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/qishaoyumu/typora-blue-topaz-theme?style=flat-square&colorA=1e3a5f&colorB=4394e5)](https://github.com/qishaoyumu/typora-blue-topaz-theme/stargazers)
 [![Release](https://img.shields.io/github/v/release/qishaoyumu/typora-blue-topaz-theme?style=flat-square&colorA=1e3a5f&colorB=4394e5)](https://github.com/qishaoyumu/typora-blue-topaz-theme/releases/latest)
 
-[中文版](README_CN.md) | [Browse Typora Themes](https://theme.typora.io)
+[中文版](README_CN.md) | [View in Typora Themes Gallery](https://theme.typora.io/theme/Obsidian-Blue-Topaz/)
 
 This theme ports the [Blue Topaz](https://github.com/PKM-er/Blue-Topaz_Obsidian-css) Obsidian theme to Typora. It adds colored headings (a blue cascade in light mode, rainbow in dark), code highlighting, and GFM alert styling. If you already use Blue Topaz in Obsidian, it brings the same look to your Typora notes.
 

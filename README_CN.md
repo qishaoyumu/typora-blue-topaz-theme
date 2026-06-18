@@ -4,7 +4,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/qishaoyumu/typora-blue-topaz-theme?style=flat-square&colorA=1e3a5f&colorB=4394e5)](https://github.com/qishaoyumu/typora-blue-topaz-theme/stargazers)
 [![Release](https://img.shields.io/github/v/release/qishaoyumu/typora-blue-topaz-theme?style=flat-square&colorA=1e3a5f&colorB=4394e5)](https://github.com/qishaoyumu/typora-blue-topaz-theme/releases/latest)
 
-[English](README.md) | [浏览 Typora 主题](https://theme.typora.io)
+[English](README.md) | [在 Typora 主题画廊查看](https://theme.typora.io/theme/Obsidian-Blue-Topaz/)
 
 将 Obsidian 的 [Blue Topaz](https://github.com/PKM-er/Blue-Topaz_Obsidian-css) 主题移植到 Typora，提供标题分级配色（浅色模式蓝色渐变，深色模式彩虹色）、代码高亮和 GFM Alert 样式。如果你在 Obsidian 里用过 Blue Topaz，这个主题把同样的观感带到 Typora。
 
