@@ -631,19 +631,6 @@ div.code-tooltip,
         color: var(--text-color) !important;
     }
 
-    /* Focus-mode decoration reset, dark surfaces. The mermaid filter:none and
-       the theme-aware alert tint restore are inherited from the light print
-       block; these re-assert the dark mark / blockquote / TOC fills. */
-    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) mark {
-        background: #58562e !important;
-    }
-    .on-focus-mode blockquote:not(:has(.md-focus)) {
-        background: #2b2b2b !important;
-    }
-    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-toc-content {
-        background-color: #1a1a1a !important;
-    }
-
     /* bold-italic keeps its screen gradient in print (Chromium renders
        background-clip:text), so no solid-color override here. */
 

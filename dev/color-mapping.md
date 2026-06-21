@@ -405,6 +405,27 @@ overrides variable values (including `--h1-color..--h6-color`); every
 selector, the `.on-focus-mode h1..h6` color rules included, is inherited
 through `@import`.
 
+### Export and print never carry focus mode
+
+Focus mode is a live editor state: `enterFocusMode` adds `on-focus-mode` to
+`document.body`. The styled export/print paths, by contrast, **rebuild a fresh
+export document** whose `<body class='...'>` is a fixed allow-list
+(`typora-export`, plus `typora-print` for PDF/print and the outline classes);
+they never copy the editor body's classes. (A style-less export emits a
+class-less `<body>` and is moot here — it loads no theme CSS.) Verified against
+Typora's renderer
+(`appsrc/main.js`): the export body is `["typora-export"].join(...)`, and the
+three paths — export HTML, export PDF (`export.printToPDF` on a temp export
+HTML), and Cmd+P (`export.genPrintView`, also export HTML) — all funnel
+through it.
+
+So the export/print DOM **never carries `on-focus-mode`**, and any
+`.on-focus-mode …` selector is unmatchable there. The two `@media print`
+blocks used to each carry a focus-mode "un-mute" reset (restoring opacity,
+mermaid color, and the mark / alert / blockquote / TOC fills); those were
+dead code — the trigger never fires — and were removed. The section-22 source
+rules stay: they serve the on-screen focus view only.
+
 ## Typography fidelity
 
 Heading sizes and body line-height are copied from the Obsidian original

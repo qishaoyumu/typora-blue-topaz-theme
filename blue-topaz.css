@@ -1705,48 +1705,6 @@ div.code-tooltip,
     h5 { color: var(--h5-color) !important; }
     h6 { color: var(--h6-color) !important; }
 
-    /* If focus mode is still on when printing, drop its dimming so every
-       block prints at full opacity. */
-    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) {
-        opacity: 1 !important;
-    }
-
-    /* Separate rule: a `:has()` in a grouped selector list invalidates the
-       WHOLE list on engines without :has(), which would drop the
-       .md-end-block reset above. Keep it standalone. */
-    .on-focus-mode .md-task-list-item:not(:has(.md-focus)) > input {
-        opacity: 1 !important;
-    }
-
-    /* Focus mode also grays out non-focused Mermaid (filter:grayscale) and
-       clears decorative fills (mark / alert bar / blockquote / TOC) to
-       transparent. If focus mode is still on at export, undo those too so
-       non-focused blocks print in full color. */
-    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-diagram-panel {
-        filter: none !important;
-    }
-    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) mark {
-        background: hsla(34, 100%, 80%, 0.85) !important;
-    }
-    .on-focus-mode .md-alert:not(:has(.md-focus)) {
-        background-image: linear-gradient(to bottom, var(--alert-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
-    }
-    .on-focus-mode .md-alert:not(:has(.md-focus))::before {
-        background: var(--alert-bg) !important;
-    }
-    .on-focus-mode blockquote:not(:has(.md-focus)) {
-        border-left-color: var(--primary-color) !important;
-        background: #f6f8fa !important;
-    }
-    /* Blockquotes nested inside an alert stay transparent (the alert paints the
-       surface); re-assert so the restore above does not box them in export. */
-    .on-focus-mode .md-alert blockquote:not(:has(.md-focus)) {
-        background: transparent !important;
-    }
-    .on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-toc-content {
-        background-color: #f5f5f5 !important;
-    }
-
     /* No border on code: inline code is borderless on screen, and code blocks
        are distinguished by their background. The old 1px border only showed up
        on inline code in print (an unwanted box), so drop it. */
@@ -1783,8 +1741,8 @@ div.code-tooltip,
     }
 
     /* Multi-color highlight in export: the plain `mark` !important above (and the
-       dark print olive override, and the focus-mode mark reset) would otherwise
-       flatten every highlight to one color in PDF. These win via the #write id;
+       dark print olive override) would otherwise flatten every highlight to one
+       color in PDF. These win via the #write id;
        var(--hl-*) resolves per theme (dark :root overrides them), so this one set
        covers both light and dark export. The screen text reset (color /
        -webkit-text-fill-color / font-style) is not media-gated and still applies. */
