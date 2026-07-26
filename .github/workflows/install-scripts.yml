@@ -1,0 +1,69 @@
+name: install scripts
+
+# The one-line install commands point at raw.githubusercontent.com on the
+# default branch, which is served with cache-control: max-age=300. A broken
+# script therefore stays broken for up to five minutes after a revert, so the
+# scripts are gated here rather than fixed after the fact.
+
+on:
+  push:
+    paths:
+      - 'scripts/**'
+      - '.github/scripts/**'
+      - '.github/workflows/install-scripts.yml'
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - '.github/scripts/**'
+      - '.github/workflows/install-scripts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  posix:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: install and uninstall in a throwaway folder
+        shell: bash
+        run: bash .github/scripts/smoke.sh explicit
+      - name: probe the platform default folder
+        shell: bash
+        run: bash .github/scripts/smoke.sh autodetect
+
+  windows:
+    # Windows ships PowerShell 5.1 and many users never install 7, so both
+    # hosts run the same assertions.
+    name: windows (${{ matrix.host }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [powershell, pwsh]
+    steps:
+      - uses: actions/checkout@v4
+      - name: install and uninstall in a throwaway folder
+        shell: cmd
+        run: ${{ matrix.host }} -NoProfile -ExecutionPolicy Bypass -File .github\scripts\smoke.ps1 explicit
+      - name: probe the platform default folder
+        shell: cmd
+        run: ${{ matrix.host }} -NoProfile -ExecutionPolicy Bypass -File .github\scripts\smoke.ps1 autodetect
+
+  windows-git-bash:
+    # Covers the MINGW branch of install.sh, which is what Git Bash and WSL
+    # users hit. Git for Windows may not ship unzip; the smoke test asserts the
+    # documented exit code 2 in that case instead of reporting a hollow pass.
+    name: windows (git bash)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: probe %APPDATA% from Git Bash
+        shell: bash
+        run: bash .github/scripts/smoke.sh autodetect

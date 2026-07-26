@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Typora port of the Obsidian [Blue Topaz](https://github.com/PKM-er/Blue-Topaz_Obsidian-css) theme (based on v2025052001). It is a pure CSS project with no build tool or package manager. The CSS files you edit are exactly what ships, and Typora loads them directly.
+A Typora port of the Obsidian [Blue Topaz](https://github.com/PKM-er/Blue-Topaz_Obsidian-css) theme (based on v2025052001). There is no build step: the CSS files you edit are exactly what ships, and Typora loads them directly. The only non-CSS code is `scripts/`, the one-line installer, plus the CI workflow that smoke-tests it.
 
 ## Theme Architecture
 
@@ -72,6 +72,23 @@ To install the theme, copy these into Typora's theme folder:
 
 Keep these filenames and this directory structure; renames break installation.
 
+## Install Scripts
+
+`scripts/` holds the one-line installers the READMEs advertise: `install.sh` / `uninstall.sh` for macOS, Linux, snap, Git Bash, and WSL, and `install.ps1` / `uninstall.ps1` for native Windows PowerShell. Install and update are the same operation, so re-running an installer is the update path.
+
+Rules that must survive any edit:
+
+- **Never create the theme folder.** Only ever write into a directory that already exists. A folder created at a guessed path looks like a successful install while Typora keeps reading somewhere else.
+- **Symlink guard.** Abort if a target entry is a symlink or junction: development setups link the theme folder back into this repository, and copying through the link would rewrite the repo's own source files.
+- **Guard before writing.** All checks run before the first write, so an abort leaves the theme folder untouched.
+- **Never touch `*.user.css`.** `base.user.css` and `blue-topaz.user.css` are user data, both on install and on uninstall.
+- **Install reads its file list from the downloaded archive**, so adding a bundled file needs no script change. Uninstall hardcodes the three items above, because it has no archive to read.
+- `install.sh` must stay compatible with **bash 3.2**, which is what macOS ships and what `| bash` actually runs.
+- All user-visible output is **English only**: an English-locale Windows console cannot render Chinese.
+- Escape hatch for snap, Flatpak, and custom locations: `TYPORA_THEME_DIR`.
+
+`.github/workflows/install-scripts.yml` runs `.github/scripts/smoke.{sh,ps1}` on Linux, macOS, Windows PowerShell 5.1, PowerShell 7, and Git Bash. The commands point at `raw.githubusercontent.com` on the default branch, which is served with `cache-control: max-age=300`, so a broken script stays broken for up to five minutes after a revert. **Do not merge a script change to the default branch without green CI.**
+
 ## Release Process
 
 Releases are tagged `vX.Y.Z` (semver: backward-compatible features bump the minor, fixes bump the patch). The repo holds no version string; the README badge and download link read GitHub's `releases/latest`, so releasing needs no in-repo version edit.
@@ -80,7 +97,7 @@ Releases are tagged `vX.Y.Z` (semver: backward-compatible features bump the mino
    ```bash
    zip -r -X blue-topaz-typora.zip blue-topaz.css blue-topaz-dark.css blue-topaz -x '*.DS_Store'
    ```
-   It must contain only the three install items above and nothing else.
+   It must contain only the three install items above, flat at the archive root, and nothing else. This is no longer just a convention: `scripts/install.sh` and `scripts/install.ps1` install exactly the archive's top-level entries, so anything extra in the zip lands in every user's theme folder.
 2. Tag, push, and publish with bilingual notes (English block, `---`, Chinese block), matching the previous release:
    ```bash
    git tag -a vX.Y.Z -m "Blue Topaz for Typora vX.Y.Z"

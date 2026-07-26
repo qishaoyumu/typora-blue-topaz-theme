@@ -32,7 +32,34 @@
 
 ## 安装
 
-需要 Typora 1.13 或更高版本（主题使用了 `:has()` 等现代 CSS）。若主题未出现或渲染异常，请先更新 Typora。
+需要 Typora 1.13 或更高版本（主题使用了 `:has()` 等现代 CSS）。若主题未出现或渲染异常，请先更新 Typora。安装前请至少启动过一次 Typora，让主题文件夹先生成出来。
+
+### 一行命令安装
+
+macOS 与 Linux（Windows 上的 Git Bash、WSL 同样适用）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/install.sh | bash
+```
+
+Windows（PowerShell）：
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/install.ps1 | iex"
+```
+
+脚本会下载最新发布版，找到 Typora 的主题文件夹，把三样主题文件复制进去。其他内容一概不动，包括你的其他主题，以及你自己写的 `base.user.css` 或 `blue-topaz.user.css`。想先看代码：[`install.sh`](scripts/install.sh)、[`install.ps1`](scripts/install.ps1)。
+
+装完请完全退出 Typora（macOS 用 `Cmd+Q`，其他平台用 `文件 > 退出`）再重新打开，然后在 **主题** 菜单中选择 **Blue Topaz** 或 **Blue Topaz Dark**。
+
+如果脚本找不到主题文件夹（snap、Flatpak 版本或自定义位置），把 `偏好设置 > 外观 > 打开主题文件夹` 显示的真实路径传给它：
+
+```bash
+export TYPORA_THEME_DIR="/你的/主题/文件夹"
+curl -fsSL https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/install.sh | bash
+```
+
+### 手动安装
 
 1. 下载并解压 [**最新发布版**](https://github.com/qishaoyumu/typora-blue-topaz-theme/releases/latest)，或克隆本仓库。
 2. 从 Typora 打开主题文件夹：
@@ -44,9 +71,23 @@
    - 整个 `blue-topaz/` 文件夹（含 `font.css`、`.woff2` 字体和字体许可证）
 4. 重启 Typora，在 **主题** 菜单中选择 **Blue Topaz** 或 **Blue Topaz Dark**。
 
-**更新**：下载新版本，覆盖主题文件夹中的 `blue-topaz.css`、`blue-topaz-dark.css` 和整个 `blue-topaz/` 文件夹，然后重启 Typora。
+### 更新
 
-**卸载**：先切换到其他主题，再删除主题文件夹中的 `blue-topaz.css`、`blue-topaz-dark.css` 和 `blue-topaz/` 文件夹，然后重启 Typora。
+重新执行一次上面的安装命令即可，它会直接覆盖那三样文件。手动方式：下载新版本，覆盖主题文件夹中的 `blue-topaz.css`、`blue-topaz-dark.css` 和整个 `blue-topaz/` 文件夹，然后重启 Typora。
+
+### 卸载
+
+先切换到其他主题，然后执行：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/uninstall.sh | bash
+```
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/uninstall.ps1 | iex"
+```
+
+脚本只会删除 `blue-topaz.css`、`blue-topaz-dark.css` 和 `blue-topaz/`。手动方式：从主题文件夹里删掉这三样。两种方式做完都要重启 Typora。
 
 ## 推荐字体
 
@@ -63,6 +104,8 @@
 
 - **主题没有样式，深色主题尤其明显**：`blue-topaz.css` 和 `blue-topaz/` 文件夹必须与 `blue-topaz-dark.css` 在同一个主题文件夹里。深色主题通过 `@import` 加载浅色主题，两者缺一不可。
 - **主题菜单里找不到**：确认文件直接放在主题文件夹里，而不是在解压时产生的嵌套子目录中，然后完全退出并重启 Typora（macOS 用 Cmd+Q），不要只关窗口。
+- **安装命令执行失败**：脚本要从 GitHub 下载发布包，网络访问不了 `github.com` 或 `raw.githubusercontent.com` 就会中断。改用上面的手动安装即可，除了下载这一步，主题用起来不需要联网。
+- **保留自己的样式改动**：自定义 CSS 请写在主题文件夹里的 `blue-topaz.user.css` 或 `base.user.css`（[Typora 官方文档](https://support.typora.io/Add-Custom-CSS/)）。这两个文件在主题之后加载，安装、更新、卸载都不会碰它们；直接改 `blue-topaz.css` 的话，下次更新就会被覆盖掉。
 - **文字或排版异常**：确认 Typora 为 1.13 或更高版本。
 - **导出的 HTML 字体变了**：Typora 会在导出 HTML 时移除主题内置的 `@font-face` 规则，因此在未安装 Inter 或 JetBrains Mono 的机器上，文字会回退到系统字体（文档结构和颜色不受影响）。这是 Typora 的导出行为，不是主题缺陷；PDF 导出会嵌入这些字体，正式分享时建议使用 PDF，或让接收方安装字体。
 

@@ -32,7 +32,34 @@ This theme ports the [Blue Topaz](https://github.com/PKM-er/Blue-Topaz_Obsidian-
 
 ## Installation
 
-Requires Typora 1.13 or later (the theme relies on `:has()` and other modern CSS). Update Typora first if the theme does not appear or renders incorrectly.
+Requires Typora 1.13 or later (the theme relies on `:has()` and other modern CSS). Update Typora first if the theme does not appear or renders incorrectly. Start Typora at least once before installing, so that the theme folder exists.
+
+### Quick install
+
+macOS and Linux (also Git Bash and WSL on Windows):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/install.sh | bash
+```
+
+Windows (PowerShell):
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/install.ps1 | iex"
+```
+
+The script downloads the latest release, finds your Typora theme folder, and copies the three theme items into it. It leaves everything else alone, including your other themes and any `base.user.css` or `blue-topaz.user.css` you wrote. Read it first if you prefer: [`install.sh`](scripts/install.sh), [`install.ps1`](scripts/install.ps1).
+
+Then quit Typora completely (`Cmd+Q` on macOS, `File > Exit` elsewhere), reopen it, and choose **Blue Topaz** or **Blue Topaz Dark** from the **Themes** menu.
+
+If the script cannot find the theme folder (a snap or Flatpak build, or a custom location), pass it the path that Typora opens from `Preferences > Appearance > Open Theme Folder`:
+
+```bash
+export TYPORA_THEME_DIR="/your/theme/folder"
+curl -fsSL https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/install.sh | bash
+```
+
+### Manual install
 
 1. [**Download**](https://github.com/qishaoyumu/typora-blue-topaz-theme/releases/latest) the latest release and extract it, or clone this repository.
 2. Open the theme folder from Typora:
@@ -44,9 +71,23 @@ Requires Typora 1.13 or later (the theme relies on `:has()` and other modern CSS
    - the entire `blue-topaz/` folder (includes `font.css`, the `.woff2` fonts, and font licenses)
 4. Restart Typora, then choose **Blue Topaz** or **Blue Topaz Dark** from the **Themes** menu.
 
-**Updating**: download the new version, replace `blue-topaz.css`, `blue-topaz-dark.css`, and the entire `blue-topaz/` folder, then restart Typora.
+### Updating
 
-**Uninstalling**: switch to another theme first, then delete `blue-topaz.css`, `blue-topaz-dark.css`, and the `blue-topaz/` folder from the theme folder and restart Typora.
+Run the same install command again; it replaces the three items in place. Manually: download the new version, replace `blue-topaz.css`, `blue-topaz-dark.css`, and the entire `blue-topaz/` folder, then restart Typora.
+
+### Uninstalling
+
+Switch to another theme first, then run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/uninstall.sh | bash
+```
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://raw.githubusercontent.com/qishaoyumu/typora-blue-topaz-theme/master/scripts/uninstall.ps1 | iex"
+```
+
+It removes only `blue-topaz.css`, `blue-topaz-dark.css`, and `blue-topaz/`. Manually: delete those three from the theme folder. Either way, restart Typora afterwards.
 
 ## Recommended Fonts
 
@@ -63,6 +104,8 @@ Without LXGW WenKai, Chinese text falls back to the default system font (PingFan
 
 - **The theme has no styling, especially the dark one**: `blue-topaz.css` and the `blue-topaz/` folder must sit in the same theme folder as `blue-topaz-dark.css`. The dark theme imports the light one and needs both.
 - **The theme is missing from the menu**: make sure the files sit directly in the theme folder, not inside a nested subfolder created when extracting the archive, then restart Typora fully (Cmd+Q on macOS), not just the window.
+- **The install command fails**: the scripts fetch the release from GitHub, so a network that cannot reach `github.com` or `raw.githubusercontent.com` will stop them. Use the manual steps above instead; nothing else about the theme needs network access.
+- **Keeping your own tweaks**: put custom CSS in `blue-topaz.user.css` or `base.user.css` next to the theme ([Typora docs](https://support.typora.io/Add-Custom-CSS/)). Those files are loaded after the theme, and installing, updating, or uninstalling never touches them, while edits made directly to `blue-topaz.css` are lost on the next update.
 - **Text or layout looks wrong**: confirm Typora is 1.13 or later.
 - **Exported HTML uses different fonts**: Typora removes the theme's bundled `@font-face` rules during HTML export, so text falls back to system fonts on machines without Inter or JetBrains Mono installed (document structure and colors are unaffected). This is Typora's export behavior, not a theme issue; PDF export embeds the fonts, so use PDF for reliable sharing, or ask recipients to install the fonts.
 
