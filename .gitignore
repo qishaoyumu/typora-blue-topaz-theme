@@ -1,6 +1,5 @@
 .DS_Store
 .claude/
 .idea/
-docs/
 *.local.md
 TODO.md

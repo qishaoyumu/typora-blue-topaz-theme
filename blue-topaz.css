@@ -35,9 +35,13 @@
     --h6-color: hsl(209, 65%, 58%);
 
     --primary-color: #2f93e4;
-    /* Link text: a darker blue than --primary-color so body/UI links clear
-       WCAG AA (4.5:1) on white; --primary-color stays for buttons/borders/icons. */
-    --link-color: #1a79c6;
+    /* The reference's interactive accent — its hsl-calc-brightened blue for
+       checked checkboxes and the blockquote bar (measured rgb(65,159,231),
+       the same family as --file-icon-color). Dark aliases --primary-color. */
+    --interactive-accent: rgb(65, 159, 231);
+    /* Link text = the accent itself, as measured (the 2026-06 #1a79c6 AA
+       deepening was reverted for fidelity in 2026-07). */
+    --link-color: var(--primary-color);
     --primary-btn-border-color: #2e7fc2;
     --primary-btn-text-color: #ffffff;
 
@@ -47,9 +51,16 @@
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
 
     --side-bar-bg-color: #fcfcfc;
-    --active-file-bg-color: hsla(207, 77%, 54%, 0.14);
-    --active-file-text-color: #0e0e0e;
-    --active-file-border-color: #2f93e4;
+    /* Follows --file-active-bg: Typora base paints the tree's active card
+       itself via this variable (its .file-tree-node.active rule outranks the
+       theme by load order), so the variable is the real control surface. */
+    --active-file-bg-color: var(--file-active-bg);
+    /* Active text = normal text, as measured in the reference (only hover
+       brightens a row); base paints the tree's active text via this var. */
+    --active-file-text-color: var(--file-text-color);
+    /* Transparent kills base's 4px active accent bar (a Typora idiom; the
+       reference file explorer marks the active file by its card alone). */
+    --active-file-border-color: transparent;
 
     --item-hover-bg-color: #f0f0f0;
     --item-hover-text-color: #0e0e0e;
@@ -60,6 +71,11 @@
     --select-text-font-color: inherit;
     --search-select-bg-color: #ffd1dd;
     --search-select-text-color: #0e0e0e;
+    /* Candidate-hit outline. Obsidian core (app.css) draws hits as a 2px
+       var(--text-normal) ring at opacity 0.3; this is that formula
+       pre-blended on the page bg: #0e0e0e * 0.3 over #ffffff. (The same
+       formula on dark reproduces its measured #525252 exactly.) */
+    --search-hit-border: #b7b7b7;
 
     --blur-text-color: rgba(14, 14, 14, 0.33);
     --active-toggle-btn-color: #e8f0fe;
@@ -72,9 +88,28 @@
 
     --primary-color-01: hsla(207, 77%, 54%, 0.1);
     --primary-color-02: hsla(207, 77%, 54%, 0.2);
-    --folder-hover-bg: rgba(0, 0, 0, 0.08);
+    --folder-hover-bg: rgba(0, 0, 0, 0.067);
+
+    /* File-row hover/active blue, shared by the file tree and the file list;
+       split from --primary-color-01 so search/table consumers keep their own
+       value. Obsidian uses one --theme-color-translucent-01 for both the
+       hover and the active state of file rows. */
+    --file-active-bg: hsla(207, 77%, 54%, 0.1);
+    /* The reference file icon has its own blue, brighter than the accent in
+       light mode (measured rgb(65,159,231) vs #2f93e4); dark's measured icon
+       equals the primary formula, so dark overrides this to the primary. */
+    --file-icon-color: rgb(65, 159, 231);
 
     --file-text-color: #272727;
+
+    /* Sidebar tree indent guides. The two panels differ at the source:
+       the file tree (and body lists) use the mono 0.12 formula, while the
+       outline uses Blue Topaz's own #94949433 constant — the SAME value in
+       both color schemes (measured), so --outline-guide-color needs no dark
+       override. */
+    --indent-guide-color: rgba(0, 0, 0, 0.12);
+    --outline-guide-color: rgba(148, 148, 148, 0.2);
+    --indent-guide-active-color: hsla(207, 77%, 54%, 0.4);
 
     --sequence-theme: simple;
 
@@ -82,11 +117,18 @@
     /* Opaque tints (each pre-blended onto the white page) + --alert-body-bg for
        the alert body, replacing the gradient's `transparent` stop (which prints
        black in Typora export; see dev/color-mapping.md "GFM Alerts"). */
-    --alert-note-bg: #e6f0fb;
-    --alert-important-bg: #f3eefc;
-    --alert-warning-bg: #f5f0e6;
-    --alert-tip-bg: #e9f3ec;
-    --alert-caution-bg: #fae9ea;
+    --alert-note-bg: #dae9fa;
+    --alert-important-bg: #d9f5f5;
+    --alert-warning-bg: #fcead9;
+    --alert-tip-bg: #d9f5f5;
+    --alert-caution-bg: #fcead9;
+    /* Reference accents (icon color + the strips above = accent at 0.15
+       pre-blended onto white, all measured): the reference collapses the five
+       GitHub types into three visual classes — note (blue), warning+caution
+       (orange), important+tip (cyan). */
+    --alert-note-accent: rgb(8, 109, 221);
+    --alert-warning-accent: rgb(236, 117, 0);
+    --alert-tip-accent: rgb(0, 191, 188);
     --alert-body-bg: #ffffff;
 
     /* Multi-color highlight (Blue Topaz): italic ==x== red, bold green,
@@ -143,53 +185,63 @@ content {
 
 /* ========== 7. Headings h1~h6 ========== */
 h1, h2, h3, h4, h5, h6 {
-    font-weight: 700;
     clear: both;
     overflow-wrap: break-word;
-    margin: 0;
+    margin: 2.5rem 0 0.5rem;
     padding: 0;
 }
 
+/* Sizes were already the measured 25/23/21/19/17/16px; the 700..600 weight
+   ramp is the reference's (bundled Inter is static 400/600/700, so 620-680
+   render as 700 today; the CSS keeps the exact ramp regardless).
+
+   Heading spacing is ADJACENCY-driven in the reference and uniform across
+   all six levels — measured per preceding-sibling context, not per level:
+   after content = 40px 0 8px; directly after another heading = 16px 0;
+   at document start = 0 0 16px. (An earlier per-level reading was an
+   artifact of what each heading happened to follow in the fixture.) */
 h1 {
     font-size: 1.5625rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
+    font-weight: 700;
     color: var(--h1-color);
 }
 
 h2 {
     font-size: 1.4375rem;
-    margin-top: 1.4rem;
-    margin-bottom: 0.9rem;
+    font-weight: 680;
     color: var(--h2-color);
 }
 
 h3 {
     font-size: 1.3125rem;
-    margin-top: 1.2rem;
-    margin-bottom: 0.8rem;
+    font-weight: 660;
     color: var(--h3-color);
 }
 
 h4 {
     font-size: 1.1875rem;
-    margin-top: 1rem;
-    margin-bottom: 0.6rem;
+    font-weight: 640;
     color: var(--h4-color);
 }
 
 h5 {
     font-size: 1.0625rem;
-    margin-top: 0.9rem;
-    margin-bottom: 0.5rem;
+    font-weight: 620;
     color: var(--h5-color);
 }
 
 h6 {
     font-size: 1rem;
-    margin-top: 0.8rem;
-    margin-bottom: 0.5rem;
+    font-weight: 600;
     color: var(--h6-color);
+}
+
+:is(h1, h2, h3, h4, h5, h6) + :is(h1, h2, h3, h4, h5, h6) {
+    margin: 1rem 0;
+}
+
+#write > :is(h1, h2, h3, h4, h5, h6):first-child {
+    margin: 0 0 1rem;
 }
 
 /* heading focus label */
@@ -234,33 +286,65 @@ h6 {
     margin-top: 1rem !important;
 }
 
+/* The reference indents via the item, not the list: ul/ol boxes are flush
+   (padding 0) and every li carries a 30.19px start margin, all measured.
+   The ul dot is not a native marker — the reference blanks it (zero-width
+   list-style string) and draws a bullet glyph 14.2px left of the text,
+   freeing the dot-to-text distance from the UA's fixed marker gap. ol
+   keeps the native decimal marker: same engine, so its gap matches the
+   reference automatically. The reference draws no indent guides in lists
+   (verified live), so the old v1.0 guide lines are gone. */
 #write ul, #write ol {
-    padding-left: 1.6em;
+    padding-left: 0;
 }
 
 #write ul {
-    list-style-type: disc;
+    list-style: none;
+}
+
+#write ul > li,
+#write ol > li {
+    margin-inline-start: 30.19px;
 }
 
 #write li {
-    margin: 0.2em 0;
+    /* The reference's item breathing is 1.2px block padding, no margin. */
+    margin: 0;
+    padding: 1.2px 0;
 }
 
 #write li > p {
     margin: 0;
 }
 
-/* Gray list markers */
-#write ul > li::marker,
-#write ol > li::marker {
-    color: #939393;
+/* The drawn bullet. Static-position anchoring keeps it on the first line's
+   baseline for any line-height, and for loose items too (their p carries no
+   top margin here); left is relative to the li box, whose edge is the text
+   edge. Task items draw a checkbox instead. */
+#write ul > li:not(.md-task-list-item)::before {
+    content: "•";
+    position: absolute;
+    left: -16px;
+    color: #7f7f7f;
 }
 
-/* Nested list indent guide lines, aligned with parent bullet */
+/* Gray list markers (with the drawn dot, only ol still renders one) */
+#write ul > li::marker,
+#write ol > li::marker {
+    color: #7f7f7f;
+}
+
+/* Nested-list indent guides — a deliberate deviation kept from v1.0 (the
+   reference draws none in reading view; user-confirmed 2026-07-26).
+   Anchors re-derived for the drawn-dot geometry: the nested box's left
+   edge equals the parent text edge, the parent dot ink centers ~11.6px
+   left of it. The ol anchor centers on the DIGIT ink alone (measured
+   center 20.5px out) — the trailing period is visually weak, and a line
+   centered on the full "1." reads as sitting right of the number. Fixed
+   offsets are tuned for the common single-digit case. */
 #write li > ul,
 #write li > ol {
     position: relative;
-    padding-left: 2.3em;
 }
 
 #write li > ul::before,
@@ -270,15 +354,15 @@ h6 {
     top: 0;
     bottom: 0;
     width: 1px;
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--indent-guide-color);
 }
 
 #write li > ul::before {
-    left: -0.95em;
+    left: -12px;
 }
 
 #write li > ol::before {
-    left: -1.2em;
+    left: -19px;
 }
 
 /* ========== Definition lists ========== */
@@ -311,23 +395,49 @@ a:hover {
     text-decoration: underline;
 }
 
-#write a:hover {
-    /* Body links keep full contrast on hover (AA); the underline going away is
-       the hover affordance, so do not inherit the global a:hover opacity dim. */
-    text-decoration: none;
-    opacity: 1;
+/* Hover = the reference's external-link behavior: the underline stays and the
+   link dims to opacity 0.8 (the global a:hover above). The 2026-06 AA
+   full-contrast override was reverted for fidelity in 2026-07. */
+
+/* External-link icon: the reference's own glyph (its app.css SVG asset),
+   hung off the right padding exactly as upstream (0.825em glyph, 0.9em
+   padding slot, 0.25em down). http(s) links only — anchors (#...) and file
+   links stay bare, as in the reference. The upstream transparent-gradient
+   underlay is dropped: a transparent gradient stop prints black in Typora's
+   export engine. Screen-only by the reference's own .print rule, so both
+   export paths below take it off. */
+#write a[href^="http"] {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="%23888888" stroke-linecap="round" stroke-linejoin="round" stroke-width="9.38%25"><path d="M14 9 L3 9 3 29 23 29 23 18 M18 4 L28 4 28 14 M28 4 L14 18"/></svg>');
+    background-repeat: no-repeat;
+    background-position: 100% 0.25em;
+    background-size: 0.825em;
+    padding-inline-end: 0.9em;
+}
+
+.typora-export #write a[href^="http"],
+.typora-print #write a[href^="http"] {
+    background-image: none;
+    padding-inline-end: 0;
+}
+
+@media print {
+    #write a[href^="http"] {
+        background-image: none;
+        padding-inline-end: 0;
+    }
 }
 
 /* ========== 10. Blockquote ========== */
 blockquote {
-    border-left: 4px solid var(--primary-color);
+    /* 5px bar in --interactive-accent (the reference's brighter light blue,
+       not the flat accent), absolute 16px/18px margins and 5px radius, all
+       as measured; the 8/8/8/9.6px padding already matched. */
+    border-left: 5px solid var(--interactive-accent);
     padding: 0.5em 0.5em 0.5em 0.6em;
     color: inherit;
     background: #d5d5d52c;
-    margin: 1em 0;
-    margin-inline-start: 2.5%;
-    margin-inline-end: 2.5%;
-    border-radius: 4px;
+    margin: 1em 18px;
+    border-radius: 5px;
 }
 
 /* ========== 11. Horizontal rule ========== */
@@ -335,22 +445,34 @@ hr {
     height: 2px;
     border: 0;
     background-color: #bfbfbf;
-    margin: 1.5em 0 !important;
+    margin: 2em 0 !important;
 }
 
 /* ========== 12. Table ========== */
+/* Shrink-to-fit and centered, as measured in the reference: no width rule
+   (Typora base forces width:100%, hence the explicit auto), margin auto,
+   20px block margins, 1.3 line-height, and no outer borders — rows
+   separate by zebra fills alone, under a 1px hairline shadow. Cells
+   anchor to the top (the reference's core does the same), and body cells
+   drop to the reference's --table-text-size (text × 0.9375 = 15px) while
+   headers keep the full size. */
 #write table {
     border-collapse: collapse;
-    margin: 1em 0;
-    font-size: 0.9375em;
-    border-right: 1px solid #e8e8e8;
-    border-bottom: 1px solid #e8e8e8;
+    width: auto;
+    margin: 20px auto;
+    line-height: 1.3;
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 #write th,
 #write td {
     padding: 4px 10px;
     border: none;
+    vertical-align: top;
+}
+
+#write td {
+    font-size: 0.9375em;
 }
 
 #write th {
@@ -367,17 +489,18 @@ hr {
     background-color: #ffffff70;
 }
 
-/* table row hover */
+/* Table hovers: Blue Topaz's own --table-hover-* tokens (tr = raw, td =
+   color, th = thead), byte-identical upstream. These live in the THEME
+   layer — the core --table-row-background-hover being transparent is a red
+   herring that briefly got these removed on 2026-07-25. */
 #write tbody tr:hover {
     background-color: #85bfee2f;
 }
 
-/* table cell hover */
 #write td:hover {
     background-color: #5dacec34;
 }
 
-/* table header hover */
 #write th:hover {
     background-color: #ddefff;
 }
@@ -396,20 +519,26 @@ hr {
 /* ========== 14. Inline code & Code blocks ========== */
 /* Scope to #write to avoid leaking into <code> inside preferences / modals / sidebar tooltips. */
 #write code {
-    color: #b34800;
+    /* rgb(233,93,0), the reference's measured light inline-code orange (the
+       former #b34800 AA-deepening was traded back for fidelity). */
+    color: #e95d00;
     background: #cccccc62;
     font-weight: bold;
     padding: 2px 2px 1px;
-    border-radius: 3px;
+    border-radius: 5px;
+    /* 0.825em = the reference's measured 13.2px inline-code size. */
+    font-size: 0.825em;
     font-size: 0.825em;
     font-family: var(--monospace);
     overflow-wrap: break-word;
 }
 
 .md-fences {
-    background: #f5f5f5;
+    /* #f4f4f4 = the reference's rgba(230,230,230,0.443) pre-blended on white;
+       7px radius as measured. */
+    background: #f4f4f4;
     border: none;
-    border-radius: 5px;
+    border-radius: 7px;
     padding: 1em 1.5em;
     margin: 0.8em 0;
     font-size: 0.825em;
@@ -641,40 +770,28 @@ hr {
 }
 
 /* ========== 18. Footnotes, Math, TOC, YAML, mark, kbd ========== */
+/* Footnote refs are plain text ink in the reference (measured), not accent. */
 sup.md-footnote {
-    color: var(--primary-color);
+    color: inherit;
     background: transparent;
 }
 
-/* Superscript / subscript (^x^ / ~x~), scoped so footnote refs keep their style */
-#write sub,
-#write sup:not(.md-footnote) {
-    font-size: 0.75em;
-    line-height: 0;
-    position: relative;
-    vertical-align: baseline;
-}
-#write sup:not(.md-footnote) {
-    top: -0.5em;
-}
-#write sub {
-    bottom: -0.25em;
-}
+/* Superscript / subscript (^x^ / ~x~): the UA defaults (font-size smaller =
+   13.33px @ 16px, vertical-align super/sub) match the reference's measured
+   values exactly, so the former 0.75em/baseline-offset overrides are gone.
+   Footnote refs (sup.md-footnote) keep their own rule above. */
 
+/* The reference's footnote section: body ink at 14px, no top rule. */
 .md-def-footnote {
-    color: var(--control-text-color);
-    border-top: 1px solid #e6e6e6;
+    color: var(--text-color);
+    font-size: 0.875em;
     margin-top: 2em;
     padding-top: 0.5em;
 }
 
-/* Footnote number + back-link echo the accent, matching the inline ref */
-.md-def-footnote .md-fn-count {
-    color: var(--primary-color);
-}
-
+/* Back-link in the reference's muted gray (dark overrides to #797979). */
 .reversefootnote {
-    color: var(--primary-color);
+    color: #7f7f7f;
 }
 
 .md-toc {
@@ -706,9 +823,11 @@ sup.md-footnote {
 }
 
 mark {
-    background: hsla(34, 100%, 80%, 0.85);
+    /* Measured: rgba(255,211,153,0.847) — alpha is 216/255, not .85 — with
+       absolute 1px 2px padding. */
+    background: hsla(34, 100%, 80%, 0.847);
     color: inherit;
-    padding: 0.1em 0.2em;
+    padding: 1px 2px;
     border-radius: 3px;
 }
 
@@ -732,12 +851,13 @@ mark {
 
 kbd {
     font-family: var(--monospace) !important;
-    font-size: 0.85em !important;
-    color: inherit !important;
+    /* 0.875em / #000 / 5px radius: the reference's measured kbd chip. */
+    font-size: 0.875em !important;
+    color: #000000 !important;
     background-color: #e6e6e671 !important;
     border: none !important;
     box-shadow: none !important;
-    border-radius: 4px !important;
+    border-radius: 5px !important;
     padding: 0.1em 0.25em !important;
 }
 
@@ -1016,13 +1136,13 @@ kbd {
 }
 
 .use-file-list-style #file-library-list-children .file-list-item:hover {
-    background-color: var(--primary-color-01);
+    background-color: var(--file-active-bg);
 }
 
 /* (0,4,0) overrides base .file-list-item.active (0,2,0); resets base's
    color: var(--active-file-text-color) so active matches hover. */
 .file-library-node.file-library-file-node.file-list-item.active {
-    background: var(--primary-color-01);
+    background: var(--file-active-bg);
     color: var(--file-text-color);
     opacity: 1;
 }
@@ -1139,23 +1259,37 @@ kbd {
     opacity: 0.5;
 }
 
+/* Hide the markdown extension, like Obsidian's extension-less file list.
+   Only the md family loses its suffix: other extensions Typora may list
+   (.txt etc.) keep the dimmed suffix as a plain-text stand-in for
+   Obsidian's file-type tags. */
+.file-tree-node[data-path$=".md"] .file-node-title-ext-part,
+.file-tree-node[data-path$=".markdown"] .file-node-title-ext-part {
+    display: none;
+}
+
 /* File tree view: .file-node-background renders hover/active card.
    It keeps position:absolute from base-control.css, positioned relative to
    #file-library-tree (which has position:relative). This gives ALL cards
    the same width regardless of nesting depth; only text indents deeper.
+   Square corners + 3px side inset match the reference file explorer (radius
+   0 / inset 3 measured live; the outline panel keeps rounded cards — the two
+   panels genuinely differ in Obsidian).
    Override base defaults: left:0, width:100%, height:29px. */
-.file-tree-node:not(.file-node-root) > .file-node-background {
-    left: 8px;
-    right: 8px;
+.file-tree-node > .file-node-background {
+    left: 3px;
+    right: 3px;
     width: auto;
-    height: 28px;
-    border-radius: 4px;
+    height: 25px;
+    border-radius: 0;
     border-left: none;
 }
 
-/* Hard 28px height, perfectly aligned with .file-node-background to remove
-   the 2px visual drift. line-height: 28px replaces 1.5 so a single line is
-   vertically centered and content height stays constant. Padding is
+/* Hard 25px height, perfectly aligned with .file-node-background to remove
+   the 2px visual drift. line-height: 25px replaces 1.5 so a single line is
+   vertically centered and content height stays constant; 25 rounds the
+   reference rows' measured 25.5px onto the integer grid shared with the
+   outline, and 13.5px is the reference file explorer's font size. Padding is
    horizontal only; height controls vertical size, so no vertical padding is needed.
    .file-node-title already declares white-space:nowrap + ellipsis and never
    wraps, so line-height = height does not damage multi-line layout
@@ -1164,12 +1298,14 @@ kbd {
     display: flex;
     align-items: center;
     color: var(--file-text-color);
-    font-size: 13px;
-    height: 28px;
-    line-height: 28px;
+    font-size: 13.5px;
+    height: 25px;
+    line-height: 25px;
     padding-top: 0;
-    padding-right: 10px;
-    border-radius: 4px;
+    /* 5px + the 3px container inset puts the ellipsis 8px from the panel
+       edge — the reference's measured text-box inset. */
+    padding-right: 5px;
+    border-radius: 0;
 }
 
 /* Hover text color for file nodes (folders already use --text-color,
@@ -1178,14 +1314,35 @@ kbd {
     color: var(--text-color);
 }
 
+/* Make the indent gutter clickable. The hover/active card is full-width,
+   but Typora's click handling needs the pointer inside .file-node-content,
+   which starts at the indent — leaving the gutter "lit but dead". A
+   transparent ::after extends the content's hit-box left across the gutter
+   (a pseudo-element hit-tests as its host): clicks there now reach Typora's
+   handler, matching Obsidian, whose rows are full-width elements. Leftward
+   overflow is unscrollable in LTR, and the transparent box does not cover
+   the ancestors' guide borders visually. */
+.file-node-content {
+    position: relative;
+}
+
+.file-node-content::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 100%;
+    width: 300px;
+}
+
 /* Hover/active backgrounds on .file-node-background for uniform card width.
    :has(> .file-node-content:hover) targets only when direct child content
    is hovered, so it does NOT bubble from nested child tree nodes. */
 .file-tree-node:not(.file-node-root):not(.active):not([data-is-directory="true"]):has(> .file-node-content:hover) > .file-node-background {
-    background-color: var(--primary-color-01);
+    background-color: var(--file-active-bg);
 }
 
-.file-tree-node:not(.file-node-root):not(.active)[data-is-directory="true"]:has(> .file-node-content:hover) > .file-node-background {
+.file-tree-node:not(.active)[data-is-directory="true"]:has(> .file-node-content:hover) > .file-node-background {
     background-color: var(--folder-hover-bg);
 }
 
@@ -1193,31 +1350,64 @@ kbd {
    Active distinction relies on background and icon opacity only; there
    is no text color or font-weight change, matching Obsidian behavior. */
 .file-library-node.active > .file-node-background {
-    background-color: var(--primary-color-01);
+    background-color: var(--file-active-bg);
 }
 
-.file-library-node.active .file-node-icon {
-    color: var(--primary-color);
-    opacity: 1;
-}
-
-/* Obsidian signature: active file icon shifts to orange-red on hover.
-   Use direct color (not filter: hue-rotate) to avoid GPU compositing layer
-   creation which causes subpixel icon shift on hover in Typora. */
-.file-library-node.active > .file-node-content:hover .file-node-icon {
-    color: #eb7c46;
-}
-
+/* File-tree icons, Obsidian-style: files show a blue icon, folders show none
+   (folders read via caret + 600-weight semibold). The glyph is the reference
+   theme's own document SVG (same path data, same mask + background-color
+   technique, 14px box ≈ its 0.9rem), so shape, weight and size match the
+   original exactly; font-size:0 suppresses Typora's font glyph. */
 .file-node-icon {
-    color: var(--primary-color);
-    opacity: 0.7;
-    margin-right: 6px;
+    font-size: 0;
+    /* Constant 0.9 in every state, as measured in the reference; the active
+       file is distinguished by its background card, not icon opacity. */
+    opacity: 0.9;
+    /* Center the icon box in the caret-slot-width slot so its center lines
+       up with a sibling folder caret's center; the leftover slot space,
+       (24 - 14.4) / 2 = 4.8px, matches the reference's 5px icon-to-text
+       margin. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--file-slot-width);
+    margin-right: 0;
+    /* Never let a long filename squeeze the icon slot. */
+    flex-shrink: 0;
 }
 
-/* Directory nodes: icon uses neutral control-text instead of theme blue,
-   creating a container/content visual hierarchy with file icons. */
+.file-node-icon::before {
+    content: "";
+    /* 14.4px = the reference's exact 0.9rem icon box (measured). */
+    width: 14.4px;
+    height: 14.4px;
+    background-color: var(--file-icon-color);
+    -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill=""><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 16h8v2H8zm0-4h8v2H8zm6-10H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/></svg>');
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+}
+
+/* Folders hide their icon (Obsidian's file explorer shows no folder icon). */
 .file-tree-node[data-is-directory="true"] > .file-node-content .file-node-icon {
-    color: var(--control-text-color);
+    display: none;
+}
+
+/* Files have no caret, so collapse the empty 20px caret slot and let the icon
+   lead — this keeps file labels aligned with folder labels (whose caret fills
+   that slot) instead of pushing files an icon-width to the right. */
+.file-tree-node:not([data-is-directory="true"]) > .file-node-content > .file-node-open-state {
+    width: 0;
+    /* base-control.css sets min-width:8px on the slot; override it, or the file
+       icon gets pushed 8px right and stops aligning under the parent's text. */
+    min-width: 0;
+}
+
+/* Active file: icon shifts to Obsidian's signature orange-red on hover. Use a
+   direct color (not filter: hue-rotate) to avoid a GPU compositing layer that
+   causes a subpixel icon shift on hover in Typora. */
+.file-library-node.active > .file-node-content:hover .file-node-icon::before {
+    background-color: #eb7c46;
 }
 
 /* Directory nodes: text uses --text-color (more prominent) while files
@@ -1227,43 +1417,57 @@ kbd {
     color: var(--text-color);
 }
 
-/* Folder title: 600 baseline (semi-bold). Obsidian CSS defines hover
-   bold but the visual difference is imperceptible at this size, so keep it stable. */
-.file-tree-node[data-is-directory="true"] .file-node-title-name-part {
+/* Folder title bold. The child combinator (> .file-node-content) is REQUIRED:
+   a descendant selector here would also match every nested file's title (a
+   file is a descendant of its parent folder's directory node), bolding all
+   files inside folders — the "files look bold" bug. Files keep inherited 400. */
+.file-tree-node[data-is-directory="true"] > .file-node-content .file-node-title-name-part {
     font-weight: 600;
 }
 
 /* Cancels base's min-height: 22px and line-height: 22px. Through the flex
    container those two base rules push .file-node-content up to 30px
-   (22 + padding 8 = 30), which no longer matches the 28px
+   (22 + padding 8 = 30), which no longer matches the 25px
    .file-node-background. !important is required: the base rules share the
    same specificity and load after the theme. */
 .file-node-open-state {
     display: flex;
     align-items: center;
+    /* Center the caret in its slot so it shares a center line with file icons,
+       which are centered in a same-width slot too — Obsidian-style center
+       alignment of the row-start element (folder caret ⟷ file icon). */
     justify-content: center;
     color: var(--control-text-color);
-    width: 20px;
+    /* Caret slot (--file-slot-width). The caret centers in it
+       (justify-content:center above), so the caret center sits slot/2 from the
+       row start — the same center line a sibling file icon uses, and where the
+       guide line is drawn. The slot width also sets the caret-to-text gap
+       (independent of the per-level indent). */
+    width: var(--file-slot-width);
     min-height: 0 !important;
-    line-height: 28px !important;
+    line-height: 25px !important;
     transition: opacity 0.15s ease;
 }
 
 .file-node-open-state > i {
-    font-size: 10px;
+    /* The glyph is a masked geometric box now, not font ink — collapse the
+       line box so the flex-centered <i> wraps the 10px mask box exactly. */
+    font-size: 0;
+    line-height: 1;
 }
 
 /* Single-icon + rotate strategy: always use fa-caret-right, hide
    fa-caret-down, and express the expanded state through transform: rotate.
-   display:none/inline-block follow base's boundary exactly: visible only
-   under .file-node-collapsed / .file-node-expanded ancestors. File nodes
-   (which carry neither class) keep base's * { display:none } intact. */
+   The caret shows on EVERY directory, not just .file-node-collapsed /
+   .file-node-expanded ones: Typora assigns those state classes only to
+   folders with children, which would leave empty folders caret-less, while
+   Obsidian shows a (clickable) caret on empty folders too. File nodes keep
+   base's * { display:none } intact. */
 .file-node-open-state .fa-caret-down {
     display: none !important;
 }
 
-.file-node-collapsed > .file-node-content > .file-node-open-state .fa-caret-right,
-.file-node-expanded > .file-node-content > .file-node-open-state .fa-caret-right {
+.file-tree-node[data-is-directory="true"] > .file-node-content > .file-node-open-state .fa-caret-right {
     display: inline-block !important;
     margin-left: 0 !important;
     transition: transform 0.12s ease;
@@ -1273,34 +1477,90 @@ kbd {
     transform: rotate(90deg);
 }
 
-.file-node-collapsed > .file-node-content > .file-node-open-state {
-    opacity: 0.55;
+/* File-tree caret: the reference file explorer's exact chevron — a 10px
+   inline SVG whose EFFECTIVE stroke is 4 (Obsidian's CSS stroke-width:4px
+   overrides the svg's own stroke-width="2" attribute; measured live). The
+   same path is masked onto a 10px box, pre-rotated 90° CW in the path data
+   to point right, so the expanded state's rotate(90deg) lands exactly on
+   the original down chevron. Deliberately different from the outline's
+   bold ↓, as in Blue Topaz itself. */
+.file-node-open-state .fa-caret-right::before {
+    content: "" !important;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: currentColor;
+    -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L17 12L8 21"/></svg>');
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
 }
 
-.file-node-expanded > .file-node-content > .file-node-open-state {
+/* File-tree caret is a constant gray (Obsidian's file explorer keeps it the
+   same opacity collapsed or expanded — unlike the outline caret, which dims
+   when collapsed). The directory-wide selector also covers empty folders,
+   which carry neither state class. */
+.file-tree-node[data-is-directory="true"] > .file-node-content > .file-node-open-state {
     opacity: 0.85;
 }
 
-/* Uniform 3px spacing at all levels (fixes 6px in subfolders caused by
-   grid preventing margin collapse). Root needs explicit grid too since
-   .file-node-root has no .file-node-expanded class. */
+/* Uniform 2px spacing at all levels (fixes 6px in subfolders caused by
+   grid preventing margin collapse; 2px matches the reference rows' measured
+   margin-bottom). Root needs explicit grid too since .file-node-root has no
+   .file-node-expanded class. */
 .file-node-expanded > .file-node-children,
 .file-node-root > .file-node-children {
     display: grid;
-    gap: 3px;
+    gap: 2px;
 }
 
-/* Explicit 3px at the parent-child seam, matching the sibling grid gap:3px.
-   Before this rule, parent-child spacing was 2px, an incidental side effect
-   of the content/background height difference. After height:28px +
-   line-height:28px fully aligned content with background, that spacing
-   collapsed to 0. This margin-top restores it so every gap is uniform. */
+/* Root caret: statically expanded. Typora gives the root row no
+   collapsed/expanded state and no toggle, so the caret (revealed by the
+   directory-wide rule above) is presentational — but the reference for this
+   row is an ordinary opened folder in Obsidian (the true mod-root renders no
+   title row at all), and an ordinary expanded folder shows a rotated caret. */
+.file-node-root > .file-node-content > .file-node-open-state .fa-caret-right {
+    transform: rotate(90deg);
+}
+
+/* Typora renders no caret glyph in the root row at all (unlike empty
+   folders, where the glyph exists and only needs revealing), so synthesize
+   one in a standard slot-width box. :has() suppresses the synthetic caret
+   if a real glyph ever appears, preventing doubling. */
+.file-node-root > .file-node-content:not(:has(.fa-caret-right))::before {
+    content: "";
+    width: var(--file-slot-width);
+    height: 10px;
+    flex-shrink: 0;
+    background-color: var(--control-text-color);
+    opacity: 0.85;
+    -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L17 12L8 21"/></svg>');
+    -webkit-mask-size: 10px 10px;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    transform: rotate(90deg);
+}
+
+/* Explicit 2px at the parent-child seam, matching the sibling grid gap:2px.
+   Content and background heights are fully aligned, so without this margin
+   the parent-child spacing would collapse to 0; the explicit value keeps
+   every gap uniform. */
 .file-node-expanded > .file-node-children {
-    margin-top: 3px;
+    margin-top: 2px;
 }
 
-.file-tree-node:not(.file-node-root) > .file-node-children {
-    margin-left: 10px;
+/* Per-level indent = --file-indent-step + 1px border = 17px (Obsidian's nav
+   indent). margin-left puts the guide (border-left) at slot/2 from the row start
+   = the parent caret's center, so the guide runs through the caret; padding-left
+   supplies the rest of the step. The full-width hover/active card is a separate
+   absolutely-positioned element, so this indent never drags it. The root's
+   children are included: the reference for the root row is an ordinary opened
+   folder in Obsidian, whose children indent and draw the ancestor line like
+   any other level (Obsidian's true mod-root renders no title row at all). */
+.file-tree-node > .file-node-children {
+    margin-left: var(--file-guide-offset);
+    padding-left: calc(var(--file-indent-step) - var(--file-guide-offset));
+    border-left: 1px solid var(--indent-guide-color);
 }
 
 /* File tree overflow containment:
@@ -1319,8 +1579,28 @@ kbd {
 .use-file-tree-style #file-library-tree {
     display: block !important;
     width: 100% !important;
-    padding-left: 20px;
-    padding-right: 8px;
+    /* border-box keeps width:100% INCLUSIVE of the side paddings — without
+       it the tree overflows the sidebar by the padding sum and the right
+       padding is pushed past the visible edge, so ellipsis hugs the border. */
+    box-sizing: border-box;
+    /* 3px each side = the reference's measured container padding; the
+       first-level caret center then lands at 3 + 12 = 15px and the text at
+       3 + 24 = 27px from the panel edge, both matching the reference
+       exactly. The hover/active cards (absolute, inset 3px) align with it. */
+    padding-left: 3px;
+    padding-right: 3px;
+    /* File-tree horizontal model (one place, all levels follow), matching
+       Obsidian's nav: caret/icon slot 24px, per-level indent 17px (the
+       reference's measured margin 12 + guide border 1 + padding 4).
+       --file-slot-width   = caret/icon slot; sets the glyph-to-text gap and puts
+                             the glyph center at slot/2 from the row start;
+       --file-indent-step  = per-level indent body; with the 1px guide border the
+                             level steps by step + 1 = 17px;
+       --file-guide-offset = guide-line x = slot/2 = the caret center, so the guide
+                             runs through the caret (keep it = slot-width / 2). */
+    --file-slot-width: 24px;
+    --file-indent-step: 16px;
+    --file-guide-offset: calc(var(--file-slot-width) / 2);
 }
 
 .use-file-tree-style .file-library-node {
@@ -1340,18 +1620,20 @@ kbd {
     font-size: 13px;
 }
 
-/* Single-line height = padding(4+4) + line-height(20) = 28px, exactly
-   matching the file tree. height is intentionally omitted so multi-line
-   outline items can grow naturally. font-size: 13px is explicit to
-   override the sidebar's inherited 14.4px. */
+/* Single-line height = padding(4+4) + line-height(17) = 25px, pitch 27px —
+   matching the reference vault's outline, measured live via obsidian-cli
+   (13px text, line-height 16.9, padding 4/4, margin-bottom 2, row 24.9,
+   pitch 27.0). height is intentionally omitted so multi-line outline items
+   can grow naturally. font-size: 13px is explicit to override the sidebar's
+   inherited 14.4px. */
 .outline-item {
     padding: 4px 10px;
-    margin: 3px 0;
-    border-radius: 4px;
+    margin: 0 0 2px;
+    border-radius: 5px;
     color: var(--control-text-color);
     transition: background-color 0.2s ease, color 0.2s ease;
     font-size: 13px;
-    line-height: 20px;
+    line-height: 17px;
 }
 
 .outline-item:hover {
@@ -1367,54 +1649,168 @@ kbd {
     text-decoration: none;
 }
 
+/* Sidebar lists use the desktop arrow cursor, as Obsidian does (measured
+   cursor: default on both of its trees); the pointer hand is a web-link idiom
+   that base.css puts on outline items and base-control.css on the file list.
+   The file tree sets no pointer, so it is already an arrow. The #typora-sidebar
+   id outranks those base rules, which load after this file. */
+#typora-sidebar .outline-item,
+#typora-sidebar .outline-label,
+#typora-sidebar .outline-expander,
+#typora-sidebar .file-list-item,
+#typora-sidebar .file-list-item-file-name {
+    cursor: default;
+}
+
 .outline-content {
     padding-left: 8px;
     padding-right: 8px;
 }
 
-/* Explicit height/line-height/font-size flatten Typora base's 22.857px
-   stray value, stopping the expander from inflating the first line box
-   and keeping a single-line outline-item at exactly 28px. */
-.outline-expander {
-    width: 26px;
-    padding-left: 9px;
-    font-size: 13px;
-    line-height: 20px;
-    height: 20px;
+/* Indent guides + Obsidian-style indent width. Typora's native outline indents
+   by only (N-1)em ≈ 13px/level — tighter than the expander, so a child's caret
+   sits left of its parent's text. We enlarge the per-level indent to
+   --outline-indent-step so each child's caret lines up under its parent's text
+   (Obsidian-like), which also spreads the guides so they don't bunch up. Depth
+   is counted by chaining .outline-children ancestors (true tree depth), NOT by
+   the outline-hN classes: hN maps the heading NUMBER, so a skipped level (H2
+   straight to H4) or a document that starts below H1 would over-indent, while
+   true depth steps one level per actual nesting — matching Obsidian. Markdown
+   caps at H6 → 5 nesting levels, complete. The container-margin alternative
+   would drag the full-width background. Scoped by the .outline-content CLASS,
+   not the sidebar's #outline-content id: the same inner markup is hosted three
+   times — the sidebar (#outline-content), the floating outline (#toc-content,
+   filled with a verbatim innerHTML copy on open), and the HTML-export sidebar
+   (class only, no id) — and the class reaches all three. The chain rules land
+   at (0,3,0)+, still outranking base's `.outline-hN > .outline-item` (0,2,0)
+   em-ladder and `.outline-content ul` (0,1,1); each extra .outline-children
+   in the chain outranks the shallower rule.
+
+   The guide is an absolutely-positioned ::before on the children container; the
+   row (.outline-item) is never moved, so the hover/active background stays
+   full-width; z-index keeps the line above it; nested :hover lights the ancestor
+   chain (root H1 has no .outline-children → no line). Tune --outline-indent-step
+   (indent width) and --outline-guide-offset (line x vs caret) to adjust. */
+.outline-content {
+    --outline-indent-step: 17px;
+    /* 17px sits the guide a hair right of the ↓ caret's tip, as in Obsidian
+       (where the line is the children block's left border, not a caret axis).
+       Eye-tuned against the reference vault at 16 vs 17; 17 won. */
+    --outline-guide-offset: 17px;
 }
 
-/* Use \f125 (Ionicons right-caret) + rotate(90deg) for both states, so the
-   expand/collapse change happens through transform, enabling the
-   transition. This overrides Typora base.css, which swaps content between
-   \f125 (collapsed) and \f123 (expanded) and breaks the transition.
-   !important is required: base's same-specificity rule loads after this. */
+/* Enlarge per-level indent (overrides base's (N-1)em row padding). */
+.outline-content .outline-item-wrapper > .outline-item { padding-left: 0; }
+.outline-content .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 1); }
+.outline-content .outline-children .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 2); }
+.outline-content .outline-children .outline-children .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 3); }
+.outline-content .outline-children .outline-children .outline-children .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 4); }
+.outline-content .outline-children .outline-children .outline-children .outline-children .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 5); }
+
+.outline-content .outline-children {
+    position: relative;
+}
+
+.outline-content .outline-children::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    z-index: 1;
+    background: var(--outline-guide-color);
+    transition: background-color 0.4s ease;
+}
+
+.outline-content .outline-children:hover::before {
+    background: var(--indent-guide-active-color);
+}
+
+/* left = (depth-1) * step + offset, aligning to each parent's caret. */
+.outline-content .outline-children::before { left: var(--outline-guide-offset); }
+.outline-content .outline-children .outline-children::before { left: calc(var(--outline-indent-step) * 1 + var(--outline-guide-offset)); }
+.outline-content .outline-children .outline-children .outline-children::before { left: calc(var(--outline-indent-step) * 2 + var(--outline-guide-offset)); }
+.outline-content .outline-children .outline-children .outline-children .outline-children::before { left: calc(var(--outline-indent-step) * 3 + var(--outline-guide-offset)); }
+.outline-content .outline-children .outline-children .outline-children .outline-children .outline-children::before { left: calc(var(--outline-indent-step) * 4 + var(--outline-guide-offset)); }
+
+/* Explicit height/line-height/font-size flatten Typora base's 22.857px
+   stray value, stopping the expander from inflating the first line box
+   and keeping a single-line outline-item at exactly 25px. */
+.outline-expander {
+    /* 28px = indent-step 17 + glyph padding-left 9 + 2px extra caret-to-text
+       gap (eye-tuned): widening the slot only pushes the text right — the
+       glyph stays at padding-left 9px, so the guide line (offset 17px) keeps
+       its position relative to the caret. A child's caret ink starts 2px left
+       of its parent's text. */
+    width: 28px;
+    padding-left: 9px;
+    font-size: 13px;
+    line-height: 17px;
+    height: 17px;
+}
+
+/* Obsidian-style outline caret: the same Unicode "↓" (U+2193) + Inter Bold +
+   accent color that Blue Topaz itself uses — its theme.css draws the arrow as
+   a text glyph, not an icon font, and the bundled Inter subset contains U+2193.
+   Expanded is the natural ↓; collapsed rotates -90° to point right and dims —
+   a single glyph, so the state change animates via transform. !important pins
+   content/font-family/font-size over Typora base.css, which swaps \f125/\f123
+   Ionicons chevrons per state and loads after this at equal specificity. */
 .outline-expander:before {
-    content: "\f125" !important;
-    font-size: 10px;
+    content: "\2193" !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700;
+    font-size: 13px !important;
     color: var(--primary-color);
     display: inline-block;
     transition: transform 0.12s ease;
 }
 
 .outline-expander:hover:before {
-    content: "\f125" !important;
+    content: "\2193" !important;
 }
 
 .outline-item-open > .outline-item > .outline-expander:before {
-    content: "\f125" !important;
-    transform: rotate(90deg);
+    content: "\2193" !important;
+    transform: none;
 }
 
 .outline-item-wrapper:not(.outline-item-open) > .outline-item > .outline-expander:before {
+    transform: rotate(-90deg);
     opacity: 0.5;
 }
 
-.outline-item-active {
+/* Active (scroll-tracked) outline row. In-app, main.js marks the visible
+   header by adding .outline-active to the row's .outline-label and
+   .outline-item-active to the label's PARENT — the .outline-item row itself
+   (highlightVisibleHeader: addClass("outline-active").parent()
+   .addClass("outline-item-active")). The exported sidebar's tracker mounts
+   the class on the WRAPPER instead (base's export bold rule reads
+   .outline-item-active > .outline-item), so cover both mounts; requiring
+   .outline-item in the first selector keeps a wrapper mount from tinting its
+   whole subtree. Obsidian's current outline item shows the same neutral card
+   as hover. The floating outline never shows this state: Typora strips the
+   active classes from the copied HTML on open and its scroll tracking writes
+   only into #outline-content. */
+.outline-item.outline-item-active,
+.outline-item-active > .outline-item {
     background: var(--item-hover-bg-color);
     color: var(--text-color);
 }
 
-.pin-outline .outline-active {
+/* Active outline row reads via its background card only, like Obsidian
+   (measured weight 400 there); cancel the 700 label bolds. First selector
+   covers the in-app mount at (0,3,0); the second, at (0,5,0) via the export
+   wrapper class, outranks base.css's export bold rule (0,4,0) regardless of
+   the export stylesheet order. */
+.outline-content .outline-item-active .outline-label,
+.typora-export-sidebar .outline-content .outline-item-active > .outline-item .outline-label {
+    font-weight: 400;
+}
+
+/* .outline-content bump: keeps the cancel of base-control's (0,2,0) pinned
+   active-label bold winning by specificity rather than cascade order. */
+.pin-outline .outline-content .outline-active {
     font-weight: 400;
 }
 
@@ -1503,9 +1899,23 @@ footer.ty-footer {
     color: var(--primary-color);
 }
 
+/* In-document search, box-only like the reference (pixel-measured from its
+   dark scheme): every hit gets a thin neutral outline and no fill; the
+   current hit gets a thicker accent one below. */
 .md-search-hit {
-    background: #ffd1dd;
+    background: transparent;
     color: inherit;
+    outline: 2px solid var(--search-hit-border);
+    border-radius: 2px;
+}
+
+/* Current search match: 3px accent outline (measured), still no fill.
+   #write outranks base-control's filled .md-search-select. */
+#write .md-search-select {
+    background: transparent;
+    color: inherit;
+    outline: 3px solid var(--primary-color);
+    border-radius: 2px;
 }
 
 #typora-quick-open {
@@ -1715,7 +2125,8 @@ div.code-tooltip,
     }
 
     blockquote {
-        border-left: 4px solid #2f93e4 !important;
+        /* Follows the screen bar (5px --interactive-accent per scheme). */
+        border-left: 5px solid var(--interactive-accent) !important;
         background: #f6f8fa !important;
         color: #555 !important;
         page-break-inside: avoid;
@@ -1737,7 +2148,7 @@ div.code-tooltip,
     }
 
     mark {
-        background: hsla(34, 100%, 80%, 0.85) !important;
+        background: hsla(34, 100%, 80%, 0.847) !important;
     }
 
     /* Multi-color highlight in export: the plain `mark` !important above (and the
@@ -1806,21 +2217,34 @@ div.code-tooltip,
 /* Using ::before + gradient instead of border-left for unified coloring */
 .md-alert {
     position: relative !important;
-    border-radius: 4px !important;
-    padding: 0.45em 1em 0.8em 1em !important;
+    /* 5px radius, 4px bar: the reference callout's measured box. Insets are
+       the reference's measured offsets: body text 14px from the outer edge
+       (incl. the 4px bar), 10px right; the bottom 5px pairs with the last
+       child's 16px block margin for the symmetric 21px closing gap. */
+    border-radius: 5px !important;
+    padding: 0 10px 5px 14px !important;
     margin: 1em 0 !important;
     border: none !important;
     overflow: hidden !important;
-    /* gradient offset 3px to avoid overlap with ::before left bar */
-    background-position: 3px 0 !important;
-    background-size: calc(100% - 3px) 100% !important;
+    /* gradient offset 4px to avoid overlap with ::before left bar */
+    background-position: 4px 0 !important;
+    background-size: calc(100% - 4px) 100% !important;
     background-repeat: no-repeat !important;
-    /* Default so an unknown/future alert type degrades to no tint instead of an
-       invalid var(); each known type overrides --alert-bg below. */
+    /* Defaults so an unknown/future alert type degrades to no tint and no
+       icon instead of an invalid var(); each known type overrides below. */
     --alert-bg: transparent;
+    --alert-accent: transparent;
+    --alert-icon: none;
+    /* The reference theme's lucide glyphs (pencil / triangle-alert / flame),
+       masked and tinted with the type accent by .md-alert-text::before. */
+    --alert-icon-pencil: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>');
+    --alert-icon-triangle: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>');
+    --alert-icon-flame: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5"/></svg>');
     /* Tint gradient; each type maps --alert-bg below. --alert-body-bg replaces
        the old transparent stop (which prints black in Typora export). */
-    background-image: linear-gradient(to bottom, var(--alert-bg) 2.1em, var(--alert-body-bg) 2.1em) !important;
+    /* 2.3em = the title's own box (0.5em pads + 1.3 line = 36.8px), so the
+       band ends exactly at the title's bottom edge, as measured. */
+    background-image: linear-gradient(to bottom, var(--alert-bg) 2.3em, var(--alert-body-bg) 2.3em) !important;
 }
 
 /* Left bar: ::before absolutely positioned, full height */
@@ -1830,60 +2254,132 @@ div.code-tooltip,
     left: 0 !important;
     top: 0 !important;
     bottom: 0 !important;
-    width: 3px !important;
+    width: 4px !important;
     background: var(--alert-bg) !important;
 }
 
-/* Neutralize nested blockquote styles inside alerts */
-.md-alert blockquote {
+/* The reference has no alert-specific spacing at all: every block inside a
+   callout rides the standard 16px block margin, which is what makes any
+   nesting look even. margin-block leaves the inline axis alone, so nested
+   blockquotes keep their normal 18px indent and quote styling on screen.
+   #write strength: `#write p { margin: 0 !important }` must lose here. */
+#write .md-alert > * {
+    margin-block: 1em !important;
+}
+
+#write .md-alert > :first-child {
+    margin-block-start: 0 !important;
+}
+
+/* Lists sit on the bare 5px bottom pad in the reference (ul margin is 0). */
+#write .md-alert > ul:last-child,
+#write .md-alert > ol:last-child {
+    margin-block-end: 0 !important;
+}
+
+/* EXPORT/PRINT ONLY neutralization: Typora's export path renders the quote's
+   layers over --alert-body-bg as a solid black box — the bug the 2026-06 pass
+   fixed by flattening globally; the flattening now applies only where the bug
+   lives. Only the inline margin dies with the box; the block rhythm above
+   still applies. */
+.typora-export .md-alert blockquote,
+.typora-print .md-alert blockquote {
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin-inline: 0 !important;
     border-radius: 0 !important;
 }
 
-.md-alert p {
-    margin: 0 !important;
+@media print {
+    .md-alert blockquote {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-inline: 0 !important;
+        border-radius: 0 !important;
+    }
 }
 
 .md-alert .md-alert-text {
     display: block;
-    margin: 0 0 0.3em 0;
+    /* 21px below the title = the reference's content pad 5px + paragraph
+       margin 16px; !important so the shared block-rhythm rule cannot win. */
+    margin: 0 0 21px !important;
+    /* 0.5em pads + 1em/1.3 line = the 2.3em band; +2px left puts the icon at
+       16px from the outer edge, the reference's measured offset. */
+    padding: 0.5em 0 0.5em 2px;
     font-weight: 600;
-    font-size: 0.98em;
+    font-size: 1em;
+    line-height: 1.3;
+    /* Neutral title text, as measured in the reference: the type color lives
+       in the icon and the strip, not in the label. */
+    color: var(--text-color);
 }
 
-/* Each type only maps --alert-bg to its tint; the shared .md-alert and
-   .md-alert::before rules above draw the gradient body and the left bar. */
+/* The newline after `[!NOTE]` survives into the DOM (main.js): the editor
+   keeps it as a .md-softbreak span right after the title, export folds it
+   into a trailing <br> instead. With a block-displayed title either carrier
+   renders as a full phantom blank line — the old top-heavy gap. Hide just
+   the adjacent one; the block title already breaks the line. While the
+   title is expanded for editing, let the break show again so the raw
+   source lays out truthfully. */
+.md-alert .md-alert-text + .md-softbreak,
+.md-alert .md-alert-text + br {
+    display: none;
+}
+
+.md-alert .md-alert-text.md-expand + .md-softbreak {
+    display: inline;
+}
+
+/* Obsidian-style custom titles (`[!note] Title`) are a callout extension
+   GFM lacks. Typora half-parses them (main.js, verified): the block
+   classifier accepts the prefix — box and band tint appear — but the
+   inline tokenizer requires the tag to end the line, so no .md-alert-text
+   is generated and the raw line stays body text. CSS cannot hide part of
+   a text node, so the [!type] tag stays visible; the first line stands in
+   for the title instead: bold, on a 2.3em line box that fills the band
+   exactly. Known residue: a wrapped title's overflow lines fall out of
+   ::first-line, and same-paragraph body lines sit flush under the band. */
+.md-alert:not(:has(.md-alert-text)) > p:first-child::first-line {
+    font-weight: 600;
+    line-height: 2.3em;
+}
+
+/* Swap Typora's built-in octicon for the reference glyph, masked and tinted
+   with the type accent. */
+.md-alert .md-alert-text svg {
+    display: none !important;
+}
+
+.md-alert .md-alert-text::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    vertical-align: -3px;
+    background-color: var(--alert-accent);
+    -webkit-mask-image: var(--alert-icon);
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+}
+
+/* Each type maps its strip tint, accent and glyph; the shared .md-alert and
+   .md-alert::before rules above draw the gradient body and the left bar.
+   The reference collapses the five types into three visual classes. */
 .md-alert.md-alert-note,
-.md-alert.note { --alert-bg: var(--alert-note-bg); }
+.md-alert.note { --alert-bg: var(--alert-note-bg); --alert-accent: var(--alert-note-accent); --alert-icon: var(--alert-icon-pencil); }
 .md-alert.md-alert-important,
-.md-alert.important { --alert-bg: var(--alert-important-bg); }
+.md-alert.important { --alert-bg: var(--alert-important-bg); --alert-accent: var(--alert-tip-accent); --alert-icon: var(--alert-icon-flame); }
 .md-alert.md-alert-warning,
-.md-alert.warning { --alert-bg: var(--alert-warning-bg); }
+.md-alert.warning { --alert-bg: var(--alert-warning-bg); --alert-accent: var(--alert-warning-accent); --alert-icon: var(--alert-icon-triangle); }
 .md-alert.md-alert-tip,
-.md-alert.tip { --alert-bg: var(--alert-tip-bg); }
+.md-alert.tip { --alert-bg: var(--alert-tip-bg); --alert-accent: var(--alert-tip-accent); --alert-icon: var(--alert-icon-flame); }
 .md-alert.md-alert-caution,
-.md-alert.caution { --alert-bg: var(--alert-caution-bg); }
-
-/* Label text colors, tuned to clear WCAG AA on each tint. note + caution
-   already pass and keep their original values. */
-.md-alert-text-note {
-    color: rgb(9, 105, 218);
-}
-.md-alert-text-important {
-    color: #7f4cde;
-}
-.md-alert-text-warning {
-    color: #926200;
-}
-.md-alert-text-tip {
-    color: #1c7c37;
-}
-.md-alert-text-caution {
-    color: rgb(207, 34, 46);
-}
+.md-alert.caution { --alert-bg: var(--alert-caution-bg); --alert-accent: var(--alert-warning-accent); --alert-icon: var(--alert-icon-triangle); }
 
 /* ========== Strong & Em ========== */
 #write strong, #write b {
@@ -1908,17 +2404,15 @@ del {
 }
 
 /* ========== Details / Summary (collapsible block) ========== */
+/* Plain, like the reference: no box, no accent — just the native disclosure
+   marker and normal text (measured there: transparent bg, zero border,
+   neutral text color). */
 #write details {
     margin: 1em 0;
-    padding: 0.4em 1em;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
 }
 
 #write summary {
     cursor: pointer;
-    font-weight: 600;
-    color: var(--primary-color);
 }
 
 /* ========== Misc ========== */

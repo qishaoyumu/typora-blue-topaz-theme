@@ -191,6 +191,17 @@ graph LR
 > > Nested quote inside an alert. On export it should stay transparent over the
 > > alert body and show no black box, per the plain-transparent export rule.
 
+> [!TIP] Custom-title callout (Obsidian syntax, degraded by design)
+> Typora recognizes the box but not the title; the theme dresses the first line up as one.
+
+> [!TIP]
+> First paragraph of a multi-block alert, exercising the shared 16px rhythm.
+>
+> Second paragraph after a blank line.
+>
+> - A list closes this alert; it should sit on the bare bottom pad.
+> - Second list item.
+
 ## Chinese and English Mixed Text
 
 Blue Topaz 是广受欢迎的 Obsidian 主题，由 WhyI 和 Pkmer 社区维护。浅色模式标题从深蓝到浅蓝渐变，深色模式使用彩虹色，形成清晰的视觉层次。
@@ -229,13 +240,7 @@ CSS
 
 <details>
 <summary>Click to expand hidden content</summary>
-
-This block tests the `<details>` / `<summary>` disclosure widget, including **bold**, `inline code`, and a [link](https://github.com).
-
-```python
-print("inside a collapsible block")
-```
-
+This block tests the <code>details/summary</code> disclosure widget with <b>bold</b>, <code>inline code</code>, and a <a href="https://github.com">link</a>. Typora renders a contiguous details block as one HTML widget; a blank line inside would split the block and strand the closing tag as literal text.
 </details>
 
 ---

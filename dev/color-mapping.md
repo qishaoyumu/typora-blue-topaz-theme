@@ -8,12 +8,13 @@
 | `--background-secondary` | `#fcfcfc` | `--side-bar-bg-color` |
 | `--text-normal` | `#0e0e0e` | `--text-color` |
 | `--color-accent` | `hsl(207, 77%, 54%)` | `--primary-color` |
-| (link text) | `#1a79c6` | `--link-color` (body/UI link color, deepened from `--primary-color` for AA; `--primary-color` stays for buttons/borders/icons) |
+| (link text) | `hsl(207, 77%, 54%)` | `--link-color` = `var(--primary-color)`; the 2026-06 `#1a79c6` AA deepening was reverted for fidelity in 2026-07 (measured: links are the accent itself) |
+| `--interactive-accent` | `rgb(65, 159, 231)` | `--interactive-accent` — the reference's hsl-calc-brightened accent: blockquote bar (same family as `--file-icon-color`). Its checked-checkbox call site — and the paired `--interactive-accent-hover` accent-2 token, light `hsl(204, 78.5%, 62.1%)` = hsl(H−3, S×1.02, L×1.15) — left with the task-checkbox revert (`111cd76`); both return with the checkbox redo (measured values preserved in `9f33f34`) |
 | `--text-folder-file` | `#272727` | `--file-text-color` |
 | `--accent-em` | `#088743` | em color (deepened from upstream `#099d4e` for WCAG AA) |
 | `--accent-strong` | `#000000` | strong color |
-| `--text-color-code` | `#b34800` | code color (deepened from upstream `#e95d00` for AA) |
-| `--background-code` | `#e6e6e671` | code block bg (Typora `.md-fences` adapts to `#f5f5f5`) |
+| `--text-color-code` | `#e95d00` | code color; the reference's measured value (the 2026-06 `#b34800` AA deepening was reverted for fidelity in 2026-07) |
+| `--background-code` | `#e6e6e671` | code block bg (Typora `.md-fences` pre-blends it on white as `#f4f4f4`) |
 | `--background-code-2` | `#cccccc62` | inline code background |
 | `--background-blockquote` | `#d5d5d52c` | blockquote bg |
 | `--text-selection` | `#a9d1c859` | `--select-text-bg-color` |
@@ -38,13 +39,19 @@ helpers.
 
 | Typora Variable | Value | Usage |
 |---|---|---|
-| `--primary-color-01` | `hsla(207, 77%, 54%, 0.1)` | File hover / active file background / search-active background (hover and active share one color, matching upstream Obsidian) |
+| `--primary-color-01` | `hsla(207, 77%, 54%, 0.1)` | Search-active background (file-row hover/active moved to `--file-active-bg`) |
 | `--primary-color-02` | `hsla(207, 77%, 54%, 0.2)` | Search-result highlight (`.ty-file-search-match-text`) |
-| `--folder-hover-bg` | `rgba(0, 0, 0, 0.08)` | Neutral-gray folder hover (aligned with Obsidian `--nav-item-background-active`) |
+| `--search-hit-border` | `#b7b7b7` | In-document search candidate-hit outline (2px, no fill, 2px radius). Obsidian core (app.css in obsidian.asar) draws hits as a 2px `var(--text-normal)` ring at opacity 0.3; pre-blended here: `#0e0e0e` × 0.3 over `#ffffff`. Current hit: 3px `--primary-color` (= `var(--text-accent)` at opacity 1 upstream) |
+| `--file-active-bg` | `hsla(207, 77%, 54%, 0.1)` | File-row hover and active background, file tree + file list (hover and active share one color, matching Obsidian's single `--theme-color-translucent-01`); same value as `--primary-color-01` in light, split so search/table consumers stay independent |
+| `--folder-hover-bg` | `rgba(0, 0, 0, 0.067)` | Neutral-gray folder hover; measured (`--nav-item-background-hover` black 0.067) |
+| `--file-icon-color` | `rgb(65, 159, 231)` | File icon fill; the reference light icon is a brighter blue than the accent (measured `--text-folder-file-icon`), while dark's equals the primary formula |
 | `--file-text-color` | `#272727` | Default file-node text color (folders override to `--text-color` for stronger contrast) |
-| `--active-file-text-color` | `#0e0e0e` | Retained for Typora base compatibility; the theme's own file-list active rules override the active text color |
+| `--active-file-text-color` | `var(--file-text-color)` | Active row text = normal text, as measured in the reference (only hover brightens); base paints the tree's active text through this variable |
 | Hard-coded `#eb7c46` | `#eb7c46` | Active-file icon hover color (Obsidian's signature orange-red), shared between light and dark. A decorative hover accent, not body text; ~2.5:1 on the light background, kept for brand identity |
 | `--control-text-color` | `#747474` | File-list-view meta info (parent-loc / summary / time text color); deepened from `#7f7f7f` for AA |
+| `--indent-guide-color` | `rgba(0, 0, 0, 0.12)` | Indent guide line for the file tree and nested body lists; matches Obsidian's `rgba(var(--mono-rgb-100), 0.12)` (black in light). The reference draws no body-list guides in reading view (verified live 2026-07-26); ours stay as a user-confirmed deliberate deviation, re-anchored to the drawn-dot geometry (ul −12px / ol −16px) |
+| `--outline-guide-color` | `rgba(148, 148, 148, 0.2)` | Outline indent guide; Blue Topaz's own `#94949433` constant, identical in both schemes (measured), so no dark override exists |
+| `--indent-guide-active-color` | `hsla(207, 77%, 54%, 0.4)` | Outline indent guide on hover (ancestor-chain highlight); aligned with Obsidian `--theme-color-translucent-04` |
 
 ## Dark Mode
 
@@ -56,8 +63,8 @@ helpers.
 | `--text-folder-file` | `#b3b3b3` | `--file-text-color` |
 | `--accent-em` | `#a4ca8e` | em color |
 | `--accent-strong` | `#e7e7e7` | strong color |
-| `--text-color-code` | `#f49200` | code color (lightened from upstream `#d58000` for AA) |
-| `--background-code` | `#1111118c` | code block bg (Typora `.md-fences` adapts to `#1a1a1a`) |
+| `--text-color-code` | `#d58000` | code color; the reference's measured value (the 2026-06 `#f49200` AA lightening was reverted for fidelity in 2026-07) |
+| `--background-code` | `#1111118c` | code block bg (Typora `.md-fences` pre-blends it on `#202020` as `#181818`) |
 | `--background-code-2` | `#4c4c4cb0` | inline code background |
 | `--background-blockquote` | `#9191911c` | blockquote bg |
 | `--text-selection` | `#3b767160` | `--select-text-bg-color` |
@@ -79,16 +86,22 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 
 | Typora Variable | Value | Usage |
 |---|---|---|
-| `--primary-color-01` | `hsla(208, 72%, 58%, 0.14)` | File hover / active file background / search-active background (hover and active share one color) |
+| `--primary-color-01` | `hsla(208, 72%, 58%, 0.14)` | Search-active background (file-row hover/active moved to `--file-active-bg`) |
+| `--file-active-bg` | `hsla(208, 64%, 49%, 0.1)` | File-row hover and active background, file tree + file list; measured live in the reference vault (`--theme-color-translucent-01` = hsl 208/64/49 at 0.1 — the darker dark-blue formula, not `--primary-color-01`'s 72/58) |
 | `--primary-color-02` | `hsla(208, 72%, 58%, 0.26)` | Search-result highlight |
-| `--folder-hover-bg` | `rgba(255, 255, 255, 0.08)` | Neutral-gray folder hover (raised from 0.05 to 0.08 for visibility) |
-| `--file-text-color` | `#b3b3b3` | Default file-node text color (folders override to `--text-color`) |
-| `--active-file-text-color` | `#e4e4e4` | Retained for Typora base compatibility; the theme's own file-list active rules override it |
+| `--search-hit-border` | `#525252` | In-document search candidate-hit outline; the same core formula pre-blended on dark: `#c6c6c6` × 0.3 over `#202020` — reproduces the earlier screenshot-measured value exactly (see the light table row for the formula's source) |
+| `--interactive-accent` | `var(--primary-color)` | Dark's measured interactive accent equals the primary formula (blockquote bar; the checkbox call site and the dark accent-2 hover `hsl(203, 67.2%, 63.2%)` = hsl(208−5, 64%×1.05, 49%×1.29) left with the task-checkbox revert `111cd76`, preserved in `9f33f34` for the redo) |
+| `--folder-hover-bg` | `rgba(255, 255, 255, 0.067)` | Neutral-gray folder hover; measured live in the reference vault (`--nav-item-background-hover` white 0.067) |
+| `--file-text-color` | `#b3b3b3` | Default file-node text color, measured in the reference vault (a brief `#a0a0a0` dimming experiment was reverted — the original really is `#b3b3b3`) |
+| `--active-file-text-color` | `var(--file-text-color)` | Active row text = normal text (`#b3b3b3` = the reference's measured 179); only hover brightens |
 | Hard-coded `#eb7c46` | `#eb7c46` | Active-file icon hover color, shared with light; clears WCAG AA (>4.5:1) on the dark background |
 | `--control-text-color` | `#8a8a8a` | File-list-view meta info (parent-loc / summary / time text color) |
 | `--dark-border-color` | `#343434` | Generic 1px border tone for the dark scheme: window, code tooltip, sidebar, search, modals, table edit UI, etc. (the table body's cell dividers use a darker `#1a1a1a`) |
 | `--dark-panel-bg` | `#2b2b2b` | Raised-panel fill: tooltip, search input, quick-open, auto-suggest, modal, context/dropdown menu, notification, footer word-count |
 | `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, TOC content, meta block, quick-open input, table cell dividers |
+| `--indent-guide-color` | `rgba(255, 255, 255, 0.12)` | Indent guide line for the file tree and nested body lists; white tint matching Obsidian's `rgba(var(--mono-rgb-100), 0.12)` on dark (the outline guide keeps light's mode-independent `--outline-guide-color`). Body-list guides are a deliberate deviation, see the light table |
+| `--file-icon-color` | `var(--primary-color)` | File icon fill; dark's measured icon blue (rgb 45,130,205) equals the primary formula |
+| `--indent-guide-active-color` | `hsla(208, 64%, 49%, 0.4)` | Outline indent guide on hover; the measured dark `--theme-color-translucent-04` (base 64/49 formula, not the brightened 72/58 sidebar variant) |
 
 ## Code Highlighting: Light (.cm-s-inner)
 
@@ -188,41 +201,68 @@ The five GFM Alert backgrounds were promoted from literals to `:root`
 variables, giving light and dark a single source of truth. The values are
 **opaque, pre-blended** onto the page color (each is the old `rgba(...)` tint
 composited onto white / `#202020`). The alert paints them as
-`linear-gradient(tint 2.1em, var(--alert-body-bg) 2.1em)`: a tinted title
+`linear-gradient(tint 2.3em, var(--alert-body-bg) 2.3em)`: a tinted title
 band over a body that matches the page. They must stay opaque: Typora's PDF
 export renders a `transparent` gradient stop as solid black, so
 `--alert-body-bg` replaces the old `transparent` body stop and the alert body
 prints clean. (See the Print / export path section for the alpha rule.)
 
-### Light (pre-blended on `#ffffff`)
+The 2026-07 fidelity pass rebuilt the palette on the reference vault's
+live-measured callouts: the reference collapses the five GitHub types into
+**three visual classes** — note (blue), warning + caution (orange),
+important + tip (cyan) — with the type color carried by the icon (lucide
+pencil / triangle-alert / flame, masked and tinted with `--alert-*-accent`)
+and the title strip (accent at 0.15), while the **label text is neutral**
+`--text-color` (the per-type AA-tuned label colors from the 2026-06 pass were
+removed together with Typora's built-in octicons).
+
+The 2026-07-26 spacing pass replicated the reference's measured geometry:
+the callout has **no alert-specific spacing** — title band 36.8px (= 8px
+pads + 20.8px line, our `0.5em + 1em/1.3` title = the 2.3em gradient stop),
+then a symmetric 21px above and below the body (content pad 5px + standard
+16px block margin), 16px between any two blocks inside (paragraphs, nested
+quotes, boxes themselves), body text 14px from the outer edge / 10px right,
+icon at 16px, title text at 38px. Implemented as `#write .md-alert > *
+{ margin-block: 1em }` (+ first-child 0, list-last-child 0) with box padding
+`0 10px 5px 14px`. The newline after `[!NOTE]` survives into the DOM: the
+editor keeps it as a `.md-softbreak` span right after the title (main.js
+strips it from the alert token only when exporting), export folds it into a
+trailing `<br>`. With a block-displayed title either carrier renders as a
+phantom blank line (the old top-heavy gap) — both adjacent carriers are
+hidden (`.md-alert-text + .md-softbreak` / `+ br`), and the break re-shows
+while the title is expanded for editing.
+
+### Light (strips pre-blended on `#ffffff`; accents measured)
 
 | Variable | Value | Usage |
 |---|---|---|
-| `--alert-note-bg` | `#e6f0fb` | Note alert title band + left bar |
-| `--alert-important-bg` | `#f3eefc` | Important alert title band + left bar |
-| `--alert-warning-bg` | `#f5f0e6` | Warning alert title band + left bar |
-| `--alert-tip-bg` | `#e9f3ec` | Tip alert title band + left bar |
-| `--alert-caution-bg` | `#fae9ea` | Caution alert title band + left bar |
+| `--alert-note-bg` | `#dae9fa` | Note title band + left bar (accent at 0.15 on white) |
+| `--alert-important-bg` | `#d9f5f5` | Important title band + left bar (= tip) |
+| `--alert-warning-bg` | `#fcead9` | Warning title band + left bar (= caution) |
+| `--alert-tip-bg` | `#d9f5f5` | Tip title band + left bar |
+| `--alert-caution-bg` | `#fcead9` | Caution title band + left bar |
+| `--alert-note-accent` | `rgb(8, 109, 221)` | Note icon (pencil) |
+| `--alert-warning-accent` | `rgb(236, 117, 0)` | Warning + caution icon (triangle-alert) |
+| `--alert-tip-accent` | `rgb(0, 191, 188)` | Tip + important icon (flame) |
 | `--alert-body-bg` | `#ffffff` | Alert body fill below the title band (was `transparent`) |
 
-### Dark (pre-blended on `#202020`)
+### Dark (strips pre-blended on `#202020`; accents measured)
 
-| Variable | Value | Note |
+| Variable | Value | Usage |
 |---|---|---|
-| `--alert-note-bg` | `#24313f` | was `rgba(58, 150, 255, 0.14)` |
-| `--alert-important-bg` | `#322e3d` | was `rgba(163, 130, 240, 0.14)` |
-| `--alert-warning-bg` | `#393324` | was `rgba(210, 167, 60, 0.14)` |
-| `--alert-tip-bg` | `#243228` | was `rgba(63, 185, 95, 0.12)` |
-| `--alert-caution-bg` | `#3e2726` | was `rgba(248, 81, 73, 0.14)` |
+| `--alert-note-bg` | `#1c2e41` | Note title band + left bar |
+| `--alert-important-bg` | `#283d3c` | Important title band + left bar (= tip) |
+| `--alert-warning-bg` | `#3e3225` | Warning title band + left bar (= caution) |
+| `--alert-tip-bg` | `#283d3c` | Tip title band + left bar |
+| `--alert-caution-bg` | `#3e3225` | Caution title band + left bar |
+| `--alert-note-accent` | `rgb(2, 122, 255)` | Note icon |
+| `--alert-warning-accent` | `rgb(233, 151, 63)` | Warning + caution icon |
+| `--alert-tip-accent` | `rgb(83, 223, 221)` | Tip + important icon |
 | `--alert-body-bg` | `#202020` | Alert body fill below the title band (was `transparent`) |
 
-Each type now only maps `--alert-bg` to its tint; shared `.md-alert` and
-`.md-alert::before` rules draw the gradient body and the left bar from it, so
-the gradient lives in one place instead of being repeated per color. The
-`.md-alert-text-*` label colors stay literals; the 2026-06 AA pass deepened the
-light important / warning / tip labels and lightened the dark note / important /
-caution labels so every label clears 4.5:1 on its tint (light note + caution and
-dark warning + tip already passed and were left unchanged).
+Each type maps `--alert-bg` / `--alert-accent` / `--alert-icon`; shared
+`.md-alert` and `.md-alert::before` rules draw the gradient body and the
+4px left bar from them, so the machinery lives in one place.
 
 ## Call sites of `--primary-color`
 
@@ -234,18 +274,27 @@ In the light theme, the main content and editor call sites using `var(--primary-
 (= `#2f93e4`) are below. This list is not exhaustive; the variable also drives
 the sidebar, buttons, and other UI:
 
-- `a { color }`
-- `blockquote { border-left }`
+- `a { color }` (via `--link-color: var(--primary-color)` since 2026-07)
 - `.md-toc-inner { color }`
 - `.cm-s-typora-default .cm-link { color }` (the dark `#95B94B` override
   was removed and now follows the light `var()`)
-- `sup.md-footnote { color }`
+- `#write .md-search-select { outline }` (current search hit)
+
+No longer on this list since the 2026-07 alignment pass: `blockquote`'s bar
+moved to `--interactive-accent`, and `sup.md-footnote` went plain ink.
 
 In the dark file these selectors are inherited from light through `@import`;
 dark only overrides the value of `--primary-color` in its own `:root` (to
-`rgb(45, 130, 204)`), so every call site picks up the dark blue
-automatically. The only spot dark still writes `var(--primary-color)`
-directly is `--active-file-border-color` in `:root`.
+`rgb(45, 130, 205)` — corrected from 204 in 2026-07, the exact rounding of
+hsl(208,64%,49%)), so every call site picks up the dark blue automatically.
+
+`--active-file-bg-color` is defined as `var(--file-active-bg)` in both
+schemes: Typora base's `.file-tree-node.active` rule paints the active card
+itself through this variable (it outranks the theme by load order), so the
+variable is the real control surface. `--active-file-border-color` is
+`transparent` (light only, no dark override needed): it suppresses base's
+4px active accent bar, a Typora idiom absent from the reference file
+explorer, where the card alone marks the active file.
 
 Not replaced (kept as literals, by design):
 
@@ -283,8 +332,8 @@ repeat the page-break or border rules.
 
 | Selector (dark print) | Value | Purpose |
 |---|---|---|
-| `pre, .md-fences { background }` | `#1a1a1a` | Dark code surface (overrides light `#f6f8fa`) |
-| `#write code { background / color }` | `#3e3e3e` / `#f49200` | Inline-code chip (gray + amber), pre-blended on `#202020` |
+| `pre, .md-fences { background }` | `#181818` | Dark code surface, = the screen fence pre-blend (overrides light `#f6f8fa`) |
+| `#write code { background / color }` | `#3e3e3e` / `#d58000` | Inline-code chip (bg pre-blended on `#202020`, text = the measured screen orange) |
 | `blockquote { background / color }` | `#2b2b2b` / `--text-color` | Dark quote fill + light ink |
 | `#write th / tbody tr / odd` | `#25303f` / `#202020` / `#1a1a1a` | Opaque dark table zebra |
 | `mark { background }` | `#58562e` | Dark olive highlight (overrides the light print peach) |
@@ -442,27 +491,29 @@ Heading sizes and body line-height are copied from the Obsidian original
 
 A 2026-06 accessibility pass deepened the high-frequency colored text so it
 clears WCAG AA (4.5:1 for normal text, 3:1 for large text / headings), while
-preserving each hue and saturation (only lightness shifted). The values below
-are the post-pass state, measured against the real backgrounds.
+preserving each hue and saturation (only lightness shifted). The 2026-07
+fidelity pass then reverted two of those adjustments back to the reference's
+measured values (inline code, alert labels) — fidelity was chosen over AA
+there, and their rows below carry the real post-reversion ratios. Everything
+else is the post-pass state, measured against the real backgrounds.
 
 | Element | Value (light / dark) | Contrast | Status |
 |---|---|---|---|
-| Body links | `--link-color` `#1a79c6` / `#3a8cd4` | 4.57 / 4.56 | AA (decoupled from `--primary-color`) |
-| Inline code | `#b34800` / `#f49200` on the chip | 4.58 / 4.56 | AA |
+| Body links | `--link-color` = accent `#2f93e4` / `rgb(45,130,205)` | 3.27 / 4.02 | Below AA (2026-07: reverted to the reference's accent links, fidelity over AA) |
+| Inline code | `#e95d00` / `#d58000` on the chip | 2.92 / 3.52 | Below AA (2026-07: the reference's measured oranges, fidelity over AA) |
 | Italic / em | `#088743` (light) | 4.61 | AA (dark `#a4ca8e` already ~8.9) |
 | h5 / h6 (light) | `hsl(209,70%,58%)` / `hsl(209,65%,58%)` | 3.12 / 3.13 | AA large-text (3:1) |
 | Muted UI text | `--control-text-color` `#747474` / `#8a8a8a` | 4.56 / 4.72 | AA |
 | Meta text | `--meta-content-color` `#577a87` (light) | 4.61 | AA |
-| List markers / done tasks | `#939393` (light) | 3.07 | 3:1 (decorative / secondary) |
+| List markers / done tasks | `#7f7f7f` light; dark `#797979` markers, `#8a8a8a` done text | 4.0 / 3.74 / 4.72 | Measured reference grays (2026-07), decorative / secondary at 3:1+. Since 2026-07-26 the ul dot is a drawn `li::before` bullet glyph (the reference blanks the native marker and draws its own 14.2px left of the text); ol keeps the native decimal marker. List geometry: ul/ol padding 0, li `margin-inline-start: 30.19px` + `padding: 1.2px 0`, all measured |
 | Code tokens (light) | deepened set on `#f5f5f5` | >= 4.5 | AA (see Code Highlighting: Light) |
-| GFM alert labels | tuned per tint, both schemes | >= 4.5 | AA |
+| GFM alert titles | neutral `--text-color` on the tint strips | 15.6+ / 6.7+ | AAA (2026-07: per-tint label colors dropped for the reference's neutral titles) |
 
-`--primary-color` (`#2f93e4` / `rgb(45,130,204)`) is kept for UI accents
-(buttons, borders, icons, focus ring), which are components or large text where
-3:1 is sufficient; only body and link text use the deepened `--link-color`.
+`--primary-color` (`#2f93e4` / `rgb(45,130,205)`) drives UI accents (buttons,
+borders, icons, focus ring) and, since the 2026-07 fidelity pass, body links
+too (`--link-color` aliases it).
 
 Intentionally left below AA (documented, by design, not bugs):
-
 - `#eb7c46` active-file icon hover (~2.5:1 light): a decorative icon hover, not
   body text; kept for Obsidian brand identity.
 - Focus mode: non-focused blocks fade to `opacity: 0.4` on purpose.

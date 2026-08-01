@@ -33,10 +33,14 @@
     --h5-color: hsl(258, 79%, 77%);
     --h6-color: hsl(290, 85%, 81%);
 
-    --primary-color: rgb(45, 130, 204);
-    /* Link text: lighter than --primary-color so links clear WCAG AA on the
-       dark page; --primary-color stays for buttons/borders/icons. */
-    --link-color: #3a8cd4;
+    /* hsl(208,64%,49%) rounds to blue 205, not 204 — the measured value;
+       the old 204 was an authoring slip. */
+    --primary-color: rgb(45, 130, 205);
+    /* Dark's measured interactive accent equals the primary formula. */
+    --interactive-accent: var(--primary-color);
+    /* Link text = the accent itself, as measured (the 2026-06 #3a8cd4 AA
+       lightening was reverted for fidelity in 2026-07). */
+    --link-color: var(--primary-color);
     --primary-btn-border-color: #2574a8;
     --primary-btn-text-color: #e4e4e4;
 
@@ -53,9 +57,10 @@
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
 
     --side-bar-bg-color: #151515;
-    --active-file-bg-color: hsla(208, 64%, 49%, 0.15);
-    --active-file-text-color: #e4e4e4;
-    --active-file-border-color: var(--primary-color);
+    /* Follows the dark --file-active-bg (measured 0.1); light's transparent
+       --active-file-border-color needs no dark override. */
+    --active-file-bg-color: var(--file-active-bg);
+    --active-file-text-color: var(--file-text-color);
 
     --item-hover-bg-color: #2a2a2a;
     --item-hover-text-color: #e4e4e4;
@@ -66,6 +71,9 @@
     --select-text-font-color: inherit;
     --search-select-bg-color: #bb4361;
     --search-select-text-color: #e0e0e0;
+    /* = #c6c6c6 * 0.3 over #202020: app.css's 2px var(--text-normal) ring at
+       opacity 0.3 pre-blended; reproduces the screenshot-measured value. */
+    --search-hit-border: #525252;
 
     --blur-text-color: rgba(200, 200, 200, 0.33);
     --active-toggle-btn-color: #1a2a3a;
@@ -81,9 +89,24 @@
      * the dark background instead of flat gray. */
     --primary-color-01: hsla(208, 72%, 58%, 0.14);
     --primary-color-02: hsla(208, 72%, 58%, 0.26);
-    --folder-hover-bg: rgba(255, 255, 255, 0.08);
+    /* Both measured live in the reference vault: folder hover is the neutral
+       --nav-item-background-hover white, file hover/active the darker
+       --theme-color-translucent-01 blue formula (hsl 208/64/49, not the
+       brighter 72/58 used by --primary-color-01). */
+    --folder-hover-bg: rgba(255, 255, 255, 0.067);
+    --file-active-bg: hsla(208, 64%, 49%, 0.1);
+    /* Dark's measured icon blue equals the primary formula (rgb 45,130,205),
+       unlike light, whose icon has its own brighter blue. */
+    --file-icon-color: var(--primary-color);
 
     --file-text-color: #b3b3b3;
+
+    /* Sidebar tree indent guides (--outline-guide-color is mode-independent
+       and needs no override here). The hover color uses the measured
+       --theme-color-translucent-04 base formula (208/64/49), not the
+       brightened 72/58 sidebar variant. */
+    --indent-guide-color: rgba(255, 255, 255, 0.12);
+    --indent-guide-active-color: hsla(208, 64%, 49%, 0.4);
 
     --sequence-theme: simple;
 
@@ -91,16 +114,23 @@
     /* Opaque tints pre-blended onto the dark page (#202020); --alert-body-bg fills
        the alert body in place of the gradient's `transparent` stop. Rationale:
        dev/color-mapping.md "GFM Alerts". */
-    --alert-note-bg: #24313f;
-    --alert-important-bg: #322e3d;
-    --alert-warning-bg: #393324;
-    --alert-tip-bg: #243228;
-    --alert-caution-bg: #3e2726;
+    --alert-note-bg: #1c2e41;
+    --alert-important-bg: #283d3c;
+    --alert-warning-bg: #3e3225;
+    --alert-tip-bg: #283d3c;
+    --alert-caution-bg: #3e3225;
+    /* Reference dark accents (measured); strips above = accent at 0.15
+       pre-blended onto the #202020 body. */
+    --alert-note-accent: rgb(2, 122, 255);
+    --alert-warning-accent: rgb(233, 151, 63);
+    --alert-tip-accent: rgb(83, 223, 221);
     --alert-body-bg: #202020;
 
     /* Multi-color highlight (dark variants) */
     --hl-italic: #c865656f;
-    --hl-bold: #54b94763;
+    /* Alpha 6f (111/255 = .435) as measured; the former 63 was a v1.1.0
+       transcription slip. */
+    --hl-bold: #54b9476f;
     --hl-bolditalic: #1e83d086;
 
     /* Focus mode: decorative muting for non-focused blocks (dark override) */
@@ -156,11 +186,6 @@ hr {
 }
 
 /* ========== Table ========== */
-#write table {
-    border-right: 1px solid var(--dark-surface-2);
-    border-bottom: 1px solid var(--dark-surface-2);
-}
-
 #write th {
     background-color: hsla(208, 64%, 49%, 0.1);
 }
@@ -173,17 +198,15 @@ hr {
     background-color: #00000033;
 }
 
-/* table row hover */
+/* Table hovers: Blue Topaz's dark --table-hover-* tokens, byte-identical. */
 #write tbody tr:hover {
     background-color: #08569a21;
 }
 
-/* table cell hover */
 #write td:hover {
     background-color: #1f65a221;
 }
 
-/* table header hover */
 #write th:hover {
     background-color: #21395bc7;
 }
@@ -201,12 +224,17 @@ hr {
 
 /* ========== Code ========== */
 #write code {
-    color: #f49200;
+    /* rgb(213,128,0), the reference's measured dark inline-code orange (the
+       former #f49200 brightening was traded back for fidelity); the bg
+       already matches the measured rgba(76,76,76,0.69) bit for bit. */
+    color: #d58000;
     background: #4c4c4cb0;
 }
 
 .md-fences {
-    background: var(--dark-surface-2);
+    /* #181818 = the reference's rgba(17,17,17,0.55) pre-blended on #202020
+       (--dark-surface-2 #1a1a1a is two notches off the measurement). */
+    background: #181818;
 }
 
 .md-fences .code-tooltip {
@@ -306,19 +334,12 @@ hr {
     background: hsla(208, 64%, 49%, 0.05);
 }
 
-/* Gray list markers */
+/* Gray list markers and the drawn ul bullet */
 #write ul > li::marker,
-#write ol > li::marker {
-    color: #777;
+#write ol > li::marker,
+#write ul > li:not(.md-task-list-item)::before {
+    color: #797979;
 }
-
-/* Nested list guide line: structure and offsets are inherited from light;
-   dark only swaps the hairline to a light (white) tint. */
-#write li > ul::before,
-#write li > ol::before {
-    background: rgba(255, 255, 255, 0.15);
-}
-
 /* ========== Images ========== */
 .md-img-error span {
     color: #e16d76;
@@ -346,9 +367,8 @@ hr {
 }
 
 /* ========== Footnotes, YAML, mark, kbd ========== */
-.md-def-footnote {
-    color: var(--control-text-color);
-    border-top-color: var(--dark-border-color);
+.reversefootnote {
+    color: #797979;
 }
 
 .md-toc-content {
@@ -366,7 +386,8 @@ mark {
 }
 
 kbd {
-    color: inherit !important;
+    /* Measured rgb(208,208,208) ink, one step brighter than --text-color. */
+    color: #d0d0d0 !important;
     background-color: #1111118c !important;
 }
 
@@ -459,10 +480,6 @@ kbd {
     border-color: var(--dark-border-color);
 }
 
-.md-search-hit {
-    background: #bb4361;
-    color: #fff;
-}
 
 #typora-quick-open {
     background: var(--dark-panel-bg);
@@ -589,7 +606,7 @@ div.code-tooltip,
        light on dark, so leave them. Do NOT add inline `code` to this selector;
        it would flatten its gray+amber chip. */
     pre, .md-fences {
-        background: #1a1a1a !important;
+        background: #181818 !important;
         border-color: #2b2b2b !important;
         color: var(--text-color) !important;
         word-wrap: break-word;
@@ -597,10 +614,10 @@ div.code-tooltip,
     }
 
     /* Inline code chip: gray bg (#3e3e3e = screen #4c4c4cb0 pre-blended on
-       #202020) + amber text. */
+       #202020) + the measured screen orange. */
     #write code {
         background: #3e3e3e !important;
-        color: #f49200 !important;
+        color: #d58000 !important;
     }
 
     /* Blockquote: opaque dark fill + light ink. (Left border #2f93e4 and the
@@ -656,14 +673,6 @@ div.code-tooltip,
     background: var(--select-text-bg-color);
 }
 
-/* ========== GFM Alerts (dark: text colors only; backgrounds via :root vars) ========== */
-
-.md-alert-text-note { color: #429aff; }
-.md-alert-text-important { color: #a687f1; }
-.md-alert-text-warning { color: rgb(210, 167, 60); }
-.md-alert-text-tip { color: rgb(63, 185, 95); }
-.md-alert-text-caution { color: #f9645d; }
-
 /* ========== Strong & Em ========== */
 #write strong, #write b {
     color: #e7e7e7;
@@ -687,9 +696,3 @@ div.code-tooltip,
     box-shadow: var(--shadow-md);
 }
 
-/* ========== Details / Summary ========== */
-/* summary color follows --primary-color (inherited); only the border tint is
-   dark-specific. */
-#write details {
-    border-color: var(--dark-border-color);
-}
