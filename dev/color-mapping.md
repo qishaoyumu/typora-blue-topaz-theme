@@ -97,11 +97,19 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | Hard-coded `#eb7c46` | `#eb7c46` | Active-file icon hover color, shared with light; clears WCAG AA (>4.5:1) on the dark background |
 | `--control-text-color` | `#8a8a8a` | File-list-view meta info (parent-loc / summary / time text color) |
 | `--dark-border-color` | `#343434` | Generic 1px border tone for the dark scheme: window, code tooltip, sidebar, search, modals, table edit UI, etc. (the table body's cell dividers use a darker `#1a1a1a`) |
-| `--dark-panel-bg` | `#2b2b2b` | Raised-panel fill: tooltip, search input, quick-open, auto-suggest, modal, context/dropdown menu, notification, footer word-count |
+| `--dark-panel-bg` | `#2b2b2b` | Raised-panel fill: editing-control code-tooltip, search input, quick-open, auto-suggest, modal, context/dropdown menu, notification, footer word-count. NOT hover tooltips — those ride the accent bubble (see below) and take no dark override |
 | `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, TOC content, meta block, quick-open input, table cell dividers |
 | `--indent-guide-color` | `rgba(255, 255, 255, 0.12)` | Indent guide line for the file tree and nested body lists; white tint matching Obsidian's `rgba(var(--mono-rgb-100), 0.12)` on dark (the outline guide keeps light's mode-independent `--outline-guide-color`). Body-list guides are a deliberate deviation, see the light table |
 | `--file-icon-color` | `var(--primary-color)` | File icon fill; dark's measured icon blue (rgb 45,130,205) equals the primary formula |
 | `--indent-guide-active-color` | `hsla(208, 64%, 49%, 0.4)` | Outline indent guide on hover; the measured dark `--theme-color-translucent-04` (base 64/49 formula, not the brightened 72/58 sidebar variant) |
+
+**Tooltips** (`#ty-tooltip` UI hints and `.md-hover-tip` link/footnote
+previews) are the upstream Blue Topaz accent bubble: `--primary-color`
+background, white text, matching arrow, identical in both modes (upstream
+`theme.css` paints `.tooltip` with `--interactive-accent`). Deliberately no
+dark-file override. Editing-control `.code-tooltip` (fence language input,
+math preview) stays a panel surface, not a bubble. See dev/megamenu.md for
+the two-system mechanics.
 
 ## Code Highlighting: Light (.cm-s-inner)
 

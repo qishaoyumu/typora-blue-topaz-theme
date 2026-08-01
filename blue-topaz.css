@@ -1950,38 +1950,408 @@ footer.ty-footer {
 /* ========== 26. Preferences, Mega Menu, Modals, Notifications ========== */
 .megamenu-content {
     background: var(--bg-color);
+    padding-top: 32px;
 }
 
 .megamenu-opened header {
     background: var(--bg-color);
 }
 
-.megamenu-menu-panel {
-    background: var(--side-bar-bg-color);
+/* The megamenu + unibody title bar exist only on Windows/Linux; macOS never
+   renders these elements. Typora's defaults (style/megamenu.css, window.css)
+   hard-code a light palette on them — #2F353A sidebar, #f7f7f7 zebra rows,
+   #eee buttons — so each literal gets an override here. */
+
+/* Menu sidebar: follow the app sidebar instead of the hard-coded #2F353A.
+   Newer Windows builds wrap the menu in #megamenu-menu-sidebar, older ones
+   use .megamenu-menu alone; paint both so the full rail is covered. */
+#megamenu-menu-sidebar,
+.megamenu-menu {
+    background-color: var(--side-bar-bg-color);
+    color: var(--text-color);
+}
+
+.megamenu-menu-header {
+    border-bottom: 1px solid var(--ui-border-color);
+}
+
+.megamenu-menu-header:hover,
+.megamenu-menu-header:focus {
+    color: var(--text-color);
+}
+
+.megamenu-menu-header #megamenu-menu-header-title {
+    color: var(--text-color);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+#megamenu-back-btn {
+    color: var(--text-color);
+    border-color: var(--ui-border-color);
+    border-radius: 6px;
+}
+
+#megamenu-back-btn:hover {
+    background: var(--item-hover-bg-color);
+    color: var(--item-hover-text-color);
+}
+
+/* The menu icons ship in the DOM but the default sheet hides them on wide
+   windows; show them like the app sidebar's iconography. */
+.megamenu-menu-list li a i {
+    display: inline-block;
+}
+
+/* The menu list doubles as a .dropdown-menu, so the dropdown panel styles
+   (background/border/shadow, declared later in this file) would paint it as
+   a floating box on the rail; the parent selector outweighs them. */
+#megamenu-menu-sidebar .megamenu-menu-list,
+.megamenu-menu .megamenu-menu-list {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
 }
 
 .megamenu-menu-list li a {
     color: var(--text-color);
 }
 
-.megamenu-menu-list li a:hover,
 .megamenu-menu-list li a.active {
-    color: var(--primary-color);
+    color: var(--active-file-text-color);
+    background: var(--active-file-bg-color);
+}
+
+/* Hovering the active row must not demote it to the plain hover look — the
+   default hover selector outguns .active on specificity. */
+.megamenu-menu-list li a.active:hover {
+    color: var(--active-file-text-color);
+    background: var(--active-file-bg-color);
+}
+
+/* Wide-window sidebar rows: the default is a 44px full-bleed strip; compact
+   them to the settings-list rhythm (14px text on 32px rows) as inset rounded
+   items like the app sidebar. Below 531px Typora collapses the rail to a
+   60px icon strip with 24px centered icons — leave that form factor alone. */
+@media (min-width: 531px) {
+    .megamenu-menu-list li {
+        line-height: 32px;
+    }
+
+    /* Flex instead of line-height centering: CJK fallback fonts (Microsoft
+       YaHei) sit visibly high in a 32px line box, and the icon baseline
+       drifts too; align-items centers both for real. */
+    .megamenu-menu-list li a {
+        display: flex;
+        align-items: center;
+        height: 32px;
+        font-size: 14px;
+        margin: 1px 8px;
+        padding-left: 14px;
+        border-radius: 5px;
+    }
+
+    /* The saved indicator's check floats right by default; with the other
+       rows now showing leading icons, that leaves this row icon-less and
+       left-shifted. Lead with the check instead, in the accent color — it
+       is a state, not an action (the fade-in transition is untouched). The
+       default shows #m-saved with an id-strength display:block, so the flex
+       layout needs restating at matching specificity. */
+    .megamenu-menu-list .saved #m-saved {
+        display: flex;
+    }
+
+    .megamenu-menu-list #m-saved .fa {
+        float: none;
+        font-size: inherit;
+        line-height: inherit;
+        color: var(--primary-color);
+    }
+}
+
+/* Panels/sections are containers on the page background, not sidebars: the
+   default paints .megamenu-menu-section #fff, and a --side-bar-bg-color here
+   used to stripe the content area. */
+.megamenu-menu-panel,
+.megamenu-menu-section {
+    background: transparent;
+}
+
+/* Content rhythm: pull the default 30px/64px gaps to the settings-page
+   spacing scale (content padding 32/48, 32px between panels). */
+.megamenu-menu-panel {
+    margin-left: 48px;
+}
+
+.megamenu-menu-panel:not(:first-of-type) {
+    margin-top: 32px;
+}
+
+/* Headings: cancel the body palette leaking through the global h1/h2 rules,
+   and swap the default 40px/30px thin display type for the settings-page
+   scale (measured Blue Topaz settings: section titles 15px/600; h1 sits one
+   step up for the full-window layout and doubles as a section title on the
+   export page). */
+.megamenu-menu-panel h1,
+.megamenu-menu-panel h2 {
+    color: var(--text-color);
+}
+
+.megamenu-menu-panel h1 {
+    font-size: 22px;
+    line-height: 1.3;
+    font-weight: 600;
+    margin: 0 0 16px;
+}
+
+.megamenu-menu-panel h2 {
+    font-size: 15px;
+    line-height: 1.3;
+    font-weight: 600;
+    margin: 0 0 12px;
+}
+
+#recent-file-panel tbody tr:nth-child(2n-1) {
+    background-color: transparent !important;
+}
+
+/* Rows are click targets; give them the theme hover. The recent-files copy
+   needs !important to outrank the zebra reset above on odd rows; the generic
+   copy covers the help/contact tables on the about page. */
+#recent-file-panel tbody tr:hover {
+    background-color: var(--item-hover-bg-color) !important;
+}
+
+.megamenu-menu-panel .table-hover tbody tr:hover {
+    background-color: var(--item-hover-bg-color);
+}
+
+/* The default table type is 10pt/300 thin; normalize to the settings scale.
+   font-size needs !important only because the default declares it so. */
+.megamenu-menu-panel table {
+    font-size: 13px !important;
+    font-weight: 400;
+}
+
+#recent-file-panel th {
+    font-weight: 600;
+}
+
+#recent-file-pane .dropdown-menu {
+    background-color: var(--bg-color);
+}
+
+.megamenu-menu-panel .dropdown-menu > li > a {
+    color: var(--text-color);
+}
+
+#recent-file-panel-search-input {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--ui-border-color);
+    border-radius: 4px;
+    height: 30px;
+    font-size: 13px;
+    padding-left: 12px;
+}
+
+#recent-file-panel-search-input:focus {
+    border-color: var(--primary-color);
+}
+
+.megamenu-menu-panel .btn {
+    background: transparent;
+    border: 1px solid var(--ui-border-color);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 13px;
+}
+
+.megamenu-menu-panel .btn:hover {
     background: var(--item-hover-bg-color);
+    color: var(--item-hover-text-color);
+}
+
+/* Focus cue via the border like the inputs, not the UA outline ring
+   (base-control's outline-color var is undefined in this theme). */
+/* Focus ring only for keyboard navigation: a mouse click parks focus on
+   the button and a plain :focus border would linger there until the next
+   click, reading like a stuck pressed state. */
+.megamenu-menu-panel .btn:focus {
+    outline: 0;
+}
+
+.megamenu-menu-panel .btn:focus-visible {
+    outline: 0;
+    border-color: var(--primary-color);
 }
 
 #recent-file-panel-action-btn {
+    background: transparent;
     color: var(--primary-color);
 }
 
+/* Bordered card instead of a solid primary slab, compacted from the default
+   18px type toward the settings-control scale; hover already comes from the
+   default sheet's var(--item-hover-*) rule. */
 .long-btn {
-    background: var(--primary-color);
-    color: var(--primary-btn-text-color);
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--ui-border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 8px 16px;
+}
+
+.long-btn i {
+    color: var(--primary-color);
+    font-size: 16px;
+    margin-right: 12px;
+}
+
+.long-btn .preference-item-hint {
+    color: var(--control-text-color);
+    font-size: 12px;
+}
+
+#m-import-local:hover .preference-item-hint {
+    color: var(--control-text-color);
+}
+
+/* Theme gallery: the active ring and check badge read
+   var(--side-bar-menu-active-tint), which this theme never defines — the
+   ring degraded to currentColor. Pin them to the accent. */
+.theme-preview-div.active,
+.theme-preview-div.active:hover {
+    border-color: var(--primary-color);
+}
+
+.theme-preview-div:hover {
+    border-color: var(--control-text-color);
+}
+
+/* At the default sheet's own 400px breakpoint the second card column clips
+   past the window edge instead of wrapping; stack the cards. */
+@media (max-width: 400px) {
+    #theme-preview-grid .theme-preview-div {
+        display: block;
+        width: fit-content;
+        margin-right: 0;
+    }
+}
+
+.theme-preview-div .fa {
+    color: var(--primary-color);
+}
+
+/* Unibody title bar: the default hovers are #EDEDED/#000 literals. */
+#top-titlebar .toolbar-icon.btn.hover,
+#top-titlebar .toolbar-icon.btn:hover {
+    background-color: var(--item-hover-bg-color);
+    color: var(--item-hover-text-color);
+}
+
+#top-titlebar header:hover .title-text {
+    color: var(--text-color);
+}
+
+.ty-menu-btn-area:hover > span {
+    background-color: var(--text-color);
+}
+
+/* The pin/fullscreen buttons pop out below the caption group; the default
+   leaves them transparent, floating over whatever content sits beneath. */
+#w-full,
+#w-pin {
+    border: 1px solid var(--ui-border-color);
+    background: var(--bg-color);
+}
+
+#w-full:hover,
+#w-pin:hover {
+    background: var(--item-hover-bg-color);
+}
+
+#w-unpin {
+    background-color: var(--item-hover-bg-color);
+}
+
+/* Unibody-only fixes. These class names also exist on macOS, so the rules
+   hang off the .unibody-window body class that only Windows/Linux windows
+   carry: the defaults paint light literals (#fff backdrop, #fafafa disabled
+   chip, #ccc focus flash) that dark mode never overrides. */
+.unibody-window .modal-backdrop {
+    background-color: var(--bg-color);
+}
+
+.unibody-window .menu-style-btn.disabled,
+.unibody-window .menu-style-btn.disabled:hover {
+    color: var(--control-text-color);
+    background-color: var(--bg-color);
+}
+
+.unibody-window .context-menu.dropdown-menu > li > a:focus {
+    background-color: var(--item-hover-bg-color);
+    color: var(--item-hover-text-color);
+}
+
+/* Preferences window (page-dist/setting.html, all platforms — macOS included).
+   That document loads the theme BEFORE its own stylesheet, so every override
+   here rides the .ty-preferences root for strictly higher specificity. Its
+   own sheet leaves headings uncolored (the body heading palette would leak
+   through: h2 window title, h3 page titles, h5 section labels), and paints a
+   few literals inside @media (prefers-color-scheme: dark) — keyed to the OS
+   appearance, not the active theme — which frankensteins a light theme under
+   a dark OS. Re-pin those surfaces to the theme variables their own base
+   rules already intend. */
+.ty-preferences h1,
+.ty-preferences h2,
+.ty-preferences h3,
+.ty-preferences h4,
+.ty-preferences h5,
+.ty-preferences h6 {
+    color: var(--text-color);
+}
+
+/* Title tiers converge on the megamenu's measured scale (h1 22/600,
+   section 15/600); the window-header bar and controls stay stock. */
+.ty-preferences .content h3 {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.ty-preferences .input-group-header {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* The detail pane and the list control strip are containers, not selected
+   items — give them the bordered-surface card language and keep the active
+   tint for the genuinely active format chip. */
+.ty-preferences .export-detail {
+    background: var(--side-bar-bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--ui-border-color);
+    padding: 16px 20px;
+}
+
+.ty-preferences .export-items-list-control {
+    background: var(--side-bar-bg-color);
+    border: 1px solid var(--ui-border-color);
     border-radius: 4px;
 }
 
-.long-btn:hover {
-    background: hsl(207, 77%, 44%);
+.ty-preferences .export-item.active {
+    background: var(--active-file-bg-color);
+    color: var(--active-file-text-color);
+}
+
+.ty-preferences .nav-group-item:active,
+.ty-preferences .nav-group-item.active {
+    background: var(--active-file-bg-color);
+    color: var(--active-file-text-color);
 }
 
 .modal-content {
@@ -2055,19 +2425,49 @@ footer.ty-footer {
     color: var(--primary-color);
 }
 
-/* tooltip */
-div.code-tooltip,
-.md-hover-tip .md-arrow:after {
+/* Tooltips follow upstream Blue Topaz: an accent bubble with white text in
+   both modes (theme.css paints .tooltip with --interactive-accent). Typora
+   has two tooltip systems — #ty-tooltip (ty-hint UI hints; one element that
+   carries both the id and the .ty-tooltip class) and .code-tooltip.md-hover-tip
+   (link/footnote hover previews; the default paints them #000 at (0,2,0)).
+   Plain code-tooltips (fence language input, math preview) are editing
+   controls, not tooltips, and keep the panel look. */
+div.code-tooltip {
     background: #f6f8fa;
     border: 1px solid var(--ui-border-color);
+}
+
+.code-tooltip.md-hover-tip {
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: 5px;
+}
+
+.md-hover-tip .md-arrow:after {
+    background: var(--primary-color);
+}
+
+.md-hover-tip a {
+    color: #fff;
+}
+
+/* The URL readout is a direct-child anchor (footnote previews wrap their
+   content in markdown elements, so those stay at body rhythm). Typography
+   anchored to the measured Obsidian tooltip: 12px, weight 500 — the bundled
+   Inter has no 500, so 600 is the nearest real cut. */
+.md-hover-tip .code-tooltip-content > a {
+    font-size: 12px;
+    font-weight: 600;
 }
 
 #ty-tooltip {
     background: var(--primary-color);
     color: white;
-    border-radius: 4px;
+    border-radius: 5px;
     padding: 4px 8px;
-    font-size: 0.8em;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
 }
 
 /* ========== 27. Source mode ========== */

@@ -499,9 +499,14 @@ kbd {
 }
 
 /* ========== Preferences, Mega Menu, Modals ========== */
-/* megamenu-content / megamenu-opened header / megamenu-menu-panel: identical to
-   blue-topaz.css and the vars they read are overridden in the dark :root, so the
-   imported rules already resolve to dark values. No dark-specific block needed. */
+/* The megamenu rules in blue-topaz.css read theme vars that the dark :root
+   overrides, so they resolve to dark values through the import. Only the
+   recent-files dropdown needs a dark-specific surface so it matches the
+   other dark menus below. */
+
+#recent-file-pane .dropdown-menu {
+    background-color: var(--dark-panel-bg);
+}
 
 .modal-content {
     background: var(--dark-panel-bg);
@@ -522,8 +527,7 @@ kbd {
  * hsl(208,64%,49%), has lower saturation, so reusing the light hover would
  * paradoxically make hover more vivid than the base color. Dark gets its own
  * one-step-darker hover so the base-to-hover direction is preserved. */
-.btn-primary:hover,
-.long-btn:hover {
+.btn-primary:hover {
     background: hsl(208, 64%, 39%);
 }
 
@@ -552,15 +556,12 @@ kbd {
     background: var(--dark-panel-bg);
 }
 
-div.code-tooltip,
-.md-hover-tip .md-arrow:after {
+/* Editing-control tooltips only; the hover-preview bubble and its arrow stay
+   on the accent via the imported rules (#ty-tooltip likewise — the dark
+   :root already swaps --primary-color). */
+div.code-tooltip {
     background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
-}
-
-#ty-tooltip {
-    background: #555;
-    color: #e4e4e4;
 }
 
 /* ========== Source mode ========== */
