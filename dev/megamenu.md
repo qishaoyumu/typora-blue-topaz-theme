@@ -80,11 +80,17 @@ Interaction states use the existing tokens throughout: `--item-hover-*`,
   bubble in dark — both removed). Typography is anchored to the live-measured
   Obsidian tooltip (12px / weight 500 / 1.3 / radius 5 / padding 4×8;
   measured 2026-07-26 via an `obsidian eval` constructed-element probe):
-  weight lands on 600 because the bundled Inter has no 500 cut and CSS
-  font-matching would resolve 500 down to 400. In hover previews only the
-  direct-child URL anchor takes the compact type — footnote preview bodies
-  keep document rhythm. File-tree hover tooltips remain OS-native `title`
-  and untouchable.
+  the bundled Inter has no 500 cut; the round first landed on 600 (the
+  nearest upward cut), but side-by-side it read visibly bolder than the
+  reference's system-font 500, so 2026-08-01 settled on 400 as the closer
+  match by eye. Footnote preview bodies keep document rhythm (since the
+  2026-08 alignment they render as the reference's hover-popover card, see
+  color-mapping.md). File-tree hover tooltips remain OS-native `title`
+  and untouchable. `#ty-tooltip` carries no arrow in any version and none
+  can be drawn correctly: Typora positions it with inline offsets only,
+  flipping above/below by whether the anchor sits past the window's
+  vertical midpoint — CSS has no direction signal (Obsidian's arrow works
+  because its JS toggles direction classes).
 - **Undefined default vars**: the theme gallery's active ring/badge read
   `var(--side-bar-menu-active-tint)` and `.btn:focus` reads
   `outline-color: var(--focus-ring-color)`; neither is defined by this theme,

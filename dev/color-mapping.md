@@ -97,19 +97,29 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | Hard-coded `#eb7c46` | `#eb7c46` | Active-file icon hover color, shared with light; clears WCAG AA (>4.5:1) on the dark background |
 | `--control-text-color` | `#8a8a8a` | File-list-view meta info (parent-loc / summary / time text color) |
 | `--dark-border-color` | `#343434` | Generic 1px border tone for the dark scheme: window, code tooltip, sidebar, search, modals, table edit UI, etc. (the table body's cell dividers use a darker `#1a1a1a`) |
-| `--dark-panel-bg` | `#2b2b2b` | Raised-panel fill: editing-control code-tooltip, search input, quick-open, auto-suggest, modal, context/dropdown menu, notification, footer word-count. NOT hover tooltips — those ride the accent bubble (see below) and take no dark override |
+| `--dark-panel-bg` | `#2b2b2b` | Raised-panel fill: editing-control code-tooltip, search input, quick-open, auto-suggest, modal, context/dropdown menu, notification, footer word-count. NOT the hover-preview card (`#242424` measured, see below) or the #ty-tooltip accent bubble |
 | `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, TOC content, meta block, quick-open input, table cell dividers |
 | `--indent-guide-color` | `rgba(255, 255, 255, 0.12)` | Indent guide line for the file tree and nested body lists; white tint matching Obsidian's `rgba(var(--mono-rgb-100), 0.12)` on dark (the outline guide keeps light's mode-independent `--outline-guide-color`). Body-list guides are a deliberate deviation, see the light table |
 | `--file-icon-color` | `var(--primary-color)` | File icon fill; dark's measured icon blue (rgb 45,130,205) equals the primary formula |
 | `--indent-guide-active-color` | `hsla(208, 64%, 49%, 0.4)` | Outline indent guide on hover; the measured dark `--theme-color-translucent-04` (base 64/49 formula, not the brightened 72/58 sidebar variant) |
 
-**Tooltips** (`#ty-tooltip` UI hints and `.md-hover-tip` link/footnote
-previews) are the upstream Blue Topaz accent bubble: `--primary-color`
-background, white text, matching arrow, identical in both modes (upstream
-`theme.css` paints `.tooltip` with `--interactive-accent`). Deliberately no
-dark-file override. Editing-control `.code-tooltip` (fence language input,
-math preview) stays a panel surface, not a bubble. See dev/megamenu.md for
-the two-system mechanics.
+**Tooltips** follow the upstream split (2026-08, correcting the earlier
+all-bubble unification): `#ty-tooltip` UI hints are the accent bubble —
+`--primary-color` background, white text, both modes, deliberately no
+dark-file override (upstream `theme.css` paints `.tooltip` with
+`--interactive-accent`). Generic `.md-hover-tip` bubbles (absent in this
+macOS build; other builds put link tips on the class) keep the accent
+bubble with its accent arrow. `.md-f-tooltip` in-document previews (the
+footnote content preview and the undefined-footnote warning) are the
+reference's `.popover.hover-popover` card: light `#fafafa` on `1px #ddd`,
+dark `#242424` on `#343434`, radius 7px, the measured four-layer shadow,
+arrowless like the reference, fixed 450px width, content scaled to
+13.125px/1.5 with ~13px vertical inset (captured from a live footnote
+hover: the popover's 15px base x 0.875); its content layer goes
+transparent so the stock inherit-background never planks over the card's
+border. Editing-control `.code-tooltip` (fence language input, math
+preview) stays a panel surface. See dev/megamenu.md for the two-system
+mechanics.
 
 ## Code Highlighting: Light (.cm-s-inner)
 
@@ -289,7 +299,11 @@ the sidebar, buttons, and other UI:
 - `#write .md-search-select { outline }` (current search hit)
 
 No longer on this list since the 2026-07 alignment pass: `blockquote`'s bar
-moved to `--interactive-accent`, and `sup.md-footnote` went plain ink.
+moved to `--interactive-accent`. `sup.md-footnote` went plain ink in that
+pass, then returned to the accent (via `--link-color`) in 2026-08: the
+"plain ink" reading had measured the sup wrapper, while the reference's
+color sits on the `<a>` inside — the ref renders as an accent `[1]` in both
+modes (light `#2f93e4`, dark `rgb(45, 130, 205)`, live-measured).
 
 In the dark file these selectors are inherited from light through `@import`;
 dark only overrides the value of `--primary-color` in its own `:root` (to

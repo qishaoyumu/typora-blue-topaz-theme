@@ -775,10 +775,28 @@ hr {
 }
 
 /* ========== 18. Footnotes, Math, TOC, YAML, mark, kbd ========== */
-/* Footnote refs are plain text ink in the reference (measured), not accent. */
-sup.md-footnote {
-    color: inherit;
+/* Footnote refs are the reference's accent "[1]": the color sits on the <a>
+   inside sup.footnote-ref (the earlier "plain ink" reading measured the sup
+   wrapper), and the brackets are renderer text there. Typora emits a bare
+   digit inside a gray chip (base.css: #555 on rgba(238,238,238,.7), 2/4px
+   padding; base-control.css: .2ch side margins), while the reference is
+   plain flowing text — so the chip and margins go, and the brackets are
+   pseudo-element glyphs, dropped while the raw [^1] is expanded for
+   editing. #write-scoped to outrank base.css regardless of load order. */
+#write sup.md-footnote {
+    color: var(--link-color);
     background: transparent;
+    padding: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#write sup.md-footnote:not(.md-expand)::before {
+    content: "[";
+}
+
+#write sup.md-footnote:not(.md-expand)::after {
+    content: "]";
 }
 
 /* Superscript / subscript (^x^ / ~x~): the UA defaults (font-size smaller =
@@ -2430,39 +2448,92 @@ footer.ty-footer {
     color: var(--primary-color);
 }
 
-/* Tooltips follow upstream Blue Topaz: an accent bubble with white text in
-   both modes (theme.css paints .tooltip with --interactive-accent). Typora
-   has two tooltip systems — #ty-tooltip (ty-hint UI hints; one element that
-   carries both the id and the .ty-tooltip class) and .code-tooltip.md-hover-tip
-   (link/footnote hover previews; the default paints them #000 at (0,2,0)).
-   Plain code-tooltips (fence language input, math preview) are editing
-   controls, not tooltips, and keep the panel look. */
+/* Tooltips follow upstream Blue Topaz's own split: UI hints are the accent
+   bubble (theme.css paints .tooltip with --interactive-accent, both modes) —
+   that is #ty-tooltip (ty-hint UI hints; one element carrying both the id
+   and the .ty-tooltip class). In-document hover previews are the reference's
+   .popover.hover-popover card (measured: #fafafa on 1px #ddd, radius 7,
+   four-layer shadow, no arrow) — that is .code-tooltip.md-hover-tip, which
+   this build creates only for footnotes (.md-f-tooltip: the content preview
+   and the undefined-footnote warning). Plain code-tooltips (fence language
+   input, math preview) are editing controls, not tooltips, and keep the
+   panel look. */
 div.code-tooltip {
     background: #f6f8fa;
     border: 1px solid var(--ui-border-color);
 }
 
+/* Non-footnote hover tips keep the megamenu-round accent bubble with its
+   accent arrow. This macOS build constructs none (every md-hover-tip it
+   creates is .md-f-tooltip), but other builds put link tips on the same
+   class, and those are hints, not in-document previews. */
 .code-tooltip.md-hover-tip {
     background: var(--primary-color);
     color: #fff;
     border-radius: 5px;
 }
 
-.md-hover-tip .md-arrow:after {
-    background: var(--primary-color);
-}
-
-.md-hover-tip a {
+.code-tooltip.md-hover-tip a {
     color: #fff;
 }
 
-/* The URL readout is a direct-child anchor (footnote previews wrap their
-   content in markdown elements, so those stay at body rhythm). Typography
-   anchored to the measured Obsidian tooltip: 12px, weight 500 — the bundled
-   Inter has no 500, so 600 is the nearest real cut. */
-.md-hover-tip .code-tooltip-content > a {
-    font-size: 12px;
-    font-weight: 600;
+.md-hover-tip div.md-arrow:after {
+    background: var(--primary-color);
+}
+
+/* In-document previews (.md-f-tooltip: the footnote content preview and
+   the undefined-footnote warning) are the reference's .popover.hover-popover
+   card instead. */
+.code-tooltip.md-hover-tip.md-f-tooltip {
+    background: #fafafa;
+    color: var(--text-color);
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    box-shadow: 0 2.7px 3.1px rgba(0, 0, 0, 0.03),
+        0 5.9px 8.7px rgba(0, 0, 0, 0.05),
+        0 10.4px 18.1px rgba(0, 0, 0, 0.07),
+        0 20px 40px rgba(0, 0, 0, 0.11);
+    /* Captured from a live footnote hover (.popover.hover-popover >
+       .markdown-embed[data-type=footnote]): content is scaled to 13.125px
+       (the 15px popover base x 0.875) at line-height 1.5. */
+    font-size: 13.125px;
+    line-height: 1.5;
+    /* The reference card is a fixed-width panel (--popover-width: 450px,
+       452 with border), not a shrink-to-fit bubble; short content leaves
+       air on the right. Typora's own inline max-width (session width - 60)
+       still caps it in narrow windows. */
+    width: 450px;
+}
+
+/* The reference card floats free of its anchor and is arrowless; the stock
+   arrow is an absolutely-positioned overlay, so hiding it shifts nothing. */
+.md-f-tooltip div.md-arrow {
+    display: none;
+}
+
+/* Captured insets: 13.125px vertical, 6.56px left, 0 right (the reference
+   lets long lines run to the card edge; a symmetric 8px is kept here so
+   wrapped text never touches the border). Card = 48px tall around one
+   19.7px line, matching the capture. The stock content rule (base-control's
+   .md-hover-tip .code-tooltip-content) rides along with an inherited
+   background at 4px radius pulled up -2px — planked over the card's own
+   border: the -2px ate the top edge and the radius mismatch ate the corner
+   arcs. Transparent background ends the cover-up (the card paints its own);
+   stock opacity .95, line-height 1.2em and centered text also reset to the
+   reference. Bubbles keep the stock content look untouched. */
+.md-hover-tip.md-f-tooltip .code-tooltip-content {
+    background: transparent;
+    padding: 13px 8px;
+    margin-top: 0;
+    opacity: 1;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* Stock paints hover-tip links #B6C8DA; the reference keeps document link
+   ink inside its cards. */
+.code-tooltip.md-hover-tip.md-f-tooltip a {
+    color: var(--link-color);
 }
 
 #ty-tooltip {
@@ -2471,7 +2542,11 @@ div.code-tooltip {
     border-radius: 5px;
     padding: 4px 8px;
     font-size: 12px;
-    font-weight: 600;
+    /* The reference measures 500, which the bundled Inter lacks. 600 (the
+       nearest real cut upward) read visibly bolder than the reference's
+       system-font 500, so this settles on 400 — the lighter neighbor is
+       the closer match by eye (user-verified 2026-08-01). */
+    font-weight: 400;
     line-height: 1.3;
 }
 

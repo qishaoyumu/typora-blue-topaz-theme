@@ -556,12 +556,23 @@ kbd {
     background: var(--dark-panel-bg);
 }
 
-/* Editing-control tooltips only; the hover-preview bubble and its arrow stay
-   on the accent via the imported rules (#ty-tooltip likewise — the dark
-   :root already swaps --primary-color). */
+/* Editing-control tooltips only; the #ty-tooltip accent bubble rides the
+   imported rules (the dark :root already swaps --primary-color). */
 div.code-tooltip {
     background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
+}
+
+/* In-document preview card only (.md-f-tooltip): the reference's dark
+   .popover.hover-popover values. Non-footnote hover tips stay the accent
+   bubble via the imported rules. */
+.code-tooltip.md-hover-tip.md-f-tooltip {
+    background: #242424;
+    border-color: #343434;
+    box-shadow: 0 2.7px 3.1px rgba(0, 0, 0, 0.082),
+        0 5.9px 8.7px rgba(0, 0, 0, 0.13),
+        0 10.4px 18.1px rgba(0, 0, 0, 0.18),
+        0 20px 40px rgba(0, 0, 0, 0.28);
 }
 
 /* ========== Source mode ========== */
