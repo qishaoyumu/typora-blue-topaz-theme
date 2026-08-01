@@ -395,9 +395,14 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Hover = the reference's external-link behavior: the underline stays and the
-   link dims to opacity 0.8 (the global a:hover above). The 2026-06 AA
-   full-contrast override was reverted for fidelity in 2026-07. */
+/* Hover = the reference's reading-view a:hover: the underline disappears
+   (`text-decoration: none !important` there) and the link dims to opacity 0.8
+   (the global a:hover above). Its text-shadow rides on --window-shadow-hover,
+   which is undefined in the reference, so there is no shadow to port. The
+   2026-06 AA full-contrast override was reverted for fidelity in 2026-07. */
+#write a:hover {
+    text-decoration: none;
+}
 
 /* External-link icon: the reference's own glyph (its app.css SVG asset),
    hung off the right padding exactly as upstream (0.825em glyph, 0.9em
