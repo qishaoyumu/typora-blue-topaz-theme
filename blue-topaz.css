@@ -1720,15 +1720,92 @@ kbd {
        (where the line is the children block's left border, not a caret axis).
        Eye-tuned against the reference vault at 16 vs 17; 17 won. */
     --outline-guide-offset: 17px;
+    /* Uniform lead added before every row's indent. 0 in collapsible mode,
+       where the 28px expander slot already provides the lead. */
+    --outline-base-inset: 0px;
 }
 
-/* Enlarge per-level indent (overrides base's (N-1)em row padding). */
-.outline-content .outline-item-wrapper > .outline-item { padding-left: 0; }
-.outline-content .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 1); }
-.outline-content .outline-children .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 2); }
-.outline-content .outline-children .outline-children .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 3); }
-.outline-content .outline-children .outline-children .outline-children .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 4); }
-.outline-content .outline-children .outline-children .outline-children .outline-children .outline-children > .outline-item-wrapper > .outline-item { padding-left: calc(var(--outline-indent-step) * 5); }
+/* Flat outline ("大纲视图（无折叠）", Typora's factory default, toggled via the
+   outline panel's context menu): base-control display:none's every
+   .outline-expander under body.pin-outline.no-collapse-outline, so rows lose
+   their 28px caret slot. Untreated, depth-N text (17×N) lands exactly on the
+   guide x (17×N) and root rows sit flush against the hover card's left edge.
+   A base inset of exactly the slot's 28px re-creates the slot as empty lead:
+   every text x and every guide x is identical across the two modes, so
+   toggling reads as the carets fading in place with zero reflow, and the
+   28px line-to-text gap holds in both modes (an 8px inset was tried first —
+   compact standalone, but it changed the line-to-text relationship between
+   modes, which read as two different designs; user-decided 2026-08-01).
+   Typora's own exported sidebar keeps the empty slot the same way in its
+   flat mode. Same compound scope as the base-control hide rule, so the inset
+   applies exactly when carets are hidden. No caret substitute on purpose:
+   collapse is disabled in this mode, and a caret that does nothing is a false
+   affordance. The exported sidebar is unaffected (its flat mode keeps the
+   slot via typora-export-no-collapse-outline and never carries pin-outline). */
+body.pin-outline.no-collapse-outline .outline-content {
+    --outline-base-inset: 28px;
+}
+
+/* Flat-outline row marker: a 4px gray disc on the caret axis. Without carets
+   the indent guides had nothing to hang from (an "orphaned line" floating in
+   the empty slot); the disc restores the anchor, and the flat outline openly
+   is what it shows: a non-collapsible nested list, marked in the same
+   language as the body's drawn-dot lists (same #7f7f7f as #write li::before,
+   both schemes). A drawn disc rather than the body's "•" glyph: at the
+   outline's 13px type the glyph's ink would shrink and ride the baseline,
+   while a box gives exact size and center. Not a pictorial icon (#/H-badges/
+   chevrons were weighed): a chevron fakes an affordance, and any glyph with
+   internal detail repeated on every 25px row reads as texture noise — the
+   neutral disc is the canonical "item, no action" marker. Geometry: center
+   x = indent + 17px = the guide axis, so the child guide pierces the disc.
+   The collapsible caret's ink center sits ~4px left of that axis (stock
+   geometry grazes the caret's right tip), so the toggle swap carries a 4px
+   sideways step — axis anchoring won over exact caret-swap because the
+   pierced disc is the daily view (user-decided 2026-08-01); center y = 4px
+   row padding + half the 17px first line, concentric with the caret.
+   Scoped like everything else here, so filter mode and exports never see it.
+
+   Parents only, like the carets: collapsible mode marks only rows with
+   children (base.css blanks .outline-item-single's caret), and a disc on
+   every row read as bullet-list noise (user-decided 2026-08-01). Matching
+   the caret's distribution keeps the marked-row set identical across the
+   mode toggle and turns the disc into what the caret was: a substructure
+   marker. Leaves keep their empty slot — the disc is absolutely positioned,
+   so its absence costs no layout. Parenthood is detected structurally with
+   :has(), NOT via .outline-item-single: main.js runs its leaf classifier
+   only when the body lacks no-collapse-outline, so in flat mode the class
+   never exists and :not(.outline-item-single) matches every row (verified
+   against a live screenshot 2026-08-01). The :has() predicate mirrors the
+   classifier's own test — wrapper.querySelector(".outline-item-wrapper") —
+   and the theme already relies on :has() (file-tree root caret). */
+body.pin-outline.no-collapse-outline .outline-content .outline-item {
+    position: relative;
+}
+
+body.pin-outline.no-collapse-outline .outline-content .outline-item-wrapper:has(.outline-item-wrapper) > .outline-item::before {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #7f7f7f;
+    /* text edge (base + 17×level) − 11px axis offset − 2px half-width */
+    left: calc(var(--outline-base-inset) + var(--outline-indent-step) * var(--outline-level, 0) - 13px);
+    /* 4px + 17px/2 − 2px half-height */
+    top: 10.5px;
+}
+
+/* Enlarge per-level indent (overrides base's (N-1)em row padding). Each rule
+   also publishes its depth as --outline-level, so descendants (the flat-mode
+   row marker below) can recompute the row's indent without re-walking the
+   chain; the same escalating specificity that settles padding-left settles
+   the variable. */
+.outline-content .outline-item-wrapper > .outline-item { --outline-level: 0; padding-left: var(--outline-base-inset); }
+.outline-content .outline-children > .outline-item-wrapper > .outline-item { --outline-level: 1; padding-left: calc(var(--outline-base-inset) + var(--outline-indent-step) * 1); }
+.outline-content .outline-children .outline-children > .outline-item-wrapper > .outline-item { --outline-level: 2; padding-left: calc(var(--outline-base-inset) + var(--outline-indent-step) * 2); }
+.outline-content .outline-children .outline-children .outline-children > .outline-item-wrapper > .outline-item { --outline-level: 3; padding-left: calc(var(--outline-base-inset) + var(--outline-indent-step) * 3); }
+.outline-content .outline-children .outline-children .outline-children .outline-children > .outline-item-wrapper > .outline-item { --outline-level: 4; padding-left: calc(var(--outline-base-inset) + var(--outline-indent-step) * 4); }
+.outline-content .outline-children .outline-children .outline-children .outline-children .outline-children > .outline-item-wrapper > .outline-item { --outline-level: 5; padding-left: calc(var(--outline-base-inset) + var(--outline-indent-step) * 5); }
 
 .outline-content .outline-children {
     position: relative;
