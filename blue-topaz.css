@@ -1778,7 +1778,15 @@ kbd {
    Expanded is the natural ↓; collapsed rotates -90° to point right and dims —
    a single glyph, so the state change animates via transform. !important pins
    content/font-family/font-size over Typora base.css, which swaps \f125/\f123
-   Ionicons chevrons per state and loads after this at equal specificity. */
+   Ionicons chevrons per state and loads after this at equal specificity.
+
+   vertical-align: top, because on the baseline this inline-block inflates its
+   line box to 18.08px, making caret rows 26px tall while leaf rows stay 25 —
+   a 1px rhythm wobble visible as cumulative row drift when toggling flat mode
+   (harness-bisected 2026-08-01; display:block would fix it too but widens the
+   box to the cell, moving the collapse rotation's center). Top-aligned, the
+   17px box fills the 17px strut exactly: every row is 25px in both modes and
+   the glyph's optical center lands on the row grid (4px pad + 17px/2). */
 .outline-expander:before {
     content: "\2193" !important;
     font-family: 'Inter', sans-serif !important;
@@ -1786,6 +1794,7 @@ kbd {
     font-size: 13px !important;
     color: var(--primary-color);
     display: inline-block;
+    vertical-align: top;
     transition: transform 0.12s ease;
 }
 
