@@ -525,6 +525,14 @@ hr {
     border: 1px solid var(--ui-border-color);
 }
 
+/* No arrow on the pick-grid panel: in the theme's (and the reference's)
+   tooltip split, arrows belong to hint bubbles only — panels, cards, and
+   menus are arrowless, and a click-invoked picker sitting flush under its
+   button carries no anchor information an arrow could add. */
+.md-table-resize-popover > .arrow {
+    display: none;
+}
+
 .ty-table-edit {
     background: var(--bg-color);
     border: 1px solid var(--ui-border-color);
