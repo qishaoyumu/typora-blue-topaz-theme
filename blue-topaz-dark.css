@@ -369,6 +369,12 @@ hr {
     color: #797979;
 }
 
+/* The sidebar wash's ΔL* (9.1: #2a2a2a on #151515) rebuilt on the #202020
+   body — see the light theme's derivation note. */
+.md-toc {
+    --toc-hover-bg: #383838;
+}
+
 #write pre.md-meta-block {
     background: var(--dark-surface-2);
     border-color: var(--dark-border-color);

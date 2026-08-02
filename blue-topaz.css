@@ -906,11 +906,33 @@ hr {
    sibling is deeper, via :has(+) — main.js's wrapper classifier never runs
    here. 19px line + 3px pads ≈ the outline's 25px rhythm and land the disc
    at the outline's own 10.5px center. */
+/* Registered so the guide colors can ease (0.4s, like the sidebar line's
+   background-color transition) — unregistered custom properties flip
+   discretely and cannot be listed in `transition`. */
+@property --toc-guide-0 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --toc-guide-1 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --toc-guide-2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --toc-guide-3 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --toc-guide-4 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+
 .md-toc {
     font-size: 0.9em;
     margin: 1rem 0;
     --toc-inset: 28px;
     --toc-step: 17px;
+    /* One color slot per guide axis: lighting an axis = flipping one variable,
+       so the chain-hover rules below never restate the gradient stacks. */
+    --toc-guide-0: var(--outline-guide-color);
+    --toc-guide-1: var(--outline-guide-color);
+    --toc-guide-2: var(--outline-guide-color);
+    --toc-guide-3: var(--outline-guide-color);
+    --toc-guide-4: var(--outline-guide-color);
+    /* The sidebar wash's contrast, rebuilt on the body background: sidebar
+       hovers #f0f0f0 on #fcfcfc (ΔL* 3.9); the same ΔL* on #ffffff lands at
+       #f3f3f3. (Dark: #2a2a2a on #151515 = ΔL* 9.1 → #383838 on #202020.)
+       Reusing --item-hover-bg-color verbatim would halve the perceived step
+       in dark mode — the wash is a contrast, not a color. */
+    --toc-hover-bg: #f3f3f3;
 }
 
 /* base-control gives the content <p> `margin:20px 0;padding:0 20px` — the old
@@ -923,21 +945,35 @@ hr {
     padding: 0;
 }
 
+/* Rows carry the sidebar row's own dress: 5px radius, 0.2s wash/ink ease,
+   muted resting ink that brightens on hover, and the desktop arrow cursor
+   (the sidebar suppresses base's pointer the same way — clickability reads
+   from the wash, as in Obsidian's trees). The per-level indent lives on the
+   inner <a>, not the row: frame.js delegates the jump to mousedown on
+   .md-toc-inner, so the <a> must be the full row for the lead slot and the
+   empty right side to be clickable — the sidebar gets this from a row-level
+   JS handler the TOC lacks. Guides, disc, and wash stay on the row box, and
+   the guide-color transitions ride the registered properties above. */
 #write .md-toc-item {
     --toc-level: 0;
     position: relative;
-    color: var(--text-color);
+    color: var(--control-text-color);
     line-height: 19px;
-    padding: 3px 0 3px calc(var(--toc-inset) + var(--toc-step) * var(--toc-level));
+    border-radius: 5px;
+    cursor: default;
+    transition: background-color 0.2s ease, color 0.2s ease,
+        --toc-guide-0 0.4s ease, --toc-guide-1 0.4s ease, --toc-guide-2 0.4s ease,
+        --toc-guide-3 0.4s ease, --toc-guide-4 0.4s ease;
 }
 
 #write .md-toc-item:hover {
-    background-color: var(--item-hover-bg-color);
+    background-color: var(--toc-hover-bg);
+    color: var(--text-color);
 }
 
 #write .md-toc-h2 {
     --toc-level: 1;
-    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-image: linear-gradient(var(--toc-guide-0), var(--toc-guide-0));
     background-size: 1px 100%;
     background-repeat: no-repeat;
     background-position: calc(var(--toc-step) * 1) 0;
@@ -945,8 +981,8 @@ hr {
 
 #write .md-toc-h3 {
     --toc-level: 2;
-    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-image: linear-gradient(var(--toc-guide-0), var(--toc-guide-0)),
+        linear-gradient(var(--toc-guide-1), var(--toc-guide-1));
     background-size: 1px 100%;
     background-repeat: no-repeat;
     background-position: calc(var(--toc-step) * 1) 0, calc(var(--toc-step) * 2) 0;
@@ -954,9 +990,9 @@ hr {
 
 #write .md-toc-h4 {
     --toc-level: 3;
-    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-image: linear-gradient(var(--toc-guide-0), var(--toc-guide-0)),
+        linear-gradient(var(--toc-guide-1), var(--toc-guide-1)),
+        linear-gradient(var(--toc-guide-2), var(--toc-guide-2));
     background-size: 1px 100%;
     background-repeat: no-repeat;
     background-position: calc(var(--toc-step) * 1) 0, calc(var(--toc-step) * 2) 0,
@@ -965,10 +1001,10 @@ hr {
 
 #write .md-toc-h5 {
     --toc-level: 4;
-    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-image: linear-gradient(var(--toc-guide-0), var(--toc-guide-0)),
+        linear-gradient(var(--toc-guide-1), var(--toc-guide-1)),
+        linear-gradient(var(--toc-guide-2), var(--toc-guide-2)),
+        linear-gradient(var(--toc-guide-3), var(--toc-guide-3));
     background-size: 1px 100%;
     background-repeat: no-repeat;
     background-position: calc(var(--toc-step) * 1) 0, calc(var(--toc-step) * 2) 0,
@@ -977,16 +1013,59 @@ hr {
 
 #write .md-toc-h6 {
     --toc-level: 5;
-    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
-        linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-image: linear-gradient(var(--toc-guide-0), var(--toc-guide-0)),
+        linear-gradient(var(--toc-guide-1), var(--toc-guide-1)),
+        linear-gradient(var(--toc-guide-2), var(--toc-guide-2)),
+        linear-gradient(var(--toc-guide-3), var(--toc-guide-3)),
+        linear-gradient(var(--toc-guide-4), var(--toc-guide-4));
     background-size: 1px 100%;
     background-repeat: no-repeat;
     background-position: calc(var(--toc-step) * 1) 0, calc(var(--toc-step) * 2) 0,
         calc(var(--toc-step) * 3) 0, calc(var(--toc-step) * 4) 0,
         calc(var(--toc-step) * 5) 0;
+}
+
+/* Chain hover — the sidebar's guide lighting, transliterated. There the line
+   is one ::before spanning a nested .outline-children container, and :hover
+   bubbling through the nesting lights the whole ancestor chain, scoped to the
+   hovered subtree. This flat span list has no containers, so the run of a
+   hovered row's level-k ancestor is reconstructed with sibling logic: rows
+   before the hovered one belong to the run if no boundary heading (level ≤
+   k+1) stands between them and it (`:has(~ hovered)` minus `:has(~ boundary
+   ~ hovered)`), rows after it until the next boundary (`hovered ~ row` minus
+   `hovered ~ boundary ~ row`). One rule per axis, grouped over every hovered
+   level deep enough to have that ancestor; boundary rows themselves match
+   but draw no such layer, so the assignment is inert on them. Each rule only
+   flips that axis's color slot — the registered @property above lets the
+   flip ease like the sidebar's 0.4s line transition. */
+#write :is(.md-toc-h2, .md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover,
+#write .md-toc-item:has(~ :is(.md-toc-h2, .md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover):not(:has(~ .md-toc-h1 ~ :is(.md-toc-h2, .md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover)),
+#write :is(.md-toc-h2, .md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover ~ .md-toc-item:not(:is(.md-toc-h2, .md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover ~ .md-toc-h1 ~ *) {
+    --toc-guide-0: var(--indent-guide-active-color);
+}
+
+#write :is(.md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover,
+#write .md-toc-item:has(~ :is(.md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover):not(:has(~ :is(.md-toc-h1, .md-toc-h2) ~ :is(.md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover)),
+#write :is(.md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover ~ .md-toc-item:not(:is(.md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6):hover ~ :is(.md-toc-h1, .md-toc-h2) ~ *) {
+    --toc-guide-1: var(--indent-guide-active-color);
+}
+
+#write :is(.md-toc-h4, .md-toc-h5, .md-toc-h6):hover,
+#write .md-toc-item:has(~ :is(.md-toc-h4, .md-toc-h5, .md-toc-h6):hover):not(:has(~ :is(.md-toc-h1, .md-toc-h2, .md-toc-h3) ~ :is(.md-toc-h4, .md-toc-h5, .md-toc-h6):hover)),
+#write :is(.md-toc-h4, .md-toc-h5, .md-toc-h6):hover ~ .md-toc-item:not(:is(.md-toc-h4, .md-toc-h5, .md-toc-h6):hover ~ :is(.md-toc-h1, .md-toc-h2, .md-toc-h3) ~ *) {
+    --toc-guide-2: var(--indent-guide-active-color);
+}
+
+#write :is(.md-toc-h5, .md-toc-h6):hover,
+#write .md-toc-item:has(~ :is(.md-toc-h5, .md-toc-h6):hover):not(:has(~ :is(.md-toc-h1, .md-toc-h2, .md-toc-h3, .md-toc-h4) ~ :is(.md-toc-h5, .md-toc-h6):hover)),
+#write :is(.md-toc-h5, .md-toc-h6):hover ~ .md-toc-item:not(:is(.md-toc-h5, .md-toc-h6):hover ~ :is(.md-toc-h1, .md-toc-h2, .md-toc-h3, .md-toc-h4) ~ *) {
+    --toc-guide-3: var(--indent-guide-active-color);
+}
+
+#write .md-toc-h6:hover,
+#write .md-toc-item:has(~ .md-toc-h6:hover):not(:has(~ :is(.md-toc-h1, .md-toc-h2, .md-toc-h3, .md-toc-h4, .md-toc-h5) ~ .md-toc-h6:hover)),
+#write .md-toc-h6:hover ~ .md-toc-item:not(.md-toc-h6:hover ~ :is(.md-toc-h1, .md-toc-h2, .md-toc-h3, .md-toc-h4, .md-toc-h5) ~ *) {
+    --toc-guide-4: var(--indent-guide-active-color);
 }
 
 /* Same disc formula as the sidebar's flat mode: left = inset + step×level − 13,
@@ -1009,9 +1088,11 @@ hr {
 #write .md-toc-inner {
     display: block;
     margin-left: 0;
+    padding: 3px 0 3px calc(var(--toc-inset) + var(--toc-step) * var(--toc-level));
     color: inherit;
     text-decoration: none;
     font-weight: normal;
+    cursor: default;
 }
 
 #write .md-toc-inner:hover {
