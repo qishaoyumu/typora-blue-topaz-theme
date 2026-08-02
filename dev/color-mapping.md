@@ -98,7 +98,7 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | `--control-text-color` | `#8a8a8a` | File-list-view meta info (parent-loc / summary / time text color) |
 | `--dark-border-color` | `#343434` | Generic 1px border tone for the dark scheme: window, code tooltip, sidebar, search, modals, table edit UI, etc. (the table body's cell dividers use a darker `#1a1a1a`) |
 | `--dark-panel-bg` | `#2b2b2b` | Raised-panel fill: editing-control code-tooltip, search input, quick-open, auto-suggest, modal, context/dropdown menu, notification, footer word-count. NOT the hover-preview card (`#242424` measured, see below) or the #ty-tooltip accent bubble |
-| `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, TOC content, meta block, quick-open input, table cell dividers |
+| `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, meta block, quick-open input, table cell dividers |
 | `--indent-guide-color` | `rgba(255, 255, 255, 0.12)` | Indent guide line for the file tree and nested body lists; white tint matching Obsidian's `rgba(var(--mono-rgb-100), 0.12)` on dark (the outline guide keeps light's mode-independent `--outline-guide-color`). Body-list guides are a deliberate deviation, see the light table |
 | `--file-icon-color` | `var(--primary-color)` | File icon fill; dark's measured icon blue (rgb 45,130,205) equals the primary formula |
 | `--indent-guide-active-color` | `hsla(208, 64%, 49%, 0.4)` | Outline indent guide on hover; the measured dark `--theme-color-translucent-04` (base 64/49 formula, not the brightened 72/58 sidebar variant) |
@@ -293,7 +293,6 @@ In the light theme, the main content and editor call sites using `var(--primary-
 the sidebar, buttons, and other UI:
 
 - `a { color }` (via `--link-color: var(--primary-color)` since 2026-07)
-- `.md-toc-inner { color }`
 - `.cm-s-typora-default .cm-link { color }` (the dark `#95B94B` override
   was removed and now follows the light `var()`)
 - `#write .md-search-select { outline }` (current search hit)
@@ -440,14 +439,14 @@ opacity alone is insufficient.
 
 | Variable | light | dark | Purpose |
 |---|---|---|---|
-| `--focus-muted-decoration-bg` | `transparent` | `transparent` | Reset target for mark / GFM Alerts decorative backgrounds and TOC inline card. |
+| `--focus-muted-decoration-bg` | `transparent` | `transparent` | Reset target for mark / GFM Alerts decorative backgrounds. |
 | `--focus-muted-decoration-border` | `#e5e5e5` | `#2a2a2a` | Reset target for blockquote left border and footnote top border. |
 
 ### Why these decorations need explicit resets
 
 Opacity layering does not neutralize **decorative backgrounds and borders**:
-the `mark` yellow, GFM Alert tint, blockquote left bar, TOC card fill,
-and footnote separator stay visually loud even at 0.4 parent opacity
+the `mark` yellow, GFM Alert tint, blockquote left bar, and footnote
+separator stay visually loud even at 0.4 parent opacity
 because they sit on a transparent surface and their alpha multiplies
 with the parent. Resetting them to `transparent` / a near-background gray
 erases the visual claim.
@@ -464,9 +463,9 @@ has many generated SVG fills/strokes, so recoloring each one is brittle.
 - **Table rows** (`tr`) are themselves `.md-end-block` elements, so the
   boundary selector is not usable. Hover/stripe backgrounds must be
   neutralized to `transparent` explicitly.
-- **TOC inline + dropdown hover** is neutralized because Typora's
-  built-in hover opacity (0.8) stacks with the focus-mode 0.4 and
-  produces visual jitter.
+- **TOC inline + dropdown hover** is neutralized because the hover
+  effect (the row wash since 2026-08; the 0.8 hover opacity in the
+  dropdown) stacks with the focus-mode 0.4 and produces visual jitter.
 
 ### Related CSS locations
 

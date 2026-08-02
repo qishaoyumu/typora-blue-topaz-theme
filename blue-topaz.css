@@ -885,22 +885,138 @@ hr {
     color: #7f7f7f;
 }
 
+/* [TOC] in the flat outline's language. [TOC] is Typora's own extension — the
+   reference renders it as literal text — so like the megamenu it adopts an
+   existing language of the theme instead of inventing one: a TOC is the same
+   heading tree the sidebar outline shows, and is equally non-collapsible, so
+   it borrows the flat outline's exact geometry (28px lead slot, 17px steps,
+   guide axes at 17×(level+1), the parents-only 4px #7f7f7f disc, ~25px rows).
+   v1.0's boxed panel (gray card, link-blue entries) is gone, and with it the
+   underline wall — base.css deliberately keeps TOC entries underline-free
+   (.md-toc-item a), but the theme's #write a underline outranked it. Rows are
+   body ink; clickability reads from the row hover wash and the pointer, as in
+   the sidebar, never the underline flip or the global link dim.
+
+   Level comes from Typora's own md-toc-hN class (raw heading number): a
+   skipped level indents by the skip and hangs its guide from an axis with no
+   parent row, exactly as the native em-ladder indents — the sidebar's
+   true-depth walk has no equivalent in this flat span list. Guides are
+   background layers on each row (image paints over the hover wash's color);
+   adjacent rows fuse them into continuous lines. Parenthood = the next
+   sibling is deeper, via :has(+) — main.js's wrapper classifier never runs
+   here. 19px line + 3px pads ≈ the outline's 25px rhythm and land the disc
+   at the outline's own 10.5px center. */
 .md-toc {
     font-size: 0.9em;
-    max-width: 860px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 1rem 0;
+    --toc-inset: 28px;
+    --toc-step: 17px;
 }
 
-.md-toc-content {
-    background-color: #f5f5f5;
-    border-radius: 6px;
-    padding: 10px 16px;
+/* base-control gives the content <p> `margin:20px 0;padding:0 20px` — the old
+   boxed panel's padding happened to override it. Zeroed so rows hang from the
+   body text column and .md-toc's own margin governs spacing; export loads no
+   base-control, so without this the app and the export would disagree by the
+   20px lead. #write prefix outranks it at any load order. */
+#write .md-toc-content {
+    margin: 0;
+    padding: 0;
 }
 
-.md-toc-inner {
+#write .md-toc-item {
+    --toc-level: 0;
+    position: relative;
+    color: var(--text-color);
+    line-height: 19px;
+    padding: 3px 0 3px calc(var(--toc-inset) + var(--toc-step) * var(--toc-level));
+}
+
+#write .md-toc-item:hover {
+    background-color: var(--item-hover-bg-color);
+}
+
+#write .md-toc-h2 {
+    --toc-level: 1;
+    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-size: 1px 100%;
+    background-repeat: no-repeat;
+    background-position: calc(var(--toc-step) * 1) 0;
+}
+
+#write .md-toc-h3 {
+    --toc-level: 2;
+    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-size: 1px 100%;
+    background-repeat: no-repeat;
+    background-position: calc(var(--toc-step) * 1) 0, calc(var(--toc-step) * 2) 0;
+}
+
+#write .md-toc-h4 {
+    --toc-level: 3;
+    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-size: 1px 100%;
+    background-repeat: no-repeat;
+    background-position: calc(var(--toc-step) * 1) 0, calc(var(--toc-step) * 2) 0,
+        calc(var(--toc-step) * 3) 0;
+}
+
+#write .md-toc-h5 {
+    --toc-level: 4;
+    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-size: 1px 100%;
+    background-repeat: no-repeat;
+    background-position: calc(var(--toc-step) * 1) 0, calc(var(--toc-step) * 2) 0,
+        calc(var(--toc-step) * 3) 0, calc(var(--toc-step) * 4) 0;
+}
+
+#write .md-toc-h6 {
+    --toc-level: 5;
+    background-image: linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color)),
+        linear-gradient(var(--outline-guide-color), var(--outline-guide-color));
+    background-size: 1px 100%;
+    background-repeat: no-repeat;
+    background-position: calc(var(--toc-step) * 1) 0, calc(var(--toc-step) * 2) 0,
+        calc(var(--toc-step) * 3) 0, calc(var(--toc-step) * 4) 0,
+        calc(var(--toc-step) * 5) 0;
+}
+
+/* Same disc formula as the sidebar's flat mode: left = inset + step×level − 13,
+   centering the dot on its children's guide axis at 17×(level+1). */
+#write .md-toc-h1:has(+ :is(.md-toc-h2, .md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6))::before,
+#write .md-toc-h2:has(+ :is(.md-toc-h3, .md-toc-h4, .md-toc-h5, .md-toc-h6))::before,
+#write .md-toc-h3:has(+ :is(.md-toc-h4, .md-toc-h5, .md-toc-h6))::before,
+#write .md-toc-h4:has(+ :is(.md-toc-h5, .md-toc-h6))::before,
+#write .md-toc-h5:has(+ .md-toc-h6)::before {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #7f7f7f;
+    left: calc(var(--toc-inset) + var(--toc-step) * var(--toc-level) - 13px);
+    top: 10.5px;
+}
+
+#write .md-toc-inner {
+    display: block;
     margin-left: 0;
-    color: var(--primary-color);
+    color: inherit;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+#write .md-toc-inner:hover {
+    opacity: 1;
+    text-decoration: none;
 }
 
 #write pre.md-meta-block {
@@ -1101,12 +1217,7 @@ kbd {
     background: var(--focus-muted-decoration-bg) !important;
 }
 
-/* TOC inline card background goes transparent; footnotes top border goes muted. */
-.on-focus-mode .md-end-block.md-toc:not(.md-focus):not(.md-focus-container) .md-toc-content,
-.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-toc-content {
-    background-color: var(--focus-muted-decoration-bg) !important;
-}
-
+/* Footnotes top border goes muted. */
 .on-focus-mode .md-def-footnote:not(.md-focus):not(.md-focus-container) {
     border-top-color: var(--focus-muted-decoration-border) !important;
 }
@@ -1131,14 +1242,13 @@ kbd {
     background-color: transparent !important;
 }
 
-/* Neutralize TOC inline + dropdown hover: hover opacity 0.8 and the
- * dropdown a:hover background stack with the focus opacity and produce
- * visual jitter. #toc-dropmenu sits outside #write and has no focus
- * opacity parent, so its hover effect is always suppressed. */
-.on-focus-mode .md-end-block.md-toc:not(.md-focus):not(.md-focus-container) .md-toc-content a:hover,
-.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-toc-content a:hover {
-    opacity: 1 !important;
-    text-decoration: none !important;
+/* Neutralize TOC + dropdown hover under focus: the row wash and the dropdown
+ * a:hover background stack with the focus opacity and produce visual jitter.
+ * #toc-dropmenu sits outside #write and has no focus opacity parent, so its
+ * hover effect is always suppressed. */
+.on-focus-mode .md-end-block.md-toc:not(.md-focus):not(.md-focus-container) .md-toc-item:hover,
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) .md-toc-content .md-toc-item:hover {
+    background-color: transparent !important;
 }
 
 .on-focus-mode #toc-dropmenu a:hover {
@@ -2777,7 +2887,8 @@ div.code-tooltip {
         break-after: avoid;
     }
 
-    #write a {
+    /* TOC entries are exempt: they are structure ink, not links (2026-08). */
+    #write a:not(.md-toc-inner) {
         color: var(--link-color) !important;
     }
 

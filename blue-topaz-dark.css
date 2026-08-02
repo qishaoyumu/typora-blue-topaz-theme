@@ -369,10 +369,6 @@ hr {
     color: #797979;
 }
 
-.md-toc-content {
-    background-color: var(--dark-surface-2);
-}
-
 #write pre.md-meta-block {
     background: var(--dark-surface-2);
     border-color: var(--dark-border-color);
