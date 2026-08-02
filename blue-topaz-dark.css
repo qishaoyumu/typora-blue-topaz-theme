@@ -38,6 +38,9 @@
     --primary-color: rgb(45, 130, 205);
     /* Dark's measured interactive accent equals the primary formula. */
     --interactive-accent: var(--primary-color);
+    /* Dark accent-2: hsl(208 − 5, 64% × 1.05, 49% × 1.29) as resolved
+       upstream, live-verified rgb(98,176,224). */
+    --interactive-accent-hover: hsl(203, 67.2%, 63.2%);
     /* Link text = the accent itself, as measured (the 2026-06 #3a8cd4 AA
        lightening was reverted for fidelity in 2026-07). */
     --link-color: var(--primary-color);
@@ -346,24 +349,16 @@ hr {
 }
 
 /* ========== Task list ========== */
-.md-task-list-item > input:before {
+/* Checked fill, accent hover border, and the tada/hue-rotate warning all
+   flow from dark's accent variable pair, and the check glyph reads
+   var(--bg-color) = the measured near-black #202020 marker — so only the
+   resting border and the done-text gray need dark values. */
+#write .md-task-list-item > input {
     border-color: #7b7b7b;
-    background-color: var(--bg-color);
-}
-
-.md-task-list-item > input:checked:before,
-.md-task-list-item > input[checked]:before {
-    background-color: #3187d3;
-    border-color: #3187d3;
-    color: white;
-}
-
-.md-task-list-item > input:not([disabled]):not(:checked):hover:before {
-    color: #555;
 }
 
 .task-list-done {
-    color: #8e8e8e;
+    color: #8a8a8a;
 }
 
 /* ========== Footnotes, YAML, mark, kbd ========== */

@@ -39,6 +39,9 @@
        checked checkboxes and the blockquote bar (measured rgb(65,159,231),
        the same family as --file-icon-color). Dark aliases --primary-color. */
     --interactive-accent: rgb(65, 159, 231);
+    /* Its hover brightening: the reference's accent-2 formula
+       hsl(H − 3, S × 1.02, L × 1.15), live-verified rgb(82,174,234). */
+    --interactive-accent-hover: hsl(204, 78.5%, 62.1%);
     /* Link text = the accent itself, as measured (the 2026-06 #1a79c6 AA
        deepening was reverted for fidelity in 2026-07). */
     --link-color: var(--primary-color);
@@ -730,48 +733,99 @@ hr {
     list-style-type: none !important;
 }
 
-.md-task-list-item > input {
+/* Rebuilt on the reference's own structure (its app.css): the box is the
+   input itself (0.9rem, 3px radius, box-shadow transition), the check is a
+   ::after masked with the reference's SVG glyph (65% at 52%/52%) tinted in
+   the page background — its --checkbox-marker-color resolves to
+   --background-primary in both schemes, so var(--bg-color) covers light's
+   white check and dark's near-black one without an override. The old \2713
+   character glyph and the invented gray-check hover preview are gone. */
+#write .md-task-list-item > input {
+    /* #write bump: base.css's same-specificity #write rule sets
+       width/height:inherit and border:none on this input. */
     -webkit-appearance: none;
     appearance: none;
-    margin-left: -1.3em;
-    margin-top: 0.3rem;
-    top: auto;
-}
-
-.md-task-list-item > input:before {
-    content: "";
-    display: inline-block;
     width: 0.9rem;
     height: 0.9rem;
-    vertical-align: middle;
-    text-align: center;
     border: 1px solid #9c9c9c;
     border-radius: 3px;
     background-color: var(--bg-color);
-    margin-top: -0.4rem;
+    transition: box-shadow 0.15s ease-in-out;
+    /* The reference keeps the arrow on checkboxes (measured cursor:
+       default, live and probe); Typora's base.css forces pointer. */
+    cursor: default;
+    margin-left: -1.3em;
+    /* Box center on the first line's center, anchored to the li padding
+       box: the li's 1.2px block padding plus half the line-minus-box gap
+       ((1.5em − 0.9rem) / 2, and em = rem here). */
+    top: 0;
+    margin-top: calc(1.2px + 0.3rem);
 }
 
-.md-task-list-item > input:checked:before,
-.md-task-list-item > input[checked]:before {
-    content: '\2713';
-    font-size: 0.7rem;
-    line-height: 0.9rem;
-    color: white;
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+/* The reference's hover is its accent border: the theme layer's full-border
+   override outranks the core's gray shift by load order. */
+#write .md-task-list-item > input:hover {
+    border-color: var(--interactive-accent);
 }
 
-.md-task-list-item > input:not([disabled]):not(:checked):hover:before {
-    content: '\2713';
-    font-size: 0.7rem;
-    line-height: 0.9rem;
-    color: #ccc;
+#write .md-task-list-item > input:checked,
+#write .md-task-list-item > input[checked] {
+    background-color: var(--interactive-accent);
+    border-color: var(--interactive-accent);
 }
 
-/* checked task text */
+#write .md-task-list-item > input:checked::after,
+#write .md-task-list-item > input[checked]::after {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 0.9rem;
+    height: 0.9rem;
+    background-color: var(--bg-color);
+    -webkit-mask-image: url('data:image/svg+xml;utf8,<svg width="12px" height="10px" viewBox="0 0 12 8" version="1.1" xmlns="http://www.w3.org/2000/svg"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g transform="translate%28-4.000000, -6.000000%29" fill="%23000000"><path d="M8.1043257,14.0367999 L4.52468714,10.5420499 C4.32525014,10.3497722 4.32525014,10.0368095 4.52468714,9.8424863 L5.24777413,9.1439454 C5.44721114,8.95166768 5.77142411,8.95166768 5.97086112,9.1439454 L8.46638057,11.5903727 L14.0291389,6.1442083 C14.2285759,5.95193057 14.5527889,5.95193057 14.7522259,6.1442083 L15.4753129,6.84377194 C15.6747499,7.03604967 15.6747499,7.35003511 15.4753129,7.54129009 L8.82741268,14.0367999 C8.62797568,14.2290777 8.3037627,14.2290777 8.1043257,14.0367999"></path></g></g></svg>');
+    -webkit-mask-position: 52% 52%;
+    -webkit-mask-size: 65%;
+    -webkit-mask-repeat: no-repeat;
+}
+
+/* Checked hover is the reference's uncheck warning: the accent-2 fill, an
+   instant 160° hue spin that lands the blue on salmon (no color of its own
+   — the filter makes it), and one tada shake; the salmon then holds until
+   the pointer leaves. The check glyph rides along unchanged: page-background
+   white/near-black is hue-invariant. */
+#write .md-task-list-item > input:checked:hover,
+#write .md-task-list-item > input[checked]:hover {
+    background-color: var(--interactive-accent-hover);
+    border-color: var(--interactive-accent-hover);
+    animation: tada 1s;
+    filter: hue-rotate(160deg);
+}
+
+/* The reference's tada variant: a 0.95 dip on entry, then ±10° swings —
+   it never overshoots scale like the animate.css original. */
+@keyframes tada {
+    from { transform: scale3d(1, 1, 1); }
+    10%, 20% { transform: scale3d(0.95, 0.95, 0.95) rotate3d(0, 0, 1, -10deg); }
+    30%, 50%, 70%, 90% { transform: scale3d(1, 1, 1) rotate3d(0, 0, 1, 10deg); }
+    40%, 60%, 80% { transform: rotate3d(0, 0, 1, -10deg); }
+    to { transform: scale3d(1, 1, 1); }
+}
+
+/* The reference ships a manual kill-switch for this animation in its
+   settings panel; Typora has no settings surface, so the system reduced-
+   motion preference carries that opt-out. The salmon warning itself stays. */
+@media (prefers-reduced-motion: reduce) {
+    #write .md-task-list-item > input:checked:hover,
+    #write .md-task-list-item > input[checked]:hover {
+        animation: none;
+    }
+}
+
+/* checked task text: the reference's measured muted ink, no strike-through */
 .task-list-done {
     text-decoration: none;
-    color: #939393;
+    color: #7f7f7f;
 }
 
 /* ========== 18. Footnotes, Math, TOC, YAML, mark, kbd ========== */

@@ -9,7 +9,7 @@
 | `--text-normal` | `#0e0e0e` | `--text-color` |
 | `--color-accent` | `hsl(207, 77%, 54%)` | `--primary-color` |
 | (link text) | `hsl(207, 77%, 54%)` | `--link-color` = `var(--primary-color)`; the 2026-06 `#1a79c6` AA deepening was reverted for fidelity in 2026-07 (measured: links are the accent itself) |
-| `--interactive-accent` | `rgb(65, 159, 231)` | `--interactive-accent` — the reference's hsl-calc-brightened accent: blockquote bar (same family as `--file-icon-color`). Its checked-checkbox call site — and the paired `--interactive-accent-hover` accent-2 token, light `hsl(204, 78.5%, 62.1%)` = hsl(H−3, S×1.02, L×1.15) — left with the task-checkbox revert (`111cd76`); both return with the checkbox redo (measured values preserved in `9f33f34`) |
+| `--interactive-accent` | `rgb(65, 159, 231)` | `--interactive-accent` — the reference's hsl-calc-brightened accent: blockquote bar and checked-checkbox fill (same family as `--file-icon-color`). Paired with `--interactive-accent-hover`, the accent-2 token, light `hsl(204, 78.5%, 62.1%)` = hsl(H−3, S×1.02, L×1.15), live-verified `rgb(82,174,234)`: the checked-hover fill, which a `hue-rotate(160deg)` filter spins to the salmon uncheck warning — the reference defines no salmon literal. Both restored by the 2026-08 checkbox redo (had left with revert `111cd76`) |
 | `--text-folder-file` | `#272727` | `--file-text-color` |
 | `--accent-em` | `#088743` | em color (deepened from upstream `#099d4e` for WCAG AA) |
 | `--accent-strong` | `#000000` | strong color |
@@ -90,7 +90,7 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | `--file-active-bg` | `hsla(208, 64%, 49%, 0.1)` | File-row hover and active background, file tree + file list; measured live in the reference vault (`--theme-color-translucent-01` = hsl 208/64/49 at 0.1 — the darker dark-blue formula, not `--primary-color-01`'s 72/58) |
 | `--primary-color-02` | `hsla(208, 72%, 58%, 0.26)` | Search-result highlight |
 | `--search-hit-border` | `#525252` | In-document search candidate-hit outline; the same core formula pre-blended on dark: `#c6c6c6` × 0.3 over `#202020` — reproduces the earlier screenshot-measured value exactly (see the light table row for the formula's source) |
-| `--interactive-accent` | `var(--primary-color)` | Dark's measured interactive accent equals the primary formula (blockquote bar; the checkbox call site and the dark accent-2 hover `hsl(203, 67.2%, 63.2%)` = hsl(208−5, 64%×1.05, 49%×1.29) left with the task-checkbox revert `111cd76`, preserved in `9f33f34` for the redo) |
+| `--interactive-accent` | `var(--primary-color)` | Dark's measured interactive accent equals the primary formula (blockquote bar, checked-checkbox fill). Paired dark accent-2 hover `hsl(203, 67.2%, 63.2%)` = hsl(208−5, 64%×1.05, 49%×1.29), live-verified `rgb(98,176,224)`; the same `hue-rotate(160deg)` salmon warning rides on it, over the page-background `#202020` check glyph. Both restored by the 2026-08 checkbox redo |
 | `--folder-hover-bg` | `rgba(255, 255, 255, 0.067)` | Neutral-gray folder hover; measured live in the reference vault (`--nav-item-background-hover` white 0.067) |
 | `--file-text-color` | `#b3b3b3` | Default file-node text color, measured in the reference vault (a brief `#a0a0a0` dimming experiment was reverted — the original really is `#b3b3b3`) |
 | `--active-file-text-color` | `var(--file-text-color)` | Active row text = normal text (`#b3b3b3` = the reference's measured 179); only hover brightens |
