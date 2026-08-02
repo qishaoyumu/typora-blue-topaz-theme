@@ -189,28 +189,31 @@ hr {
 }
 
 /* ========== Table ========== */
-#write th {
+/* Same :not(.md-reset) guards as the light skin (fencing off the
+   table-resize popover's in-#write pick-grid): these overrides win by load
+   order at equal specificity, so the guards must match exactly. */
+#write th:not(.md-reset) {
     background-color: hsla(208, 64%, 49%, 0.1);
 }
 
-#write tbody tr {
+#write tbody tr:not(.md-reset) {
     background-color: #2f2f2f32;
 }
 
-#write tbody tr:nth-child(odd) {
+#write tbody tr:not(.md-reset):nth-child(odd) {
     background-color: #00000033;
 }
 
 /* Table hovers: Blue Topaz's dark --table-hover-* tokens, byte-identical. */
-#write tbody tr:hover {
+#write tbody tr:not(.md-reset):hover {
     background-color: #08569a21;
 }
 
-#write td:hover {
+#write td:not(.md-reset):hover {
     background-color: #1f65a221;
 }
 
-#write th:hover {
+#write th:not(.md-reset):hover {
     background-color: #21395bc7;
 }
 

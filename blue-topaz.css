@@ -463,8 +463,14 @@ hr {
    separate by zebra fills alone, under a 1px hairline shadow. Cells
    anchor to the top (the reference's core does the same), and body cells
    drop to the reference's --table-text-size (text × 0.9375 = 15px) while
-   headers keep the full size. */
-#write table {
+   headers keep the full size.
+   The :not(.md-reset) guards fence this skin off Typora's in-document UI
+   chrome: the table-resize popover's 13px pick-grid is itself a <table>
+   appended INSIDE #write, and these (1,0,1) rules would beat its (0,1,1)
+   stock rules — .md-reset is Typora's own hands-off marker carried by
+   every element of such chrome. The dark overrides repeat the guards:
+   they win by load order at equal specificity, so both must match. */
+#write table:not(.md-reset) {
     border-collapse: collapse;
     width: auto;
     margin: 20px auto;
@@ -472,28 +478,28 @@ hr {
     box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
-#write th,
-#write td {
+#write th:not(.md-reset),
+#write td:not(.md-reset) {
     padding: 4px 10px;
     border: none;
     vertical-align: top;
 }
 
-#write td {
+#write td:not(.md-reset) {
     font-size: 0.9375em;
 }
 
-#write th {
+#write th:not(.md-reset) {
     font-weight: 600;
     color: var(--text-color);
     background-color: var(--primary-color-01);
 }
 
-#write tbody tr {
+#write tbody tr:not(.md-reset) {
     background-color: #f1f1f176;
 }
 
-#write tbody tr:nth-child(odd) {
+#write tbody tr:not(.md-reset):nth-child(odd) {
     background-color: #ffffff70;
 }
 
@@ -501,15 +507,15 @@ hr {
    color, th = thead), byte-identical upstream. These live in the THEME
    layer — the core --table-row-background-hover being transparent is a red
    herring that briefly got these removed on 2026-07-25. */
-#write tbody tr:hover {
+#write tbody tr:not(.md-reset):hover {
     background-color: #85bfee2f;
 }
 
-#write td:hover {
+#write td:not(.md-reset):hover {
     background-color: #5dacec34;
 }
 
-#write th:hover {
+#write th:not(.md-reset):hover {
     background-color: #ddefff;
 }
 
@@ -1108,12 +1114,12 @@ kbd {
 /* Tables go fully transparent: tr is itself a .md-end-block, so the boundary
  * selector is not usable here; the hover and stripe backgrounds layer over the
  * parent opacity and must be neutralized explicitly. */
-.on-focus-mode #write table th,
-.on-focus-mode #write table tr,
-.on-focus-mode #write table tr:nth-child(odd),
-.on-focus-mode #write table th:hover,
-.on-focus-mode #write table td:hover,
-.on-focus-mode #write table tr:hover {
+.on-focus-mode #write table th:not(.md-reset),
+.on-focus-mode #write table tr:not(.md-reset),
+.on-focus-mode #write table tr:not(.md-reset):nth-child(odd),
+.on-focus-mode #write table th:not(.md-reset):hover,
+.on-focus-mode #write table td:not(.md-reset):hover,
+.on-focus-mode #write table tr:not(.md-reset):hover {
     background-color: transparent !important;
 }
 
