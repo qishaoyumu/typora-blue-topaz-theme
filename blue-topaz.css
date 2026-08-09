@@ -559,6 +559,8 @@ hr {
     /* #f4f4f4 = the reference's rgba(230,230,230,0.443) pre-blended on white;
        7px radius as measured. */
     background: #f4f4f4;
+    /* The reference's in-fence ink is pure black, a notch darker than --text-color. */
+    color: #000;
     border: none;
     border-radius: 7px;
     padding: 1em 1.5em;
@@ -575,107 +577,115 @@ hr {
 }
 
 /* ========== 15. Code highlight .cm-s-inner ========== */
-/* Based on CodeMirror's classic default token colors (not GitHub Light);
-   operator and error are tweaked. */
+/* Blue Topaz edit-mode effective colors, measured live per token class in
+   the reference (2026-08-09). Classes the reference never colors in code
+   (header, quote, link, negative, positive, error) keep their prior values. */
 
 .cm-s-inner .cm-keyword {
-    color: #708;
+    color: #d53984 !important;
 }
 
 .cm-s-inner .cm-atom {
-    color: #219;
+    color: #cc7523 !important;
 }
 
 .cm-s-inner .cm-number {
-    color: #164;
+    color: #a3be8c !important;
 }
 
 .cm-s-inner .cm-def {
-    color: #00f;
+    color: #e0ac00 !important;
 }
 
 .cm-s-inner .cm-variable {
-    color: #000;
+    color: #f07178 !important;
 }
 
 .cm-s-inner .cm-variable-2 {
-    color: #05a;
+    color: #53ada3 !important;
 }
 
+/* The reference leaves variable-3 unstyled (CSS pseudo-selectors land here). */
 .cm-s-inner .cm-variable-3 {
-    color: #008050;
+    color: inherit !important;
 }
 
 .cm-s-inner .cm-string {
-    color: #a11;
+    color: #08b94e !important;
 }
 
 .cm-s-inner .cm-property {
-    color: #000;
+    color: #e0ac00 !important;
 }
 
 .cm-s-inner .cm-operator {
-    color: #981a1a;
+    color: #5e81ac !important;
 }
 
 .cm-s-inner .cm-comment {
-    color: #a50;
+    color: #068a5e !important;
 }
 
 .cm-s-inner .cm-string-2 {
-    color: #c74200;
+    color: #08b94e !important;
 }
 
 .cm-s-inner .cm-meta {
-    color: #555;
+    color: #ffcb6b !important;
 }
 
 .cm-s-inner .cm-qualifier {
-    color: #555;
+    color: #e48100 !important;
 }
 
 .cm-s-inner .cm-builtin {
-    color: #30a;
+    color: #ffcb6b !important;
 }
 
 .cm-s-inner .cm-bracket {
-    color: #717155;
+    color: #7f7f7f !important;
+}
+
+/* Angle brackets carry cm-tag too; the pair-gray must beat .cm-tag on the
+   compound span regardless of rule order. */
+.cm-s-inner .cm-tag.cm-bracket {
+    color: #7f7f7f !important;
 }
 
 .cm-s-inner .cm-tag {
-    color: #170;
+    color: #c74df7 !important;
 }
 
 .cm-s-inner .cm-attribute {
-    color: #00c;
+    color: #e0ac00 !important;
 }
 
 .cm-s-inner .cm-header {
-    color: #00f;
+    color: #00f !important;
 }
 
 .cm-s-inner .cm-quote {
-    color: #008200;
+    color: #008200 !important;
 }
 
 .cm-s-inner .cm-hr {
-    color: #707070;
+    color: #7f7f7f !important;
 }
 
 .cm-s-inner .cm-link {
-    color: #00c;
+    color: #00c !important;
 }
 
 .cm-s-inner .cm-negative {
-    color: #d62727;
+    color: #d62727 !important;
 }
 
 .cm-s-inner .cm-positive {
-    color: #1c801c;
+    color: #1c801c !important;
 }
 
 .cm-s-inner .cm-type {
-    color: #008050;
+    color: #d53984 !important;
 }
 
 /* cm-em / cm-strong: fenced markdown shows *italic* / **bold** markers. The
@@ -689,9 +699,18 @@ hr {
     font-weight: 700;
 }
 
-.CodeMirror-selectedtext,
 .CodeMirror-selected {
     background: var(--select-text-bg-color);
+}
+
+/* Typora's base paints BOTH the selection div and the selectedtext spans
+   with the translucent select color and unifies selected glyphs to
+   --select-text-font-color, all !important - doubling the wash and greying
+   the code. The span layer is stripped at higher specificity, and the token
+   rules above carry !important so selection keeps syntax colors (the
+   reference's behavior). */
+#write .md-fences span.CodeMirror-selectedtext {
+    background: none !important;
 }
 
 .CodeMirror-gutters {
@@ -704,20 +723,21 @@ hr {
 }
 
 .cm-s-inner .cm-error {
-    color: #dc182f; /* --color-red */
-}
-
-.CodeMirror-matchingbracket {
-    color: #0550ae !important;
-    text-decoration: underline;
+    color: #dc182f !important; /* --color-red */
 }
 
 .CodeMirror div.CodeMirror-cursor {
     border-left: 2px solid var(--text-color);
 }
 
-.CodeMirror-activeline-background {
-    background: hsla(207, 77%, 54%, 0.05);
+#write .md-fences.md-focus .CodeMirror-activeline-background {
+    /* The reference paints 5% accent on a line that sheds the block bg first;
+       over our opaque #f4f4f4 a raw 5% wash is invisible - pre-blended result.
+       Typora's stock codemirror.css kills the bare class at (0,2,0) with
+       background:inherit; #write lifts us above it order-independently.
+       CM5 marks an active line in unfocused editors too; .md-focus keeps the
+       stripe on the focused block only, as the reference does. */
+    background: #f5fafe;
 }
 
 /* ========== 16. Images ========== */

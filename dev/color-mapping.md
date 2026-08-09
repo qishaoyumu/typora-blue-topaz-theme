@@ -123,78 +123,106 @@ mechanics.
 
 ## Code Highlighting: Light (.cm-s-inner)
 
-Based on CodeMirror's classic default palette (not GitHub Light). A 2026-06 AA
-pass deepened several tokens (string-2, bracket, quote, positive, negative,
-error, variable-3, type, hr) on the `#f5f5f5` code background, keeping each hue
-and only lowering lightness; operator keeps its tweaked `#981a1a`. The line
-number gutter (`.CodeMirror-linenumber`) was likewise deepened to `#707070`. The Obsidian original
-ships a multi-scheme code palette through Style Settings (bt-default, Dracula,
-Gruvbox, Monokai, and more); Typora has no equivalent scheme selector, so this
-port keeps the editor's single default palette rather than replicating one of
-those schemes.
+Blue Topaz edit-mode effective colors, measured live per token class in the
+reference (2026-08-09; Obsidian light, CM6 editor spans). Copied by rendered
+value, not by variable name: the reference routes several classes away from
+their nominal variables (def/property land on the attribute yellow, number on
+the value green, qualifier on an orange none of its variables name), so each
+cell below is the measured on-screen color. Classes the reference never colors
+in code (header, quote, link, negative, positive, error) keep this port's
+previous values. The reference also ships a multi-scheme code palette through
+Style Settings (bt-default, Dracula, Gruvbox, Monokai, and more); Typora has
+no scheme selector, so this port carries the default scheme only.
+
+All token colors carry `!important`: Typora's base unifies selected code
+glyphs to `--select-text-font-color !important`, and the palette must out-rank
+it so selection keeps syntax colors, as the reference does.
 
 | Token | Color | Note |
 |---|---|---|
-| `.cm-keyword` | `#708` | keyword |
-| `.cm-atom` | `#219` | special constants |
-| `.cm-number` | `#164` | number |
-| `.cm-def` | `#00f` | definition |
-| `.cm-variable` | `#000` | variable |
-| `.cm-variable-2` | `#05a` | block-level variable |
-| `.cm-variable-3` | `#008050` | type reference |
-| `.cm-string` | `#a11` | string |
-| `.cm-string-2` | `#c74200` | template string |
-| `.cm-property` | `#000` | property access |
-| `.cm-operator` | `#981a1a` | operator |
-| `.cm-comment` | `#a50` | comment |
-| `.cm-meta` | `#555` | metadata |
-| `.cm-qualifier` | `#555` | CSS qualifier |
-| `.cm-builtin` | `#30a` | built-in |
-| `.cm-bracket` | `#717155` | bracket |
-| `.cm-tag` | `#170` | HTML/XML tag |
-| `.cm-attribute` | `#00c` | attribute name |
-| `.cm-header` | `#00f` | heading |
-| `.cm-quote` | `#008200` | quote |
-| `.cm-hr` | `#707070` | horizontal rule |
-| `.cm-link` | `#00c` | link |
-| `.cm-negative` | `#d62727` | negative number |
-| `.cm-positive` | `#1c801c` | positive number |
-| `.cm-type` | `#008050` | type annotation |
-| `.cm-error` | `#dc182f` | error |
+| `.cm-keyword` | `#d53984` | keyword (no bold in light) |
+| `.cm-type` | `#d53984` | type annotation |
+| `.cm-atom` | `#cc7523` | special constants |
+| `.cm-number` | `#a3be8c` | number (routed to the value green) |
+| `.cm-def` | `#e0ac00` | definition |
+| `.cm-property` | `#e0ac00` | property access |
+| `.cm-attribute` | `#e0ac00` | attribute name |
+| `.cm-variable` | `#f07178` | variable |
+| `.cm-variable-2` | `#53ada3` | block-level variable |
+| `.cm-variable-3` | `inherit` | unstyled in the reference; CSS pseudos land here |
+| `.cm-string` | `#08b94e` | string |
+| `.cm-string-2` | `#08b94e` | template string / regex |
+| `.cm-operator` | `#5e81ac` | operator |
+| `.cm-comment` | `#068a5e` | comment (no italic) |
+| `.cm-meta` | `#ffcb6b` | metadata; the reference's own light value, kept by fidelity (user-approved) |
+| `.cm-builtin` | `#ffcb6b` | built-in; same |
+| `.cm-qualifier` | `#e48100` | CSS qualifier |
+| `.cm-bracket` | `#7f7f7f` | bracket |
+| `.cm-tag.cm-bracket` | `#7f7f7f` | angle brackets keep the pair-gray over the tag color |
+| `.cm-tag` | `#c74df7` | HTML/XML tag |
+| `.cm-header` | `#00f` | heading (kept) |
+| `.cm-quote` | `#008200` | quote (kept) |
+| `.cm-hr` | `#7f7f7f` | horizontal rule (reference stylesheet value) |
+| `.cm-link` | `#00c` | link (kept) |
+| `.cm-negative` | `#d62727` | negative number (kept) |
+| `.cm-positive` | `#1c801c` | positive number (kept) |
+| `.cm-error` | `#dc182f` | error (kept) |
+
+In-fence ink is pure black (`.md-fences { color: #000 }`), one notch darker
+than `--text-color`, matching the reference.
 
 ## Code Highlighting: Dark (.cm-s-inner)
 
-GitHub Dark-based palette, with a couple of brighter carryover accents
-(such as `#50fa7b` and `#ffb86c`) that are not part of GitHub Dark Default.
+Blue Topaz dark edit-mode effective colors (2026-08-09), measured the same
+way, with the same routing caveats. Keyword additionally carries weight 600 -
+the reference bolds keywords in dark only.
 
 | Token | Color | Note |
 |---|---|---|
-| `.cm-keyword` | `#ff7b72` red | keyword |
-| `.cm-atom` | `#8b949e` gray | special constants |
-| `.cm-number` | `#79c0ff` blue | number |
-| `.cm-def` | `var(--text-color)` | definition |
-| `.cm-variable` | `var(--text-color)` | variable |
-| `.cm-variable-2` | `var(--text-color)` | block-level variable |
-| `.cm-variable-3` | `#ffb86c` orange | type reference (now grouped with `.cm-type`, was keyword-red) |
-| `.cm-string` | `#a5d6ff` light blue | string |
-| `.cm-string-2` | `#a5d6ff` light blue | template string |
-| `.cm-property` | `#d2a8ff` purple | property access |
-| `.cm-operator` | `#ff7b72` red | operator |
-| `.cm-comment` | `#8b949e` gray | comment |
-| `.cm-meta` | `#8b949e` gray | metadata |
-| `.cm-qualifier` | `#50fa7b` green | CSS qualifier |
-| `.cm-builtin` | `#79c0ff` blue | built-in |
-| `.cm-bracket` | `#8b949e` gray | bracket |
-| `.cm-tag` | `#7ee787` green | HTML/XML tag |
-| `.cm-attribute` | `#79c0ff` blue | attribute name |
-| `.cm-header` | `#79c0ff` blue | heading |
-| `.cm-quote` | `#a5d6ff` light blue | quote |
-| `.cm-hr` | `#8b949e` gray | horizontal rule |
-| `.cm-link` | `#a5d6ff` light blue | link |
-| `.cm-negative` | `#ffa198` light red | negative number |
-| `.cm-positive` | `#7ee787` green | positive number |
-| `.cm-type` | `#ffb86c` orange | type annotation |
-| `.cm-error` | `#ffa198` light red | error |
+| `.cm-keyword` | `#fa99cd` + w600 | keyword, bolded in dark |
+| `.cm-type` | `#fa99cd` | type annotation (regular weight) |
+| `.cm-operator` | `#a0c7e9` | operator |
+| `.cm-atom` | `#da904b` | special constants |
+| `.cm-comment` | `#568060` | comment |
+| `.cm-meta` / `.cm-builtin` | `#ffcb6b` | metadata / built-in |
+| `.cm-bracket` / `.cm-hr` | `#8a8a8a` | bracket / horizontal rule |
+| `.cm-tag.cm-bracket` | `#8a8a8a` | angle brackets keep the pair-gray |
+| `.cm-number` | `#abd58e` | number (value green) |
+| `.cm-def` / `.cm-property` / `.cm-attribute` | `#e0de71` | definition family |
+| `.cm-variable` | `#f07178` | variable |
+| `.cm-variable-2` | `#53ada3` | block-level variable |
+| `.cm-variable-3` | `inherit` (light rule flows through) | unstyled in the reference |
+| `.cm-string` / `.cm-string-2` / `.cm-quote` | `#44cf6e` | strings; quote rides string |
+| `.cm-link` | `#696d70` | link (reference stylesheet value) |
+| `.cm-header` | `#da7dae` | heading (reference stylesheet value) |
+| `.cm-qualifier` | `#d6b87f` | CSS qualifier |
+| `.cm-tag` | `#db7c84` | HTML/XML tag |
+| `.cm-positive` | `#7ee787` | positive number (kept) |
+| `.cm-negative` / `.cm-error` | `#ffa198` | negative / error (kept) |
+
+In-fence ink is `#d0d0d0` (`.md-fences { color: #d0d0d0 }`), one step brighter
+than `--text-color`.
+
+### Fence chrome shared by both modes
+
+- **Active line**: `#write .md-fences.md-focus .CodeMirror-activeline-background`,
+  pre-blended `#f5fafe` light / `#212529` dark. The reference paints a raw 5%
+  accent on a line that first sheds the block background, so the raw value is
+  invisible over our opaque fence. Typora's stock codemirror.css also kills the
+  bare class with `background: inherit` at (0,2,0) - hence the `#write` prefix -
+  and `.md-focus` keeps the stripe on the focused block only (CM5 would draw
+  one in every unfocused editor). CM hides the stripe while a selection is
+  active; the reference does the same.
+- **Selection**: the translucent select color lives only on the
+  `.CodeMirror-selected` div. Typora's base also paints the
+  `.CodeMirror-selectedtext` spans and unifies their glyph color (both
+  `!important`), which doubled the wash and greyed selected code - stripped at
+  `#write .md-fences span.CodeMirror-selectedtext`, with the token
+  `!important`s restoring syntax colors under selection.
+- **Matching brackets**: none. Typora does not ship CodeMirror's matchbrackets
+  addon (no `matchBrackets` hit anywhere in TypeMark), so
+  `.CodeMirror-matchingbracket` never appears; the old underline rule was dead
+  code and was removed on 2026-08-09.
 
 ## Source mode (`.cm-s-typora-default`)
 
@@ -527,7 +555,7 @@ else is the post-pass state, measured against the real backgrounds.
 | Muted UI text | `--control-text-color` `#747474` / `#8a8a8a` | 4.56 / 4.72 | AA |
 | Meta text | `--meta-content-color` `#577a87` (light) | 4.61 | AA |
 | List markers / done tasks | `#7f7f7f` light; dark `#797979` markers, `#8a8a8a` done text | 4.0 / 3.74 / 4.72 | Measured reference grays (2026-07), decorative / secondary at 3:1+. Since 2026-07-26 the ul dot is a drawn `li::before` bullet glyph (the reference blanks the native marker and draws its own 14.2px left of the text); ol keeps the native decimal marker. List geometry: ul/ol padding 0, li `margin-inline-start: 30.19px` + `padding: 1.2px 0`, all measured |
-| Code tokens (light) | deepened set on `#f5f5f5` | >= 4.5 | AA (see Code Highlighting: Light) |
+| Code tokens (light) | reference edit-mode palette on `#f4f4f4` | varies | Fidelity over AA since 2026-08-09; `#ffcb6b` (meta/builtin) is the reference's own light value, user-approved (see Code Highlighting: Light) |
 | GFM alert titles | neutral `--text-color` on the tint strips | 15.6+ / 6.7+ | AAA (2026-07: per-tint label colors dropped for the reference's neutral titles) |
 
 `--primary-color` (`#2f93e4` / `rgb(45,130,205)`) drives UI accents (buttons,
