@@ -595,7 +595,9 @@ hr {
        Typora lacks; align to the 1.5em fence padding instead (the em ratio
        undoes the pseudo's 0.85em font size). */
     right: calc(1.5em / 0.85);
-    z-index: 1;
+    /* Above .CodeMirror-scroll, which is z-index:3 with an opaque inherited
+       background and would slice the label's lower half. */
+    z-index: 4;
     /* The reference sets the label in the UI font, not monospace. Labels are
        ASCII, so the Latin half of the body stack suffices. */
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -755,14 +757,29 @@ hr {
     background: var(--select-text-bg-color);
 }
 
-/* Typora's base paints BOTH the selection div and the selectedtext spans
-   with the translucent select color and unifies selected glyphs to
-   --select-text-font-color, all !important - doubling the wash and greying
-   the code. The span layer is stripped at higher specificity, and the token
-   rules above carry !important so selection keeps syntax colors (the
-   reference's behavior). */
-#write .md-fences span.CodeMirror-selectedtext {
+/* The reference paints code selection on the text extent (ragged right
+   edges), not as full-width line rects. CM5 offers both layers: the
+   styleSelectedText spans wrap exactly the selected characters, so in fences
+   the highlight lives on the spans and the full-width selection div goes
+   dark - single-painted, since Typora's base coats both layers !important
+   and also unifies selected glyph colors (the token rules above out-rank
+   that, keeping syntax colors, as the reference does). */
+#write .md-fences div.CodeMirror-selected {
     background: none !important;
+}
+
+#write .md-fences span.CodeMirror-selectedtext {
+    /* Pre-blended opaque (--select-text-bg-color over the #f4f4f4 fence):
+       translucent span tiles rasterize with 1px seams at fractional glyph
+       boundaries; opaque paint plus a 1px box-shadow bridge hides both the
+       seams and any patch overlap. Composites to the same pixels as the
+       translucent original. */
+    background: #dae8e5 !important;
+    box-shadow: 1px 0 0 #dae8e5;
+    /* Inline vertical padding paints background only, no layout shift: the
+       glyph box is 17px on a 19px line box, so 1px each side tiles adjacent
+       selected lines seamlessly, as the reference's rect-based selection does. */
+    padding: 1px 0;
 }
 
 .CodeMirror-gutters {

@@ -346,6 +346,12 @@ hr {
     color: #ffa198 !important;
 }
 
+/* Pre-blended opaque: --select-text-bg-color over the #181818 fence. */
+#write .md-fences span.CodeMirror-selectedtext {
+    background: #253b3a !important;
+    box-shadow: 1px 0 0 #253b3a;
+}
+
 .CodeMirror-gutters {
     background: var(--dark-surface-2);
     border-right-color: var(--dark-border-color);

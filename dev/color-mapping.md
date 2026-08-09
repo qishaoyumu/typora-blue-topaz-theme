@@ -213,12 +213,20 @@ than `--text-color`.
   and `.md-focus` keeps the stripe on the focused block only (CM5 would draw
   one in every unfocused editor). CM hides the stripe while a selection is
   active; the reference does the same.
-- **Selection**: the translucent select color lives only on the
-  `.CodeMirror-selected` div. Typora's base also paints the
-  `.CodeMirror-selectedtext` spans and unifies their glyph color (both
-  `!important`), which doubled the wash and greyed selected code - stripped at
-  `#write .md-fences span.CodeMirror-selectedtext`, with the token
-  `!important`s restoring syntax colors under selection.
+- **Selection**: in fences the select color lives on the
+  `.CodeMirror-selectedtext` spans, which wrap exactly the selected
+  characters - reproducing the reference's ragged, text-extent selection -
+  while the full-width `.CodeMirror-selected` div is blanked. Typora's base
+  coats both layers and unifies selected glyph color (all `!important`), which
+  double-painted the wash and greyed the code; the fence rules out-rank it,
+  and the token `!important`s keep syntax colors under selection. The span
+  color is pre-blended opaque (`--select-text-bg-color` over the fence bg:
+  `#dae8e5` light, `#253b3a` dark) with a 1px box-shadow bridge and 1px
+  vertical padding (17px glyph box on a 19px line box): translucent span
+  tiles rasterize with 1px seams at fractional glyph boundaries and leave
+  1px line gaps; opaque paint composites to the same pixels while hiding
+  seams and overlap. Recompute both values if the fence bg or the selection
+  variable ever changes.
 - **Matching brackets**: none. Typora does not ship CodeMirror's matchbrackets
   addon (no `matchBrackets` hit anywhere in TypeMark), so
   `.CodeMirror-matchingbracket` never appears; the old underline rule was dead
