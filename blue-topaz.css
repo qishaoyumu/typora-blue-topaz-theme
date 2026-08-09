@@ -582,7 +582,7 @@ hr {
    render a picture, not code, so they get no label. The label is an absolute
    pseudo-element on the already-positioned fence: state switches move zero
    geometry. Same literal color in both modes, as in the reference. */
-#write .md-fences[lang]:where(:not([lang=""]):not([lang="mermaid" i]):not([lang="flow" i]):not([lang="sequence" i])):not(.md-focus)::before {
+#write .md-fences[lang]:where(:not([lang=""]):not([lang="mermaid" i]):not([lang="flow" i]):not([lang="sequence" i]))::before {
     content: attr(lang);
     /* The reference's canonical labels are uppercase content strings; attr()
        plus uppercase reproduces 17 of its 22 entries, the exceptions follow. */
@@ -609,25 +609,46 @@ hr {
 }
 
 /* The reference's canonical names that differ from the uppercased id. */
-#write .md-fences[lang="py" i]:not(.md-focus)::before,
-#write .md-fences[lang="python" i]:not(.md-focus)::before {
+#write .md-fences[lang="py" i]::before,
+#write .md-fences[lang="python" i]::before {
     content: "PYTHON";
 }
 
-#write .md-fences[lang="javascript" i]:not(.md-focus)::before {
+#write .md-fences[lang="javascript" i]::before {
     content: "JS";
 }
 
-#write .md-fences[lang="bash" i]:not(.md-focus)::before {
+#write .md-fences[lang="bash" i]::before {
     content: "SHELL";
 }
 
-#write .md-fences[lang="cs" i]:not(.md-focus)::before {
+#write .md-fences[lang="cs" i]::before {
     content: "C#";
 }
 
-#write .md-fences[lang="cpp" i]:not(.md-focus)::before {
+#write .md-fences[lang="cpp" i]::before {
     content: "C++";
+}
+
+/* The focus swap is an app-only override, not a :not() baked into the label
+   selectors: HTML export freezes the cursor block's md-focus class, and an
+   exported page has no language input for the label to yield to, so the
+   export body class exempts exports and the frozen block keeps its label. */
+body:not(.typora-export) #write .md-fences.md-focus::before {
+    content: none;
+}
+
+/* The same frozen md-focus would keep the active-line wash lit in exports,
+   and a frozen selection would export its span paint; neutralize both.
+   Structural and color-free, so these also out-rank the dark overrides. */
+body.typora-export #write .md-fences .CodeMirror-activeline-background {
+    background: transparent;
+}
+
+body.typora-export #write .md-fences span.CodeMirror-selectedtext {
+    background: none !important;
+    box-shadow: none;
+    padding: 0;
 }
 
 /* ========== 15. Code highlight .cm-s-inner ========== */
