@@ -795,6 +795,16 @@ hr {
     box-shadow: calc(1ch - 0.5px) 0 0 #dae8e5;
 }
 
+/* The block's last line has no line break inside the fence, so a selection
+   can never cross it and the reference never paints a stub there; suppress
+   ours or selecting to the block's end grows one. The bare :last-child
+   (not pre:last-child) also matches when CM5 leaves the line wrapped in an
+   activeline div, which lingers after the cursor visits a line. Color-
+   independent, so this single rule also covers the dark theme's override. */
+#write .md-fences .CodeMirror-code > :last-child span.CodeMirror-selectedtext:last-child {
+    box-shadow: none;
+}
+
 .CodeMirror-gutters {
     background: #f6f8fa;
     border-right: 1px solid #e6e6e6;

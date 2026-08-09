@@ -232,7 +232,11 @@ than `--text-color`.
   `:last-child` override widens the shadow to `calc(1ch - 0.5px)` (same
   pre-blended color per mode) - the last token span is `:last-child` exactly
   when the selection crosses the line end, so mid-line selection ends stay
-  flush, as in the reference.
+  flush, as in the reference. The block's last line is exempted via
+  `.CodeMirror-code > :last-child` (no line break exists inside the fence,
+  so the reference never stubs it; the bare `:last-child` also matches
+  CM5's lingering classless div line-wrappers left where the cursor
+  visited, which a `pre:last-child` selector would miss).
 - **Matching brackets**: none. Typora does not ship CodeMirror's matchbrackets
   addon (no `matchBrackets` hit anywhere in TypeMark), so
   `.CodeMirror-matchingbracket` never appears; the old underline rule was dead
