@@ -782,6 +782,19 @@ hr {
     padding: 1px 0;
 }
 
+/* The reference's native ::selection paints the selected line break as a
+   one-column stub past the last glyph of every line the selection crosses.
+   CM5's span layer gives the newline no carrier, but when the selection
+   crosses a line end the line's last token span is both selected and
+   :last-child, so a widened shadow synthesizes the stub there and only
+   there (mid-line selection ends stay flush, as in the reference). Shadow,
+   not padding: horizontal padding skews CM5's coordinate measurement. The
+   -0.5px keeps the copy overlapping its span so fractional glyph boundaries
+   cannot open a seam. */
+#write .md-fences span.CodeMirror-selectedtext:last-child {
+    box-shadow: calc(1ch - 0.5px) 0 0 #dae8e5;
+}
+
 .CodeMirror-gutters {
     background: #f6f8fa;
     border-right: 1px solid #e6e6e6;

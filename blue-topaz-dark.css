@@ -352,6 +352,11 @@ hr {
     box-shadow: 1px 0 0 #253b3a;
 }
 
+/* Selected line-break stub; mechanism documented in the light theme. */
+#write .md-fences span.CodeMirror-selectedtext:last-child {
+    box-shadow: calc(1ch - 0.5px) 0 0 #253b3a;
+}
+
 .CodeMirror-gutters {
     background: var(--dark-surface-2);
     border-right-color: var(--dark-border-color);

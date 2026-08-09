@@ -226,7 +226,13 @@ than `--text-color`.
   tiles rasterize with 1px seams at fractional glyph boundaries and leave
   1px line gaps; opaque paint composites to the same pixels while hiding
   seams and overlap. Recompute both values if the fence bg or the selection
-  variable ever changes.
+  variable ever changes. The reference's native `::selection` also paints the
+  selected line break as a one-column stub past the last glyph of every line
+  the selection crosses; CM5's newline has no span carrier, so a
+  `:last-child` override widens the shadow to `calc(1ch - 0.5px)` (same
+  pre-blended color per mode) - the last token span is `:last-child` exactly
+  when the selection crosses the line end, so mid-line selection ends stay
+  flush, as in the reference.
 - **Matching brackets**: none. Typora does not ship CodeMirror's matchbrackets
   addon (no `matchBrackets` hit anywhere in TypeMark), so
   `.CodeMirror-matchingbracket` never appears; the old underline rule was dead
