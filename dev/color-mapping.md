@@ -241,7 +241,9 @@ than `--text-color`.
   CM5's lingering classless div line-wrappers left where the cursor
   visited, which a `pre:last-child` selector would miss).
 - **Language chip** (`.md-fences .code-tooltip`, the focused fence's
-  bottom-right language editor): one control, one box. Stock draws a
+  language editor): one control, one box, one place. Stock hangs the editor
+  under the fence's bottom-right corner (`bottom: -2.5em`, outside the block,
+  where it lands on the next block's corner and covers its label) and draws a
   bordered card, and inside it a 140px centered contenteditable well that
   grows an accent border on focus (`.code-tooltip .ty-input:focus
   { border-color: var(--primary-color) }`) - a form control on a panel. The
@@ -258,9 +260,26 @@ than `--text-color`.
   auto-suggest list is a separate `position:fixed` panel and keeps its own
   look. Verified against the 2026-08-09 exports: the tooltip element is
   never serialized (its `md-tooltip-remove` class), so no export gate is
-  needed. Considered and parked: morphing the top-right label itself into
-  the editor (Notion-style) - reverses the 2026-08-09 decision to keep the
-  editor bottom-right, and would cover the first code line.
+  needed. **Placement (2026-08-15, mock-compared against bottom-right-inside
+  and a hanging tab)**: `#write .md-fences .code-tooltip { top: 10px;
+  right: 20px; bottom: auto }` puts the chip inside the block, top-right, in
+  the label's spot - the block never sprouts UI outside its own box, and the
+  next block's idle label stays uncovered; the `#write` prefix out-ranks
+  stock's diagram placement (`.enable-diagrams .md-diagram .code-tooltip
+  { right: 8px; bottom: -3em }`) so diagram fences take the same corner.
+  This overturns the 2026-08-09 "keep the editor bottom-right" call: idle =
+  the reference's quiet text label, focused = the editable chip growing
+  around the same word (Finder-rename grammar). To make that read as one
+  anchor, the idle label moved onto the chip's text position (`top: 10px;
+  right: 31px; line-height: 26px` = the chip box with its 20px inset + 1px
+  border + 10px padding), a few px off the reference's own label offset
+  (0.05em top; 48px right for a copy button Typora lacks). Rejected in the
+  same pass: an always-on chip at rest (a box on every block, and the box's
+  text re-sets on focus - uppercase 600 canonical name to lowercase 400 raw
+  id) and a tab hanging off the bottom edge (still outside, collides with
+  the next block). The chip overlays the tail of a long first line only
+  while the block is focused; the auto-suggest list then drops over the
+  block's own code, as Notion's language menu does.
 - **Matching brackets**: none. Typora does not ship CodeMirror's matchbrackets
   addon (no `matchBrackets` hit anywhere in TypeMark), so
   `.CodeMirror-matchingbracket` never appears; the old underline rule was dead

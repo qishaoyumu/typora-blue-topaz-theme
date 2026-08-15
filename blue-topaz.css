@@ -573,12 +573,14 @@ hr {
     font-family: var(--monospace);
 }
 
-/* Focused fences show Typora's language editor bottom-right: a floating
-   div.code-tooltip holding one contenteditable span. Stock draws it as a
-   bordered card with a second, accent-bordered box inside on focus and a
-   140px centered well - a form control sitting on a panel. One control, one
-   box: the panel itself becomes the chip (padding, radius, hairline, shadow),
-   the span inside carries no chrome and hugs its content, and focus is the
+/* Focused fences show Typora's language editor: a floating div.code-tooltip
+   holding one contenteditable span. Stock hangs it under the fence's
+   bottom-right corner (bottom:-2.5em, outside the block, where it lands on
+   the next block's corner and label) and draws it as a bordered card with
+   a second, accent-bordered box inside on focus around a 140px centered
+   well - a form control sitting on a panel. One control, one box: the panel
+   itself becomes the chip (padding, radius, hairline, shadow), the span
+   inside carries no chrome and hugs its content, and focus is the
    reference's text-input grammar - the chip's own border steps one notch to
    neutral (no accent, no ring; the reference never accents input focus).
    The auto-suggest list is a separate position:fixed element and stays a
@@ -590,11 +592,23 @@ hr {
     box-shadow: var(--shadow-sm);
     /* Stock 0 20px around a 140px well; chip padding around a hugged value. */
     padding: 3px 10px;
-    /* Chip = 18px line + 6px padding + 2px border = 26px; stock hangs its
-       22px panel at -2.5em (of its .8em face, ~26px) leaving ~4px of air
-       under the fence. Keep that air for the taller chip. */
-    bottom: -30px;
     transition: border-color 0.15s ease-in-out;
+}
+
+/* The chip lives inside the block, top-right, in the spot the language
+   label occupies at rest: one place, one object, two identities - label
+   when the block is idle, editor when it is focused - so a block never
+   sprouts UI outside its own box and the idle label of the next block stays
+   uncovered. Chip = 18px line + 6px padding + 2px border = 26px, centered
+   on the first code line (1em top padding + a 19px line box); it overlays
+   the tail of a long first line only while the block is focused. #write
+   out-ranks stock's diagram placement (.enable-diagrams .md-diagram
+   .code-tooltip { right: 8px; bottom: -3em }) so diagram fences take the
+   same corner. */
+#write .md-fences .code-tooltip {
+    top: 10px;
+    right: 20px;
+    bottom: auto;
 }
 
 .md-fences .code-tooltip:focus-within {
@@ -636,24 +650,27 @@ hr {
 }
 
 /* Unfocused fences carry a reference-style language label top-right; on focus
-   it yields to Typora's native language input at bottom-right - the same swap
-   the reference's own flair performs. Diagram fences (mermaid, flow, sequence)
-   render a picture, not code, so they get no label. The label is an absolute
-   pseudo-element on the already-positioned fence: state switches move zero
-   geometry. Same literal color in both modes, as in the reference. */
+   it yields to Typora's native language input, which the chip rules above
+   place in the same corner - the reference's flair performs the same yield.
+   Diagram fences (mermaid, flow, sequence) render a picture, not code, so
+   they get no label. The label is an absolute pseudo-element on the
+   already-positioned fence: state switches move zero geometry. Same literal
+   color in both modes, as in the reference. */
 #write .md-fences[lang]:where(:not([lang=""]):not([lang="mermaid" i]):not([lang="flow" i]):not([lang="sequence" i]))::before {
     content: attr(lang);
     /* The reference's canonical labels are uppercase content strings; attr()
        plus uppercase reproduces 17 of its 22 entries, the exceptions follow. */
     text-transform: uppercase;
     position: absolute;
-    /* The reference's 0.05em hugged its own geometry; ~6px of air matches the
-       reference's native flair inset and reads better in our padding band. */
-    top: 0.5em;
-    /* The reference offsets right 48px to clear its own copy button, which
-       Typora lacks; align to the 1.5em fence padding instead (the em ratio
-       undoes the pseudo's 0.85em font size). */
-    right: calc(1.5em / 0.85);
+    /* Sit exactly where the chip's text sits, so focusing reads as the box
+       growing around the word rather than the word jumping: the chip's box
+       (top 10px, 26px tall) with the text right edge at its 20px inset + 1px
+       border + 10px padding. The reference parks its label a little higher
+       and further out (0.05em top, 48px right for a copy button Typora
+       lacks); the few px of drift buy the two states one anchor. */
+    top: 10px;
+    right: 31px;
+    line-height: 26px;
     /* Above .CodeMirror-scroll, which is z-index:3 with an opaque inherited
        background and would slice the label's lower half. */
     z-index: 4;
