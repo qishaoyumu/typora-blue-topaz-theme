@@ -251,7 +251,7 @@ than `--text-color`.
   `--ui-border-color` hairline, `--shadow-sm`, `--bg-color` / `--dark-panel-bg`)
   and strips the span (`border: 0`, zero margin/padding, `min-width: 3em`,
   centered, UI face 12px/400 in `--text-color`, `vertical-align: top`).
-  Focus = `:focus-within` on the chip with a 0.15s border transition. The
+  Focus = `:focus-within` on the chip with a 140ms border transition. The
   color went through two rounds: first the text-input step
   (`--ui-border-focus-color`), which proved too faint on a small chip amid
   coloured code in both modes; now the reference's has-focus vocabulary for
@@ -262,8 +262,11 @@ than `--text-color`.
   ring. Width policy: idle (block focused, chip not) hugs the value with a
   3em floor; editing (`:focus-within`) and empty both take a fixed 9.5em
   field (114px; the longest localized placeholder measured in Inter 12px is
-  Spanish "lenguaje de código" at 106px), eased over 0.15s so the
-  expansion reads as the field opening. The placeholder is an absolutely positioned `::after` (mac.css
+  Spanish "lenguaje de código" at 106px), eased over 140ms on the
+  reference's `--anim-motion-swing` curve (cubic-bezier(0, 0.55, 0.45, 1),
+  what app.css puts on width transitions) so the expansion reads as the
+  field opening; the border color eases 140ms ease-in-out, the reference's
+  input-focus beat. The placeholder is an absolutely positioned `::after` (mac.css
   centers it with `padding-left: 50% !important` on the span, left intact),
   so it cannot size the box and 9.5em fits the longest localized string; and
   main.js `makeVisible` anchors the auto-suggest list once, at first show,

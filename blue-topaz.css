@@ -591,7 +591,8 @@ hr {
     box-shadow: var(--shadow-sm);
     /* Stock 0 20px around a 140px well; chip padding around a hugged value. */
     padding: 3px 10px;
-    transition: border-color 0.15s ease-in-out;
+    /* The reference's input focus beat: --anim-duration-fast (140ms), ease-in-out. */
+    transition: border-color 140ms ease-in-out;
 }
 
 /* The chip lives inside the block, bottom-right - Typora's own corner for
@@ -647,7 +648,10 @@ hr {
     /* inline-block on the panel's line-height:1 strut; top removes the
        baseline gap under the box. */
     vertical-align: top;
-    transition: min-width 0.15s ease-out;
+    /* Width changes take the reference's --anim-motion-swing
+       (cubic-bezier(0, 0.55, 0.45, 1): quick start, soft settle) at
+       --anim-duration-fast, the curve app.css puts on width transitions. */
+    transition: min-width 140ms cubic-bezier(0, 0.55, 0.45, 1);
 }
 
 /* Two widths, one per identity. Idle (block focused, chip not): hug the
@@ -664,8 +668,9 @@ hr {
    and an empty chip would collapse from placeholder width to one letter on
    the first key. A fixed field keeps the list seated exactly under the
    chip, edges aligned; the price is one expansion on click, the search-
-   field idiom - eased over 0.15s (the transition sits on the base span
-   rule) so it reads as the field opening rather than snapping. Both
+   field idiom - eased over 140ms on the reference's swing curve (the
+   transition sits on the base span rule) so it reads as the field opening
+   rather than snapping. Both
    selectors out-rank the 3em floor above (0,4,0). */
 .md-fences .code-tooltip .ty-cm-lang-input:empty,
 .md-fences .code-tooltip:focus-within .ty-cm-lang-input {
