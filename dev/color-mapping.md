@@ -272,26 +272,31 @@ than `--text-color`.
   family. The auto-suggest list is a separate `position:fixed` panel and
   keeps its own look. Verified against the 2026-08-09 exports: the tooltip element is
   never serialized (its `md-tooltip-remove` class), so no export gate is
-  needed. **Placement (2026-08-15, mock-compared against bottom-right-inside
-  and a hanging tab)**: `#write .md-fences .code-tooltip { top: 10px;
-  right: 20px; bottom: auto }` puts the chip inside the block, top-right, in
-  the label's spot - the block never sprouts UI outside its own box, and the
-  next block's idle label stays uncovered; the `#write` prefix out-ranks
-  stock's diagram placement (`.enable-diagrams .md-diagram .code-tooltip
-  { right: 8px; bottom: -3em }`) so diagram fences take the same corner.
-  This overturns the 2026-08-09 "keep the editor bottom-right" call: idle =
-  the reference's quiet text label, focused = the editable chip growing
-  around the same word (Finder-rename grammar). To make that read as one
-  anchor, the idle label moved onto the chip's text position (`top: 10px;
-  right: 31px; line-height: 26px` = the chip box with its 20px inset + 1px
-  border + 10px padding), a few px off the reference's own label offset
-  (0.05em top; 48px right for a copy button Typora lacks). Rejected in the
-  same pass: an always-on chip at rest (a box on every block, and the box's
-  text re-sets on focus - uppercase 600 canonical name to lowercase 400 raw
-  id) and a tab hanging off the bottom edge (still outside, collides with
-  the next block). The chip overlays the tail of a long first line only
-  while the block is focused; the auto-suggest list then drops over the
-  block's own code, as Notion's language menu does.
+  needed. **Placement (2026-08-15, three rounds)**: `.md-fences
+  .code-tooltip { bottom: 10px; right: 20px }` seats the chip inside the
+  block, bottom-right - Typora's own corner for this control, brought inside
+  the box. Round one hung it where stock does (outside, under the corner):
+  it read as a gadget and covered the next block's idle label. Round two put
+  it top-right on the label's spot (mock-compared against bottom-right and a
+  hanging tab): the two-block picture looked most unified, but in use the
+  corner morphed three times (label, chip, field) and lured the click that
+  merely focuses the block - Typora's editor is two clicks away by design,
+  so badge and control must stay apart (which is what the 2026-08-09 call,
+  and the reference's clear-flair-on-focus behaviour, had said). Round three
+  is the current seat: idle label top-right hides on block focus (one
+  representation at a time, the reference's flair yield); the chip appears
+  bottom-right inside; the label keeps the reference's own offsets (0.5em
+  top, 1.5em-padding-aligned right). Diagram fences keep stock's placement
+  (`.enable-diagrams .md-diagram .code-tooltip`, (0,3,0), hangs under the
+  diagram panel). Also considered and dropped: making the idle label itself
+  the click target (an invisible span over it, Notion-style) - the tooltip
+  element is created lazily on a fence's first focus and hidden with inline
+  display:none afterwards (main.js), so CSS cannot offer a first-click
+  editor, and Typora users would look for the control bottom-right; a tab
+  hanging off the bottom edge (still outside, collides with the next block);
+  an always-on chip at rest (a box on every block whose text re-sets on
+  focus). The chip overlays the tail of the block's last line only while
+  focused; the auto-suggest list then drops below the block, as stock.
 - **Matching brackets**: none. Typora does not ship CodeMirror's matchbrackets
   addon (no `matchBrackets` hit anywhere in TypeMark), so
   `.CodeMirror-matchingbracket` never appears; the old underline rule was dead
