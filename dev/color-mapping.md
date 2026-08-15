@@ -262,10 +262,13 @@ than `--text-color`.
   ring. Width policy: idle (block focused, chip not) hugs the value with a
   3em floor; editing (`:focus-within`) and empty both take a fixed 9.5em
   field (114px; the longest localized placeholder measured in Inter 12px is
-  Spanish "lenguaje de código" at 106px), eased over 140ms on the
-  reference's `--anim-motion-swing` curve (cubic-bezier(0, 0.55, 0.45, 1),
-  what app.css puts on width transitions) so the expansion reads as the
-  field opening; the border color eases 140ms ease-in-out, the reference's
+  Spanish "lenguaje de código" at 106px). The expansion snaps: an eased
+  opening left the caret painted at its old spot while the centered word
+  slid ~30px (WebKit does not repaint the caret per frame during a
+  transition) - the "sticky caret" seen in use; only the collapse on blur
+  eases, 140ms on the reference's `--anim-motion-swing` curve
+  (cubic-bezier(0, 0.55, 0.45, 1), what app.css puts on width
+  transitions). The border color eases 140ms ease-in-out, the reference's
   input-focus beat. The placeholder is an absolutely positioned `::after` (mac.css
   centers it with `padding-left: 50% !important` on the span, left intact),
   so it cannot size the box and 9.5em fits the longest localized string; and
