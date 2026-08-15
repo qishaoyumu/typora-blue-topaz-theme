@@ -644,15 +644,21 @@ hr {
     font-size: 12px;
     font-weight: 400;
     line-height: 1.5;
-    color: var(--text-color);
+    /* Idle (block focused, chip not): the label's grey, so entering the
+       block reads as the badge moving down into a chip; the field rule
+       brightens it to body ink when editing starts. Full opacity here - a
+       control reads a notch clearer than the 0.7 badge. */
+    color: #95a3b5;
     /* inline-block on the panel's line-height:1 strut; top removes the
        baseline gap under the box. */
     vertical-align: top;
     /* The field's collapse on blur eases on the reference's
        --anim-motion-swing (cubic-bezier(0, 0.55, 0.45, 1)) at
-       --anim-duration-fast, the curve app.css puts on width transitions.
-       Opening does not ease (see the field rule): only blur takes this. */
-    transition: min-width 140ms cubic-bezier(0, 0.55, 0.45, 1);
+       --anim-duration-fast, the curve app.css puts on width transitions;
+       the ink dims back on the input-focus beat. Opening does not ease the
+       width (see the field rule): only blur takes the width easing. */
+    transition: min-width 140ms cubic-bezier(0, 0.55, 0.45, 1),
+        color 140ms ease-in-out;
 }
 
 /* Two widths, one per identity. Idle (block focused, chip not): hug the
@@ -679,7 +685,13 @@ hr {
 .md-fences .code-tooltip .ty-cm-lang-input:empty,
 .md-fences .code-tooltip:focus-within .ty-cm-lang-input {
     min-width: 9.5em;
-    transition: none;
+    transition: min-width 0s, color 140ms ease-in-out;
+}
+
+/* Editing: the value in body ink, brightened from the idle grey on the same
+   beat as the border. */
+.md-fences .code-tooltip:focus-within .ty-cm-lang-input {
+    color: var(--text-color);
 }
 
 .md-fences .code-tooltip .ty-cm-lang-input:empty::after {

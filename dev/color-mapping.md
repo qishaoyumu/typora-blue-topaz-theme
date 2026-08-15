@@ -250,7 +250,14 @@ than `--text-color`.
   theme makes the panel itself the chip (`padding: 3px 10px`, 4px radius,
   `--ui-border-color` hairline, `--shadow-sm`, `--bg-color` / `--dark-panel-bg`)
   and strips the span (`border: 0`, zero margin/padding, `min-width: 3em`,
-  centered, UI face 12px/400 in `--text-color`, `vertical-align: top`).
+  centered, UI face 12px/400, `vertical-align: top`). Ink: idle (block
+  focused, chip not) the label's `#95a3b5` at full opacity, so entering the
+  block reads as the badge moving down into a chip; editing brightens it to
+  `--text-color` over 140ms ease-in-out, on the border's beat. Case and
+  weight stay different from the label on purpose: the badge shows the
+  reference's canonical display name (uppercase 600, `JS`/`SHELL`/`C#`),
+  the field shows the stored id in regular weight, matching what is typed
+  and what the suggest list offers.
   Focus = `:focus-within` on the chip with a 140ms border transition. The
   color went through two rounds: first the text-input step
   (`--ui-border-focus-color`), which proved too faint on a small chip amid
