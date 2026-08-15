@@ -647,25 +647,29 @@ hr {
     /* inline-block on the panel's line-height:1 strut; top removes the
        baseline gap under the box. */
     vertical-align: top;
+    transition: min-width 0.15s ease-out;
 }
 
 /* Two widths, one per identity. Idle (block focused, chip not): hug the
    value like the label it replaced. Editing (chip focused, or empty and
-   showing its placeholder): a fixed 12em field. Two reasons. The localized
+   showing its placeholder): a fixed 9.5em field. Two reasons. The localized
    "code language" placeholder is an absolutely positioned ::after (mac.css
    centers it via padding-left:50% !important on the span, left alone here),
    so it cannot size the box - the box must be wide enough for the longest
-   translation (~19 Latin characters). And Typora anchors the auto-suggest
+   translation (measured in Inter 12px: Spanish "lenguaje de código" 106px,
+   Catalan 105.8px; 9.5em = 114px). And Typora anchors the auto-suggest
    list once, at first show, to the span's left edge and width
    (main.js makeVisible: left = rect.left, minWidth = rect.width) - a
    hugging span would slide out from under its list with every keystroke,
    and an empty chip would collapse from placeholder width to one letter on
    the first key. A fixed field keeps the list seated exactly under the
    chip, edges aligned; the price is one expansion on click, the search-
-   field idiom. Both selectors out-rank the 3em floor above (0,4,0). */
+   field idiom - eased over 0.15s (the transition sits on the base span
+   rule) so it reads as the field opening rather than snapping. Both
+   selectors out-rank the 3em floor above (0,4,0). */
 .md-fences .code-tooltip .ty-cm-lang-input:empty,
 .md-fences .code-tooltip:focus-within .ty-cm-lang-input {
-    min-width: 12em;
+    min-width: 9.5em;
 }
 
 .md-fences .code-tooltip .ty-cm-lang-input:empty::after {

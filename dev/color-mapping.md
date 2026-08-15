@@ -260,10 +260,12 @@ than `--text-color`.
   chip's own background: light `#6db3ec` (= `#2f93e4` at 70% over `#ffffff`),
   dark `#2c689c` (= `rgb(45,130,205)` at 70% over `#2b2b2b`); still 1px, no
   ring. Width policy: idle (block focused, chip not) hugs the value with a
-  3em floor; editing (`:focus-within`) and empty both take a fixed 12em
-  field. The placeholder is an absolutely positioned `::after` (mac.css
+  3em floor; editing (`:focus-within`) and empty both take a fixed 9.5em
+  field (114px; the longest localized placeholder measured in Inter 12px is
+  Spanish "lenguaje de código" at 106px), eased over 0.15s so the
+  expansion reads as the field opening. The placeholder is an absolutely positioned `::after` (mac.css
   centers it with `padding-left: 50% !important` on the span, left intact),
-  so it cannot size the box and 12em fits the longest localized string; and
+  so it cannot size the box and 9.5em fits the longest localized string; and
   main.js `makeVisible` anchors the auto-suggest list once, at first show,
   to the span's left edge and width, so a hugging span slid out from under
   its list per keystroke and an empty chip collapsed on the first key - the
