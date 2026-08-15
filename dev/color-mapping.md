@@ -295,8 +295,12 @@ than `--text-color`.
   editor, and Typora users would look for the control bottom-right; a tab
   hanging off the bottom edge (still outside, collides with the next block);
   an always-on chip at rest (a box on every block whose text re-sets on
-  focus). The chip overlays the tail of the block's last line only while
-  focused; the auto-suggest list then drops below the block, as stock.
+  focus). Known limit, accepted 2026-08-15: while the block is focused the
+  chip covers the last ~90px of the block's last line (visible when a long
+  last line wraps), and a click there lands in the language field rather
+  than the code; every other seat only moves the overlap onto something
+  else, and padding the block on focus would break the zero-shift rule.
+  The auto-suggest list drops below the block, as stock.
 - **Matching brackets**: none. Typora does not ship CodeMirror's matchbrackets
   addon (no `matchBrackets` hit anywhere in TypeMark), so
   `.CodeMirror-matchingbracket` never appears; the old underline rule was dead
