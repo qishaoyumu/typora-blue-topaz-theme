@@ -53,6 +53,8 @@
        otherwise that shorthand is invalid here and the border vanishes
        (border-color overrides alone cannot restore a missing border-style). */
     --ui-border-color: var(--dark-border-color);
+    /* Text-input focus step: the reference's dark --color-base-40. */
+    --ui-border-focus-color: #555555;
     --window-border: 1px solid var(--dark-border-color);
     --dark-panel-bg: #2b2b2b;
     --dark-surface-2: #1a1a1a;

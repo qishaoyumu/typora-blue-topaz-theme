@@ -49,6 +49,10 @@
     --primary-btn-text-color: #ffffff;
 
     --ui-border-color: #dddddd;
+    /* Text-input focus, in the reference's grammar: the border steps one
+       notch to a neutral (--background-modifier-border-focus = --color-base-40),
+       no accent, no ring. */
+    --ui-border-focus-color: #bdbdbd;
     --window-border: 1px solid var(--ui-border-color);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -569,11 +573,66 @@ hr {
     font-family: var(--monospace);
 }
 
+/* Focused fences show Typora's language editor bottom-right: a floating
+   div.code-tooltip holding one contenteditable span. Stock draws it as a
+   bordered card with a second, accent-bordered box inside on focus and a
+   140px centered well - a form control sitting on a panel. One control, one
+   box: the panel itself becomes the chip (padding, radius, hairline, shadow),
+   the span inside carries no chrome and hugs its content, and focus is the
+   reference's text-input grammar - the chip's own border steps one notch to
+   neutral (no accent, no ring; the reference never accents input focus).
+   The auto-suggest list is a separate position:fixed element and stays a
+   panel of its own. Editing UI only: exports drop the whole element. */
 .md-fences .code-tooltip {
     background: var(--bg-color);
     border: 1px solid var(--ui-border-color);
-    border-radius: 3px;
+    border-radius: 4px;
     box-shadow: var(--shadow-sm);
+    /* Stock 0 20px around a 140px well; chip padding around a hugged value. */
+    padding: 3px 10px;
+    /* Chip = 18px line + 6px padding + 2px border = 26px; stock hangs its
+       22px panel at -2.5em (of its .8em face, ~26px) leaving ~4px of air
+       under the fence. Keep that air for the taller chip. */
+    bottom: -30px;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.md-fences .code-tooltip:focus-within {
+    border-color: var(--ui-border-focus-color);
+}
+
+.md-fences .code-tooltip .ty-cm-lang-input {
+    /* Zero width kills stock's :focus accent border-color outright. */
+    border: 0;
+    margin: 0;
+    padding: 0;
+    /* Hug the value; a floor keeps one-letter ids ("c", "r") a clickable
+       chip. Centered (stock) so short ids sit mid-chip. */
+    min-width: 3em;
+    /* The same value the top-right label sets in the UI face, so the swap
+       reads as one object in two states; sized to the reference's editing
+       flair (12px/400). */
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-color);
+    /* inline-block on the panel's line-height:1 strut; top removes the
+       baseline gap under the box. */
+    vertical-align: top;
+}
+
+/* Empty state: the localized "code language" placeholder is an absolutely
+   positioned ::after (mac.css centers it via padding-left:50% !important on
+   the span, left alone here), so it cannot size the box - the box must be
+   wide enough for the longest translation (~19 Latin characters). */
+.md-fences .code-tooltip .ty-cm-lang-input:empty {
+    min-width: 12em;
+}
+
+.md-fences .code-tooltip .ty-cm-lang-input:empty::after {
+    /* Muted, the label's family, so the hint does not read as a value. */
+    color: #95a3b5;
 }
 
 /* Unfocused fences carry a reference-style language label top-right; on focus
@@ -2337,13 +2396,18 @@ body.pin-outline.no-collapse-outline .outline-content .outline-item-wrapper:has(
     color: var(--primary-color);
 }
 
-/* Search input */
+/* Search input. Focus follows the reference's text-input grammar (border one
+   notch to neutral, no accent), the same as the fence language chip and the
+   recent-files search. On macOS this field is stock's underline (border-bottom
+   #ccc): its resting line moves onto the shared border token so the focus
+   step is the reference's #ddd -> #bdbdbd, not #ccc -> #bdbdbd. */
 #file-library-search-input {
     border-radius: 4px;
+    border-color: var(--ui-border-color);
 }
 
 #file-library-search-input:focus {
-    border-color: var(--primary-color);
+    border-color: var(--ui-border-focus-color);
 }
 
 .sidebar-footer {
@@ -2658,7 +2722,7 @@ footer.ty-footer {
 }
 
 #recent-file-panel-search-input:focus {
-    border-color: var(--primary-color);
+    border-color: var(--ui-border-focus-color);
 }
 
 .megamenu-menu-panel .btn {

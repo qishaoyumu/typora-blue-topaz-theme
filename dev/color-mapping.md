@@ -7,6 +7,8 @@
 | `--background-primary` | `#ffffff` | `--bg-color` |
 | `--background-secondary` | `#fcfcfc` | `--side-bar-bg-color` |
 | `--text-normal` | `#0e0e0e` | `--text-color` |
+| `--background-modifier-border` | `#dddddd` | `--ui-border-color` — generic 1px UI hairline (window, panels, inputs, fence language chip) |
+| `--background-modifier-border-focus` | `#bdbdbd` (core `--color-base-40`; the theme leaves it unset) | `--ui-border-focus-color` — text-input focus in the reference's grammar: the border steps one notch to neutral, no accent, no ring (app.css `input[type=text]:focus { border-color }`; Blue Topaz zeroes the focus-visible box-shadow). Consumers: fence language chip (`.md-fences .code-tooltip:focus-within`), `#file-library-search-input:focus`, `#recent-file-panel-search-input:focus`. Other stock inputs (in-document search, table-resize `3 x 5`, megamenu filters) still take Typora's accent focus — deliberately left for a later pass |
 | `--color-accent` | `hsl(207, 77%, 54%)` | `--primary-color` |
 | (link text) | `hsl(207, 77%, 54%)` | `--link-color` = `var(--primary-color)`; the 2026-06 `#1a79c6` AA deepening was reverted for fidelity in 2026-07 (measured: links are the accent itself) |
 | `--interactive-accent` | `rgb(65, 159, 231)` | `--interactive-accent` — the reference's hsl-calc-brightened accent: blockquote bar and checked-checkbox fill (same family as `--file-icon-color`). Paired with `--interactive-accent-hover`, the accent-2 token, light `hsl(204, 78.5%, 62.1%)` = hsl(H−3, S×1.02, L×1.15), live-verified `rgb(82,174,234)`: the checked-hover fill, which a `hue-rotate(160deg)` filter spins to the salmon uncheck warning — the reference defines no salmon literal. Both restored by the 2026-08 checkbox redo (had left with revert `111cd76`) |
@@ -97,6 +99,7 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | Hard-coded `#eb7c46` | `#eb7c46` | Active-file icon hover color, shared with light; clears WCAG AA (>4.5:1) on the dark background |
 | `--control-text-color` | `#8a8a8a` | File-list-view meta info (parent-loc / summary / time text color) |
 | `--dark-border-color` | `#343434` | Generic 1px border tone for the dark scheme: window, code tooltip, sidebar, search, modals, table edit UI, etc. (the table body's cell dividers use a darker `#1a1a1a`) |
+| `--ui-border-focus-color` | `#555555` | Text-input focus step, the reference's dark `--color-base-40` (resting `#343434` → focus `#555555`, the same one-notch delta as light `#ddd` → `#bdbdbd`); consumers listed in the light table |
 | `--dark-panel-bg` | `#2b2b2b` | Raised-panel fill: editing-control code-tooltip, search input, quick-open, auto-suggest, modal, context/dropdown menu, notification, footer word-count. NOT the hover-preview card (`#242424` measured, see below) or the #ty-tooltip accent bubble |
 | `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, meta block, quick-open input, table cell dividers |
 | `--indent-guide-color` | `rgba(255, 255, 255, 0.12)` | Indent guide line for the file tree and nested body lists; white tint matching Obsidian's `rgba(var(--mono-rgb-100), 0.12)` on dark (the outline guide keeps light's mode-independent `--outline-guide-color`). Body-list guides are a deliberate deviation, see the light table |
@@ -237,6 +240,27 @@ than `--text-color`.
   so the reference never stubs it; the bare `:last-child` also matches
   CM5's lingering classless div line-wrappers left where the cursor
   visited, which a `pre:last-child` selector would miss).
+- **Language chip** (`.md-fences .code-tooltip`, the focused fence's
+  bottom-right language editor): one control, one box. Stock draws a
+  bordered card, and inside it a 140px centered contenteditable well that
+  grows an accent border on focus (`.code-tooltip .ty-input:focus
+  { border-color: var(--primary-color) }`) - a form control on a panel. The
+  theme makes the panel itself the chip (`padding: 3px 10px`, 4px radius,
+  `--ui-border-color` hairline, `--shadow-sm`, `--bg-color` / `--dark-panel-bg`)
+  and strips the span (`border: 0`, zero margin/padding, `min-width: 3em`,
+  centered, UI face 12px/400 in `--text-color`, `vertical-align: top`).
+  Focus = `:focus-within` on the chip, border to `--ui-border-focus-color`
+  with a 0.15s transition; the reference never accents input focus. Empty
+  state: the placeholder is an absolutely positioned `::after` (mac.css
+  centers it with `padding-left: 50% !important` on the span, left intact),
+  so it cannot size the box - `:empty { min-width: 12em }` fits the longest
+  localized string; the hint is `#95a3b5`, the label's family. The
+  auto-suggest list is a separate `position:fixed` panel and keeps its own
+  look. Verified against the 2026-08-09 exports: the tooltip element is
+  never serialized (its `md-tooltip-remove` class), so no export gate is
+  needed. Considered and parked: morphing the top-right label itself into
+  the editor (Notion-style) - reverses the 2026-08-09 decision to keep the
+  editor bottom-right, and would cover the first code line.
 - **Matching brackets**: none. Typora does not ship CodeMirror's matchbrackets
   addon (no `matchBrackets` hit anywhere in TypeMark), so
   `.CodeMirror-matchingbracket` never appears; the old underline rule was dead
