@@ -8,7 +8,7 @@
 | `--background-secondary` | `#fcfcfc` | `--side-bar-bg-color` |
 | `--text-normal` | `#0e0e0e` | `--text-color` |
 | `--background-modifier-border` | `#dddddd` | `--ui-border-color` — generic 1px UI hairline (window, panels, inputs, fence language chip) |
-| `--background-modifier-border-focus` | `#bdbdbd` (core `--color-base-40`; the theme leaves it unset) | `--ui-border-focus-color` — text-input focus in the reference's grammar: the border steps one notch to neutral, no accent, no ring (app.css `input[type=text]:focus { border-color }`; Blue Topaz zeroes the focus-visible box-shadow). Consumers: fence language chip (`.md-fences .code-tooltip:focus-within`), `#file-library-search-input:focus`, `#recent-file-panel-search-input:focus`. Other stock inputs (in-document search, table-resize `3 x 5`, megamenu filters) still take Typora's accent focus — deliberately left for a later pass |
+| `--background-modifier-border-focus` | `#bdbdbd` (core `--color-base-40`; the theme leaves it unset) | `--ui-border-focus-color` — text-input focus in the reference's grammar: the border steps one notch to neutral, no accent, no ring (app.css `input[type=text]:focus { border-color }`; Blue Topaz zeroes the focus-visible box-shadow). Consumers: `#file-library-search-input:focus`, `#recent-file-panel-search-input:focus` (the fence language chip tried this step first and moved to the has-focus accent, see Fence chrome). Other stock inputs (in-document search, table-resize `3 x 5`, megamenu filters) still take Typora's accent focus — deliberately left for a later pass |
 | `--color-accent` | `hsl(207, 77%, 54%)` | `--primary-color` |
 | (link text) | `hsl(207, 77%, 54%)` | `--link-color` = `var(--primary-color)`; the 2026-06 `#1a79c6` AA deepening was reverted for fidelity in 2026-07 (measured: links are the accent itself) |
 | `--interactive-accent` | `rgb(65, 159, 231)` | `--interactive-accent` — the reference's hsl-calc-brightened accent: blockquote bar and checked-checkbox fill (same family as `--file-icon-color`). Paired with `--interactive-accent-hover`, the accent-2 token, light `hsl(204, 78.5%, 62.1%)` = hsl(H−3, S×1.02, L×1.15), live-verified `rgb(82,174,234)`: the checked-hover fill, which a `hue-rotate(160deg)` filter spins to the salmon uncheck warning — the reference defines no salmon literal. Both restored by the 2026-08 checkbox redo (had left with revert `111cd76`) |
@@ -251,14 +251,26 @@ than `--text-color`.
   `--ui-border-color` hairline, `--shadow-sm`, `--bg-color` / `--dark-panel-bg`)
   and strips the span (`border: 0`, zero margin/padding, `min-width: 3em`,
   centered, UI face 12px/400 in `--text-color`, `vertical-align: top`).
-  Focus = `:focus-within` on the chip, border to `--ui-border-focus-color`
-  with a 0.15s transition; the reference never accents input focus. Empty
-  state: the placeholder is an absolutely positioned `::after` (mac.css
+  Focus = `:focus-within` on the chip with a 0.15s border transition. The
+  color went through two rounds: first the text-input step
+  (`--ui-border-focus-color`), which proved too faint on a small chip amid
+  coloured code in both modes; now the reference's has-focus vocabulary for
+  small interactive items (`.tree-item-self.has-focus` →
+  `color-mix(var(--theme-color), transparent 30%)`), pre-blended over the
+  chip's own background: light `#6db3ec` (= `#2f93e4` at 70% over `#ffffff`),
+  dark `#2c689c` (= `rgb(45,130,205)` at 70% over `#2b2b2b`); still 1px, no
+  ring. Width policy: idle (block focused, chip not) hugs the value with a
+  3em floor; editing (`:focus-within`) and empty both take a fixed 12em
+  field. The placeholder is an absolutely positioned `::after` (mac.css
   centers it with `padding-left: 50% !important` on the span, left intact),
-  so it cannot size the box - `:empty { min-width: 12em }` fits the longest
-  localized string; the hint is `#95a3b5`, the label's family. The
-  auto-suggest list is a separate `position:fixed` panel and keeps its own
-  look. Verified against the 2026-08-09 exports: the tooltip element is
+  so it cannot size the box and 12em fits the longest localized string; and
+  main.js `makeVisible` anchors the auto-suggest list once, at first show,
+  to the span's left edge and width, so a hugging span slid out from under
+  its list per keystroke and an empty chip collapsed on the first key - the
+  fixed field keeps the list seated under the chip, edges aligned, at the
+  cost of one expansion on click. The hint is `#95a3b5`, the label's
+  family. The auto-suggest list is a separate `position:fixed` panel and
+  keeps its own look. Verified against the 2026-08-09 exports: the tooltip element is
   never serialized (its `md-tooltip-remove` class), so no export gate is
   needed. **Placement (2026-08-15, mock-compared against bottom-right-inside
   and a hanging tab)**: `#write .md-fences .code-tooltip { top: 10px;

@@ -253,6 +253,12 @@ hr {
     box-shadow: var(--shadow-sm);
 }
 
+/* Chip focus: the reference's has-focus accent at 70%, pre-blended over the
+   dark panel - --primary-color rgb(45,130,205) at 70% over #2b2b2b. */
+.md-fences .code-tooltip:focus-within {
+    border-color: #2c689c;
+}
+
 /* .md-rawblock-tooltip: in dark, give it the panel background and border. */
 .md-rawblock-tooltip {
     background: var(--dark-panel-bg);

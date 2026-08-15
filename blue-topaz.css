@@ -580,11 +580,10 @@ hr {
    a second, accent-bordered box inside on focus around a 140px centered
    well - a form control sitting on a panel. One control, one box: the panel
    itself becomes the chip (padding, radius, hairline, shadow), the span
-   inside carries no chrome and hugs its content, and focus is the
-   reference's text-input grammar - the chip's own border steps one notch to
-   neutral (no accent, no ring; the reference never accents input focus).
-   The auto-suggest list is a separate position:fixed element and stays a
-   panel of its own. Editing UI only: exports drop the whole element. */
+   inside carries no chrome and hugs its content, and focus is signalled on
+   the chip's own border. The auto-suggest list is a separate position:fixed
+   element and stays a panel of its own. Editing UI only: exports drop the
+   whole element. */
 .md-fences .code-tooltip {
     background: var(--bg-color);
     border: 1px solid var(--ui-border-color);
@@ -611,8 +610,18 @@ hr {
     bottom: auto;
 }
 
+/* Focus on the chip = keystrokes go to the language field, not the code.
+   The reference's one-notch neutral step for text inputs proved too faint
+   on a small chip amid coloured code (checked in situ, both modes), so the
+   chip borrows the reference's own has-focus vocabulary for small
+   interactive items instead: `.tree-item-self.has-focus` sets
+   --background-modifier-border-focus to color-mix(theme-color, transparent
+   30%). Pre-blended over the chip's own background, as the theme does
+   elsewhere: light = --primary-color #2f93e4 at 70% over #ffffff. Dark
+   re-blends over its panel in blue-topaz-dark.css. Still a 1px hairline,
+   no ring. */
 .md-fences .code-tooltip:focus-within {
-    border-color: var(--ui-border-focus-color);
+    border-color: #6db3ec;
 }
 
 .md-fences .code-tooltip .ty-cm-lang-input {
@@ -636,11 +645,22 @@ hr {
     vertical-align: top;
 }
 
-/* Empty state: the localized "code language" placeholder is an absolutely
-   positioned ::after (mac.css centers it via padding-left:50% !important on
-   the span, left alone here), so it cannot size the box - the box must be
-   wide enough for the longest translation (~19 Latin characters). */
-.md-fences .code-tooltip .ty-cm-lang-input:empty {
+/* Two widths, one per identity. Idle (block focused, chip not): hug the
+   value like the label it replaced. Editing (chip focused, or empty and
+   showing its placeholder): a fixed 12em field. Two reasons. The localized
+   "code language" placeholder is an absolutely positioned ::after (mac.css
+   centers it via padding-left:50% !important on the span, left alone here),
+   so it cannot size the box - the box must be wide enough for the longest
+   translation (~19 Latin characters). And Typora anchors the auto-suggest
+   list once, at first show, to the span's left edge and width
+   (main.js makeVisible: left = rect.left, minWidth = rect.width) - a
+   hugging span would slide out from under its list with every keystroke,
+   and an empty chip would collapse from placeholder width to one letter on
+   the first key. A fixed field keeps the list seated exactly under the
+   chip, edges aligned; the price is one expansion on click, the search-
+   field idiom. Both selectors out-rank the 3em floor above (0,4,0). */
+.md-fences .code-tooltip .ty-cm-lang-input:empty,
+.md-fences .code-tooltip:focus-within .ty-cm-lang-input {
     min-width: 12em;
 }
 
