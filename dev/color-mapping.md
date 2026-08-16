@@ -8,6 +8,7 @@
 | `--background-secondary` | `#fcfcfc` | `--side-bar-bg-color` |
 | `--menu-background` (= `--background-secondary`) | `#fcfcfc` | `--menu-bg-color` — context menu, dropdown menus, the recent-files dropdown; one notch off the page like the sidebar (was `--bg-color`) |
 | `--status-bar-bg` | `#f3f3f3` | `footer.ty-footer` background literal (was `--bg-color`); the word-count popup stays a `--bg-color` panel |
+| `--scrollbar-active-thumb-bg` | `#ddddddd9` | `::-webkit-scrollbar-thumb:hover` and `:active`, one shared step (were `#ccc` / `#bbb`); the resting thumb keeps `#dcdcdcbe` |
 | `--text-normal` | `#0e0e0e` | `--text-color` |
 | `--background-modifier-border` | `#dddddd` | `--ui-border-color` — generic 1px UI hairline (window, panels, inputs, fence language chip) |
 | `--background-modifier-border-focus` | `#bdbdbd` (core `--color-base-40`; the theme leaves it unset) | `--ui-border-focus-color` — text-input focus in the reference's grammar: the border steps one notch to neutral, no accent, no ring (app.css `input[type=text]:focus { border-color }`; Blue Topaz zeroes the focus-visible box-shadow). Consumers: `#file-library-search-input:focus`, `#recent-file-panel-search-input:focus` (the fence language chip tried this step first and moved to the has-focus accent, see Fence chrome). Other stock inputs (in-document search, table-resize `3 x 5`, megamenu filters) still take Typora's accent focus — deliberately left for a later pass |
@@ -47,6 +48,7 @@ helpers.
 | `--primary-color-02` | `hsla(207, 77%, 54%, 0.2)` | Search-result highlight (`.ty-file-search-match-text`) |
 | `--search-hit-border` | `#b7b7b7` | In-document search candidate-hit outline (2px, no fill, 2px radius). Obsidian core (app.css in obsidian.asar) draws hits as a 2px `var(--text-normal)` ring at opacity 0.3; pre-blended here: `#0e0e0e` × 0.3 over `#ffffff`. Current hit: 3px `--primary-color` (= `var(--text-accent)` at opacity 1 upstream) |
 | `--file-active-bg` | `hsla(207, 77%, 54%, 0.1)` | File-row hover and active background, file tree + file list (hover and active share one color, matching Obsidian's single `--theme-color-translucent-01`); same value as `--primary-color-01` in light, split so search/table consumers stay independent |
+| `--suggest-active-bg` | `hsla(207, 77%, 54%, 0.15)` | Selected/hovered row in suggestion-style lists: quick-open items, auto-suggest rows. Blue Topaz `.suggestion-item.is-selected` = `--theme-color-translucent-015` (blends to `#e0effb` on white); one state for hover and keyboard selection, and both may show at once |
 | `--folder-hover-bg` | `rgba(0, 0, 0, 0.067)` | Neutral-gray folder hover; measured (`--nav-item-background-hover` black 0.067) |
 | `--item-hover-bg-color` | `rgba(0, 0, 0, 0.067)` | Generic item hover wash: outline rows, sidebar search hits, sidebar footer items, megamenu rows/buttons, unibody titlebar buttons, `.btn-default:hover`, dropdown-menu items. Obsidian `--background-modifier-hover` (`rgba(var(--mono-rgb-100), 0.067)`), kept translucent instead of the earlier `#f0f0f0` pre-blend so one token reads the same on `#ffffff`, `#fcfcfc`, and panels; `--toc-hover-bg` (the in-document TOC row hover) now aliases it, replacing the hand-computed `#f3f3f3` |
 | `--file-icon-color` | `rgb(65, 159, 231)` | File icon fill; the reference light icon is a brighter blue than the accent (measured `--text-folder-file-icon`), while dark's equals the primary formula |
@@ -66,6 +68,7 @@ helpers.
 | `--background-secondary` | `#151515` | `--side-bar-bg-color` |
 | `--menu-background` (= `--background-secondary`) | `#151515` | `--menu-bg-color` — context menu, dropdown menus, recent-files dropdown (was `--dark-panel-bg`) |
 | `--status-bar-bg` | `#000000` | `footer.ty-footer` background literal (was `--bg-color`) |
+| `--scrollbar-active-thumb-bg` | `#4d4d4d88` | `::-webkit-scrollbar-thumb:hover` and `:active`, one shared step (were `#555` / `#666`); the resting thumb keeps `#3f3f3f7e` |
 | `--text-normal` | `#c6c6c6` | `--text-color` |
 | `--text-folder-file` | `#b3b3b3` | `--file-text-color` |
 | `--accent-em` | `#a4ca8e` | em color |
@@ -95,6 +98,7 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 |---|---|---|
 | `--primary-color-01` | `hsla(208, 72%, 58%, 0.14)` | Search-active background (file-row hover/active moved to `--file-active-bg`) |
 | `--file-active-bg` | `hsla(208, 64%, 49%, 0.1)` | File-row hover and active background, file tree + file list; measured live in the reference vault (`--theme-color-translucent-01` = hsl 208/64/49 at 0.1 — the darker dark-blue formula, not `--primary-color-01`'s 72/58) |
+| `--suggest-active-bg` | `hsla(208, 64%, 49%, 0.15)` | Selected/hovered row in quick-open and auto-suggest lists; the base dark formula at 0.15 (`--theme-color-translucent-015`, blends to `#222f3a` on `#202020`) |
 | `--primary-color-02` | `hsla(208, 72%, 58%, 0.26)` | Search-result highlight |
 | `--search-hit-border` | `#525252` | In-document search candidate-hit outline; the same core formula pre-blended on dark: `#c6c6c6` × 0.3 over `#202020` — reproduces the earlier screenshot-measured value exactly (see the light table row for the formula's source) |
 | `--interactive-accent` | `var(--primary-color)` | Dark's measured interactive accent equals the primary formula (blockquote bar, checked-checkbox fill). Paired dark accent-2 hover `hsl(203, 67.2%, 63.2%)` = hsl(208−5, 64%×1.05, 49%×1.29), live-verified `rgb(98,176,224)`; the same `hue-rotate(160deg)` salmon warning rides on it, over the page-background `#202020` check glyph. Both restored by the 2026-08 checkbox redo |
@@ -114,9 +118,10 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 
 **Tooltips** follow the upstream split (2026-08, correcting the earlier
 all-bubble unification): `#ty-tooltip` UI hints are the accent bubble —
-`--primary-color` background, white text, both modes, deliberately no
-dark-file override (upstream `theme.css` paints `.tooltip` with
-`--interactive-accent`). Generic `.md-hover-tip` bubbles (absent in this
+`--interactive-accent` background (upstream `theme.css` paints `.tooltip`
+with that token: light `rgb(65,159,231)`, dark aliases the primary
+formula), white text, both modes, deliberately no dark-file override
+(2026-08-16: was `--primary-color`, which only differed in light). Generic `.md-hover-tip` bubbles (absent in this
 macOS build; other builds put link tips on the class) keep the accent
 bubble with its accent arrow. `.md-f-tooltip` in-document previews (the
 footnote content preview and the undefined-footnote warning) are the

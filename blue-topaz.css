@@ -109,6 +109,10 @@
        value. Obsidian uses one --theme-color-translucent-01 for both the
        hover and the active state of file rows. */
     --file-active-bg: hsla(207, 77%, 54%, 0.1);
+    /* Selected row in suggestion-style lists (quick-open, auto-suggest):
+       Blue Topaz's .suggestion-item.is-selected = --theme-color-translucent-015,
+       the accent at 0.15 (blends to #e0effb on white). */
+    --suggest-active-bg: hsla(207, 77%, 54%, 0.15);
     /* The reference file icon has its own blue, brighter than the accent in
        light mode (measured rgb(65,159,231) vs #2f93e4); dark's measured icon
        equals the primary formula, so dark overrides this to the primary. */
@@ -2573,9 +2577,11 @@ footer.ty-footer {
     padding: 6px 12px;
 }
 
+/* Hover and keyboard selection share the reference's is-selected tint;
+   the neutral hover wash is for menus and buttons, not suggestion rows. */
 .typora-quick-open-item:hover,
 .typora-quick-open-item.active {
-    background: var(--item-hover-bg-color);
+    background: var(--suggest-active-bg);
 }
 
 .auto-suggest-container {
@@ -3083,7 +3089,9 @@ div.code-tooltip {
    creates is .md-f-tooltip), but other builds put link tips on the same
    class, and those are hints, not in-document previews. */
 .code-tooltip.md-hover-tip {
-    background: var(--primary-color);
+    /* The reference paints .tooltip with --interactive-accent (light: the
+       brighter rgb(65,159,231); dark aliases the primary formula). */
+    background: var(--interactive-accent);
     color: #fff;
     border-radius: 5px;
 }
@@ -3093,7 +3101,7 @@ div.code-tooltip {
 }
 
 .md-hover-tip div.md-arrow:after {
-    background: var(--primary-color);
+    background: var(--interactive-accent);
 }
 
 /* In-document previews (.md-f-tooltip: the footnote content preview and
@@ -3152,7 +3160,9 @@ div.code-tooltip {
 }
 
 #ty-tooltip {
-    background: var(--primary-color);
+    /* The reference's .tooltip fill: --interactive-accent, not the accent
+       proper (see .code-tooltip.md-hover-tip above). */
+    background: var(--interactive-accent);
     color: white;
     border-radius: 5px;
     padding: 4px 8px;
@@ -3291,12 +3301,14 @@ div.code-tooltip {
     border-radius: 4px;
 }
 
+/* Hover and drag share the reference's one --scrollbar-active-thumb-bg step
+   (translucent, so it reads on any scrolling surface). */
 ::-webkit-scrollbar-thumb:hover {
-    background: #ccc;
+    background: #ddddddd9;
 }
 
 ::-webkit-scrollbar-thumb:active {
-    background: #bbb;
+    background: #ddddddd9;
 }
 
 /* ========== 30. Text selection ========== */

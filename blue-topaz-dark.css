@@ -110,6 +110,9 @@
        brighter 72/58 used by --primary-color-01). */
     --folder-hover-bg: rgba(255, 255, 255, 0.067);
     --file-active-bg: hsla(208, 64%, 49%, 0.1);
+    /* Suggestion-list selection: the same base blue formula at 0.15
+       (--theme-color-translucent-015; blends to #222f3a on #202020). */
+    --suggest-active-bg: hsla(208, 64%, 49%, 0.15);
     /* Dark's measured icon blue equals the primary formula (rgb 45,130,205),
        unlike light, whose icon has its own brighter blue. */
     --file-icon-color: var(--primary-color);
@@ -720,11 +723,11 @@ div.code-tooltip {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #4d4d4d88;
 }
 
 ::-webkit-scrollbar-thumb:active {
-    background: #666;
+    background: #4d4d4d88;
 }
 
 /* ========== Text selection ========== */
