@@ -260,8 +260,11 @@ than `--text-color`.
   { border-color: var(--primary-color) }`) - a form control on a panel. The
   theme makes the panel itself the chip (`padding: 3px 10px`, 4px radius,
   `--ui-border-color` hairline, `--shadow-sm`, `--bg-color` / `--dark-panel-bg`)
-  and strips the span (`border: 0`, zero margin/padding, `min-width: 3em`,
-  centered, UI face 12px/400, `vertical-align: top`). Ink: idle (block
+  and strips the span (`border: 0`, zero margin/padding, left-aligned, no
+  width floor, `max-width: 9.5em` with `overflow: hidden` + ellipsis, UI
+  face 12px/400, `vertical-align: top`). Hover on an un-edited chip layers
+  `--item-hover-bg-color` as a gradient image over the mode's background.
+  Ink: idle (block
   focused, chip not) the label's `#95a3b5` at full opacity, so entering the
   block reads as the badge moving down into a chip; editing brightens it to
   `--text-color` over 140ms ease-in-out, on the border's beat. Case and
@@ -276,27 +279,34 @@ than `--text-color`.
   small interactive items (`.tree-item-self.has-focus` →
   `color-mix(var(--theme-color), transparent 30%)`), pre-blended over the
   chip's own background: light `#6db3ec` (= `#2f93e4` at 70% over `#ffffff`),
-  dark `#2c689c` (= `rgb(45,130,205)` at 70% over `#2b2b2b`); still 1px, no
-  ring. Width policy: idle (block focused, chip not) hugs the value with a
-  3em floor; editing (`:focus-within`) and empty both take a fixed 9.5em
-  field (114px; the longest localized placeholder measured in Inter 12px is
-  Spanish "lenguaje de código" at 106px). The expansion snaps: an eased
-  opening left the caret painted at its old spot while the centered word
-  slid ~30px (WebKit does not repaint the caret per frame during a
-  transition) - the "sticky caret" seen in use; only the collapse on blur
-  eases, 140ms on the reference's `--anim-motion-swing` curve
-  (cubic-bezier(0, 0.55, 0.45, 1), what app.css puts on width
-  transitions). The border color eases 140ms ease-in-out, the reference's
-  input-focus beat. The placeholder is an absolutely positioned `::after` (mac.css
-  centers it with `padding-left: 50% !important` on the span, left intact),
-  so it cannot size the box and 9.5em fits the longest localized string; and
-  main.js `makeVisible` anchors the auto-suggest list once, at first show,
-  to the span's left edge and width, so a hugging span slid out from under
-  its list per keystroke and an empty chip collapsed on the first key - the
-  fixed field keeps the list seated under the chip, edges aligned, at the
-  cost of one expansion on click. The hint is `#95a3b5`, the label's
-  family. The auto-suggest list is a separate `position:fixed` panel and
-  keeps its own look. Verified against the 2026-08-09 exports: the tooltip element is
+  dark `#296599` (= `rgb(45,130,205)` at 70% over `#202020`; was `#2c689c`
+  over the old `#2b2b2b` panel); still 1px, no ring. Width policy: idle
+  (block focused, chip not) hugs the value, no floor (a one-letter id is a
+  29px chip), capped at 9.5em with an ellipsis; editing (`:focus-within`)
+  and empty both take a fixed 9.5em field (114px; the longest localized
+  placeholder measured in Inter 12px is Spanish "lenguaje de código" at
+  106px), `text-overflow: clip` while editing so the caret scrolls the
+  hidden overflow instead of growing the box. The expansion snaps: an eased
+  opening left the caret painted at its old spot while the box grew
+  (WebKit does not repaint the caret per frame during a transition) - the
+  "sticky caret" seen in use; only the collapse on blur eases, 140ms on the
+  reference's `--anim-motion-swing` curve (cubic-bezier(0, 0.55, 0.45, 1),
+  what app.css puts on width transitions). The border color eases 140ms
+  ease-in-out, the reference's input-focus beat. The placeholder is an
+  absolutely positioned `::after`, so it cannot size the box and 9.5em fits
+  the longest localized string; mac.css centers it with `padding-left: 50%
+  !important` on the empty span plus `left:0; right:0` on the `::after` -
+  the theme zeroes that padding at equal importance and higher specificity
+  ((0,4,0) over (0,3,0)) and left-aligns the `::after`, so the hint reads
+  like the value it stands in for and the empty span keeps the 114px rect
+  the list is anchored to. frame.js `makeVisible` anchors the auto-suggest
+  list once, at first show, to the span's left edge and width, so a
+  hugging span slid out from under its list per keystroke and an empty
+  chip collapsed on the first key - the fixed field keeps the list seated
+  under the chip, edges aligned, at the cost of one expansion on click.
+  The hint is `#95a3b5`, the label's family. The auto-suggest list is a
+  separate `position:fixed` panel and keeps its own look. Verified against
+  the 2026-08-09 exports: the tooltip element is
   never serialized (its `md-tooltip-remove` class), so no export gate is
   needed. **Placement (2026-08-15, three rounds)**: `.md-fences
   .code-tooltip { bottom: 10px; right: 20px }` seats the chip inside the

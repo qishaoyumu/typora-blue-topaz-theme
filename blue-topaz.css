@@ -640,14 +640,29 @@ hr {
     border-color: #6db3ec;
 }
 
+/* Hover (chip not being edited): the same translucent item wash the rest of
+   the UI uses, layered as an image over whichever background-color the mode
+   gives the chip, so neither file needs a pre-blend. */
+.md-fences .code-tooltip:hover:not(:focus-within) {
+    background-image: linear-gradient(var(--item-hover-bg-color), var(--item-hover-bg-color));
+}
+
 .md-fences .code-tooltip .ty-cm-lang-input {
     /* Zero width kills stock's :focus accent border-color outright. */
     border: 0;
     margin: 0;
     padding: 0;
-    /* Hug the value; a floor keeps one-letter ids ("c", "r") a clickable
-       chip. Centered (stock) so short ids sit mid-chip. */
-    min-width: 3em;
+    /* Left-aligned like every other field (stock centers the value in a
+       140px well). Idle, the span hugs its value with no floor - a
+       one-letter id is a 29px chip - and caps at the editing width, so an
+       over-long id ellipsizes rather than pushing the chip past the block.
+       overflow:hidden is what lets the caret scroll inside the fixed
+       editing field instead of growing it. */
+    text-align: left;
+    max-width: 9.5em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     /* The same value the top-right label sets in the UI face, so the swap
        reads as one object in two states; sized to the reference's editing
        flair (12px/400). */
@@ -674,25 +689,25 @@ hr {
 
 /* Two widths, one per identity. Idle (block focused, chip not): hug the
    value like the label it replaced. Editing (chip focused, or empty and
-   showing its placeholder): a fixed 9.5em field. Two reasons. The localized
-   "code language" placeholder is an absolutely positioned ::after (mac.css
-   centers it via padding-left:50% !important on the span, left alone here),
-   so it cannot size the box - the box must be wide enough for the longest
-   translation (measured in Inter 12px: Spanish "lenguaje de código" 106px,
-   Catalan 105.8px; 9.5em = 114px). And Typora anchors the auto-suggest
-   list once, at first show, to the span's left edge and width
-   (main.js makeVisible: left = rect.left, minWidth = rect.width) - a
-   hugging span would slide out from under its list with every keystroke,
-   and an empty chip would collapse from placeholder width to one letter on
-   the first key. A fixed field keeps the list seated exactly under the
-   chip, edges aligned; the price is one expansion on click, the search-
-   field idiom. The expansion itself snaps: with centered text the word
-   slides ~30px while the box grows, and WebKit does not repaint the caret
-   per frame during a transition, so an eased opening showed the caret
-   parked at its old spot until the word arrived - the DOM position was
-   right, the paint lagged. Snapping puts word and caret in place on the
-   same frame; the collapse on blur (no caret then) keeps the base rule's
-   easing. Both selectors out-rank the 3em floor above (0,4,0). */
+   showing its placeholder): a fixed 9.5em field, the same 9.5em the base
+   rule caps at, so the box never changes size while typing. Two reasons.
+   The localized "code language" placeholder is an absolutely positioned
+   ::after (mac.css), so it cannot size the box - the box must be wide
+   enough for the longest translation (measured in Inter 12px: Spanish
+   "lenguaje de código" 106px, Catalan 105.8px; 9.5em = 114px). And Typora
+   anchors the auto-suggest list once, at first show, to the span's left
+   edge and width (frame.js makeVisible: getClientRects()[0], top = bottom
+   + 6, left = left, minWidth = width; never repositioned, never flipped) -
+   a hugging span would slide out from under its list with every
+   keystroke, and an empty chip would collapse from placeholder width to
+   one letter on the first key. A fixed field keeps the list seated exactly
+   under the chip, edges aligned (the list rules in section 25 build on
+   these numbers); the price is one expansion on click, the search-field
+   idiom. The expansion itself snaps: WebKit does not repaint the caret per
+   frame during a transition, so an eased opening showed the caret parked
+   at its old spot until the box arrived - the DOM position was right, the
+   paint lagged. Snapping puts box and caret in place on the same frame;
+   the collapse on blur (no caret then) keeps the base rule's easing. */
 .md-fences .code-tooltip .ty-cm-lang-input:empty,
 .md-fences .code-tooltip:focus-within .ty-cm-lang-input {
     min-width: 9.5em;
@@ -700,12 +715,25 @@ hr {
 }
 
 /* Editing: the value in body ink, brightened from the idle grey on the same
-   beat as the border. */
+   beat as the border; and a clipped tail rather than an ellipsis, since the
+   caret is scrolling the field now. */
 .md-fences .code-tooltip:focus-within .ty-cm-lang-input {
     color: var(--text-color);
+    text-overflow: clip;
+}
+
+/* mac.css centers the placeholder by giving the empty span
+   padding-left:50% !important and making the ::after absolute (left:0,
+   right:0). Same importance, so specificity decides: this (0,4,0) beats
+   its (0,3,0). Zero padding keeps the empty field the same 114px box as
+   the editing one (makeVisible reads the span's rect), and the hint reads
+   from the left like the value it stands in for. */
+.md-fences .code-tooltip .ty-cm-lang-input:empty {
+    padding-left: 0 !important;
 }
 
 .md-fences .code-tooltip .ty-cm-lang-input:empty::after {
+    text-align: left;
     /* Muted, the label's family, so the hint does not read as a value. */
     color: #95a3b5;
 }
