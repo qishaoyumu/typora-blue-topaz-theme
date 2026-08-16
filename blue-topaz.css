@@ -593,8 +593,8 @@ hr {
    itself becomes the chip (padding, radius, hairline, shadow), the span
    inside carries no chrome and hugs its content, and focus is signalled on
    the chip's own border. The auto-suggest list is a separate position:fixed
-   element and stays a panel of its own. Editing UI only: exports drop the
-   whole element. */
+   element that section 25 seats flush under the editing chip as the other
+   half of one combobox. Editing UI only: exports drop the whole element. */
 .md-fences .code-tooltip {
     background: var(--bg-color);
     border: 1px solid var(--ui-border-color);
@@ -2612,11 +2612,96 @@ footer.ty-footer {
     background: var(--suggest-active-bg);
 }
 
+/* The auto-suggest list: #ty-auto-suggest, one shared position:fixed
+   container for every suggest type (fence languages, emoji, ...). Panel
+   fill is the page, the 1px hairline is an inset shadow rather than a
+   border, and the panel shadow rides on top. Inset, because Typora sizes
+   the box itself: frame.js sets an inline max-height of 5 * (first row's
+   clientHeight) + 12 once per session (whichever list opens first), which
+   under border-box sizing is exactly five gapless rows plus the 6px top and
+   bottom padding - a real border would eat into that and clip the fifth
+   row. Type is the chip's own (12px, line-height 1.5), so the fence list
+   reads as the chip continued. */
 .auto-suggest-container {
     background: var(--bg-color);
-    border: 1px solid var(--ui-border-color);
-    box-shadow: var(--shadow-sm);
+    border: 0;
+    box-shadow: inset 0 0 0 1px var(--ui-border-color), var(--shadow-sm);
     border-radius: 4px;
+    padding: 6px 4px;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+/* Rows: 4px + 18px line + 4px = 26px, deliberately gapless (see the
+   max-height note above). Stock's 124px row floor goes so a row can be
+   narrower than its list; arrow cursor as on the reference's suggestion
+   items. */
+.auto-suggest-container li {
+    padding: 4px 6px 4px 0;
+    margin: 0;
+    min-width: 0;
+    border-radius: 5px;
+    cursor: default;
+}
+
+/* Row text ellipsizes only when the classic 8px scrollbar appears on hover
+   for lists longer than five rows (prefix "r" gives six ids). */
+.auto-suggest-container li > span {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: calc(100% - 24px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Typora's language icons stay (their colours are baked into the icon
+   font); the column narrows from stock's 38px to 24px so all 163 ids fit
+   the fused list's 134px inner width untruncated (the longest,
+   reStructuredText, measures 95.3px at 12px Inter). */
+.auto-suggest-container .ty-file-icon {
+    width: 24px;
+}
+
+/* One state: hover and keyboard selection both take the reference's
+   is-selected tint (they may show at once). */
+.auto-suggest-container li.active,
+.auto-suggest-container li:hover {
+    background-color: var(--suggest-active-bg);
+}
+
+/* Fence-language list, fused with its chip into one combobox. frame.js
+   makeVisible places the container once per show at the span's rect
+   (getClientRects()[0]: top = span.bottom + 6, left = span.left, inline
+   min-width = span.width) and never repositions or flips it, so fixed
+   margins seat it flush: the chip's 1px border + 10px padding left of the
+   span means -11px, and its 3px padding + 1px border below the span plus
+   the 6px offset means -2px. Width = the chip's 136px (114 + 2*10 + 2*1);
+   !important beats both the inline min-width and stock's 160px floor. The
+   chip's blue focus border continues down the list's sides and bottom as
+   inset shadows; the top corners square off against the chip, and the
+   chip's own hairline is the divider (no top ring here). */
+#ty-auto-suggest:has(> .auto-suggest-for-fences) {
+    margin-top: -2px;
+    margin-left: -11px;
+    min-width: 136px !important;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    box-shadow: inset 1px 0 0 #6db3ec, inset -1px 0 0 #6db3ec,
+        inset 0 -1px 0 #6db3ec, var(--shadow-sm);
+}
+
+/* The chip's side of the seam, only while its list is showing (Typora's
+   own .ty-show toggle): bottom corners squared, the hairline instead of
+   the blue where chip meets list, and no shadow, which would band across
+   the list's top. :has() needs WebKit 15.4+ / Chromium 105+; older engines
+   keep a rounded chip over a detached list. */
+body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-tooltip:focus-within {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-color: var(--ui-border-color);
+    box-shadow: none;
 }
 
 /* ========== 26. Preferences, Mega Menu, Modals, Notifications ========== */

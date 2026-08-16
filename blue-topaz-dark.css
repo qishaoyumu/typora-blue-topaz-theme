@@ -548,10 +548,17 @@ footer.ty-footer {
     border-color: var(--dark-border-color);
 }
 
+/* Ring and shadow resolve to dark through --ui-border-color / --shadow-sm;
+   only the fill and the fused list's blue need dark values. */
 .auto-suggest-container {
     background: var(--dark-panel-bg);
-    border-color: var(--dark-border-color);
-    box-shadow: var(--shadow-sm);
+}
+
+/* The chip's dark focus blue (#296599, see the fence chip above) carried
+   down the fused list's sides and bottom. */
+#ty-auto-suggest:has(> .auto-suggest-for-fences) {
+    box-shadow: inset 1px 0 0 #296599, inset -1px 0 0 #296599,
+        inset 0 -1px 0 #296599, var(--shadow-sm);
 }
 
 /* ========== Preferences, Mega Menu, Modals ========== */

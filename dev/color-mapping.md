@@ -304,8 +304,35 @@ than `--text-color`.
   hugging span slid out from under its list per keystroke and an empty
   chip collapsed on the first key - the fixed field keeps the list seated
   under the chip, edges aligned, at the cost of one expansion on click.
-  The hint is `#95a3b5`, the label's family. The auto-suggest list is a
-  separate `position:fixed` panel and keeps its own look. Verified against
+  The hint is `#95a3b5`, the label's family. **Suggest list (2026-08-16,
+  round 6)**: `#ty-auto-suggest.auto-suggest-container` is one shared
+  `position:fixed` container for every suggest type; the theme restyles it
+  for all (page fill, 1px `--ui-border-color` ring drawn as an inset shadow
+  plus `--shadow-sm`, 4px radius, `padding: 6px 4px`, 12px/1.5 type, 26px
+  gapless rows with a 5px radius, `.ty-file-icon` column 24px instead of
+  stock 38, row text ellipsizes under `calc(100% - 24px)`, hover and
+  `.active` both `--suggest-active-bg`, arrow cursor) and fuses the fence
+  variant with its chip into one combobox: `#ty-auto-suggest:has(>
+  .auto-suggest-for-fences)` gets `margin-top: -2px; margin-left: -11px;
+  min-width: 136px !important`, squared top corners, and the chip's focus
+  blue (`#6db3ec` / `#296599`) as inset shadows on its sides and bottom;
+  `body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences
+  .code-tooltip:focus-within` squares the chip's bottom corners, turns its
+  bottom border into the hairline divider, and drops its shadow. Geometry:
+  span 114px → chip 136 × 26 (10px + 1px each side, 3px + 1px top/bottom);
+  frame.js `makeVisible` puts the list at `top = span.bottom + 6, left =
+  span.left, min-width = span.width` once per show and never flips it,
+  hence the fixed margins; frame.js also sets an inline `max-height = 5 *
+  first-row clientHeight + 12` once per session, which under border-box
+  sizing is exactly five 26px rows plus the 6px paddings - the reason the
+  ring is an inset shadow (a border would clip row five) and the rows carry
+  no gap. Inner width 134 (136 minus the ring), longest id
+  `reStructuredText` = 95.3px at 12px Inter, so 4 + 24 + 95.3 + 6 + 4 fits;
+  the ellipsis only appears when the classic 8px scrollbar shows on hover
+  for lists longer than five rows (prefix "r"). Diagram fences (stock chip
+  placement) get the same fused list geometry, since the chip's box is the
+  same. `:has()` needs WebKit 15.4+ / Chromium 105+; without it the list is
+  still styled but detached, and the chip stays rounded. Verified against
   the 2026-08-09 exports: the tooltip element is
   never serialized (its `md-tooltip-remove` class), so no export gate is
   needed. **Placement (2026-08-15, three rounds)**: `.md-fences
@@ -336,7 +363,8 @@ than `--text-color`.
   last line wraps), and a click there lands in the language field rather
   than the code; every other seat only moves the overlap onto something
   else, and padding the block on focus would break the zero-shift rule.
-  The auto-suggest list drops below the block, as stock.
+  The auto-suggest list drops below the chip (and so below the block), as
+  stock places it; the theme only fuses it to the chip.
 - **Matching brackets**: none. Typora does not ship CodeMirror's matchbrackets
   addon (no `matchBrackets` hit anywhere in TypeMark), so
   `.CodeMirror-matchingbracket` never appears; the old underline rule was dead
