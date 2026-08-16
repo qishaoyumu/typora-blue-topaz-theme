@@ -590,18 +590,23 @@ hr {
    the next block's corner and label) and draws it as a bordered card with
    a second, accent-bordered box inside on focus around a 140px centered
    well - a form control sitting on a panel. One control, one box: the panel
-   itself becomes the chip (padding, radius, hairline, shadow), the span
-   inside carries no chrome and hugs its content, and focus is signalled on
-   the chip's own border. The auto-suggest list is a separate position:fixed
-   element that section 25 seats flush under the editing chip as the other
-   half of one combobox. Editing UI only: exports drop the whole element. */
+   itself becomes the chip (radius, hairline, shadow), the span inside
+   carries the chip's padding and hugs its content, and focus is signalled
+   on the chip's own border. The auto-suggest list is a separate
+   position:fixed element that section 25 seats flush under the editing
+   chip as the other half of one combobox. Editing UI only: exports drop
+   the whole element. */
 .md-fences .code-tooltip {
     background: var(--bg-color);
     border: 1px solid var(--ui-border-color);
     border-radius: 4px;
     box-shadow: var(--shadow-sm);
-    /* Stock 0 20px around a 140px well; chip padding around a hugged value. */
-    padding: 3px 10px;
+    /* Stock 0 20px around a 140px well. Zero here: the span carries the
+       chip's padding, so the whole chip is the field - one hit target, one
+       I-beam. With the padding on this wrapper the rim was dead: frame.js
+       skips clicks whose target is .code-tooltip itself and hands nothing
+       to the span, so the edge showed an arrow and swallowed the click. */
+    padding: 0;
     /* The reference's input focus beat: --anim-duration-fast (140ms), ease-in-out. */
     transition: border-color 140ms ease-in-out;
 }
@@ -616,8 +621,8 @@ hr {
    Inside rather than hanging below (stock's bottom:-2.5em): a block never
    sprouts UI outside its own box, and the next block's corner and label
    stay uncovered; the price is the tail of this block's last line, usually
-   a short one, only while focused. Chip = 18px line + 6px padding + 2px
-   border = 26px, seated 10px above the block edge. Diagram fences keep
+   a short one, only while focused. Chip = 18px line + 6px span padding +
+   2px border = 26px, seated 10px above the block edge. Diagram fences keep
    stock's placement (.enable-diagrams .md-diagram .code-tooltip, (0,3,0),
    hangs under the diagram panel): their focused form is source plus
    preview and follows its own layout. */
@@ -651,17 +656,20 @@ hr {
     /* Zero width kills stock's :focus accent border-color outright. */
     border: 0;
     margin: 0;
-    padding: 0;
+    /* The chip's padding (stock: 0 4px on the span, 0 20px on the wrapper).
+       3 + 18 line + 3 = 24, plus the wrapper's border = the 26px chip. */
+    padding: 3px 10px;
     /* Left-aligned like every other field (stock centers the value in a
        140px well). Idle, the span hugs its value with no floor - a
        one-letter id is a 29px chip - and caps at the editing width, so an
        over-long id ellipsizes rather than pushing the chip past the block.
        min-width:0 is what actually removes stock's 140px .ty-input floor.
        overflow:hidden is what lets the caret scroll inside the fixed
-       editing field instead of growing it. */
+       editing field instead of growing it (the scrollport is the padding
+       box, so a scrolled value runs to the border - a long-id-only wart). */
     text-align: left;
     min-width: 0;
-    max-width: 9.5em;
+    max-width: 134px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -691,28 +699,29 @@ hr {
 
 /* Two widths, one per identity. Idle (block focused, chip not): hug the
    value like the label it replaced. Editing (chip focused, or empty and
-   showing its placeholder): a fixed 9.5em field, the same 9.5em the base
-   rule caps at, so the box never changes size while typing. Two reasons.
-   The localized "code language" placeholder is an absolutely positioned
+   showing its placeholder): a fixed 134px field (border-box: 114 of
+   content + the 2 x 10 padding; chip = 136), the same width the base rule
+   caps at, so the box never changes size while typing. Two reasons. The
+   localized "code language" placeholder is an absolutely positioned
    ::after (mac.css), so it cannot size the box - the box must be wide
    enough for the longest translation (measured in Inter 12px: Spanish
-   "lenguaje de código" 106px, Catalan 105.8px; 9.5em = 114px). And Typora
-   anchors the auto-suggest list once, at first show, to the span's left
-   edge and width (frame.js makeVisible: getClientRects()[0], top = bottom
-   + 6, left = left, minWidth = width; never repositioned, never flipped) -
-   a hugging span would slide out from under its list with every
-   keystroke, and an empty chip would collapse from placeholder width to
-   one letter on the first key. A fixed field keeps the list seated exactly
-   under the chip, edges aligned (the list rules in section 25 build on
-   these numbers); the price is one expansion on click, the search-field
-   idiom. The expansion itself snaps: WebKit does not repaint the caret per
-   frame during a transition, so an eased opening showed the caret parked
-   at its old spot until the box arrived - the DOM position was right, the
-   paint lagged. Snapping puts box and caret in place on the same frame;
-   the collapse on blur (no caret then) keeps the base rule's easing. */
+   "lenguaje de código" 108px, Catalan 107.6px). And Typora anchors the
+   auto-suggest list once, at first show, to the span's rect (frame.js
+   makeVisible: getClientRects()[0], top = bottom + 6, left = left,
+   minWidth = width; never repositioned, never flipped) - a hugging span
+   would slide out from under its list with every keystroke, and an empty
+   chip would collapse from placeholder width to one letter on the first
+   key. A fixed field keeps the list seated exactly under the chip, edges
+   aligned (the list rules in section 25 build on these numbers); the
+   price is one expansion on click, the search-field idiom. The expansion
+   itself snaps: WebKit does not repaint the caret per frame during a
+   transition, so an eased opening showed the caret parked at its old spot
+   until the box arrived - the DOM position was right, the paint lagged.
+   Snapping puts box and caret in place on the same frame; the collapse on
+   blur (no caret then) keeps the base rule's easing. */
 .md-fences .code-tooltip .ty-cm-lang-input:empty,
 .md-fences .code-tooltip:focus-within .ty-cm-lang-input {
-    min-width: 9.5em;
+    min-width: 134px;
     transition: min-width 0s, color 140ms ease-in-out;
 }
 
@@ -727,14 +736,18 @@ hr {
 /* mac.css centers the placeholder by giving the empty span
    padding-left:50% !important and making the ::after absolute (left:0,
    right:0). Same importance, so specificity decides: this (0,4,0) beats
-   its (0,3,0). Zero padding keeps the empty field the same 114px box as
-   the editing one (makeVisible reads the span's rect), and the hint reads
-   from the left like the value it stands in for. */
+   its (0,3,0). The chip's own 10px keeps the empty field the same box as
+   the editing one (makeVisible reads the span's rect), and the ::after is
+   pulled in to the content box so the hint reads from the left like the
+   value it stands in for (left/right are inert where the ::after stays
+   static, i.e. off macOS). */
 .md-fences .code-tooltip .ty-cm-lang-input:empty {
-    padding-left: 0 !important;
+    padding-left: 10px !important;
 }
 
 .md-fences .code-tooltip .ty-cm-lang-input:empty::after {
+    left: 10px;
+    right: 10px;
     text-align: left;
     /* Muted, the label's family, so the hint does not read as a value. */
     color: #95a3b5;
@@ -2682,16 +2695,17 @@ footer.ty-footer {
    makeVisible places the container once per show at the span's rect
    (getClientRects()[0]: top = span.bottom + 6, left = span.left, inline
    min-width = span.width) and never repositions or flips it, so fixed
-   margins seat it flush: the chip's 1px border + 10px padding left of the
-   span means -11px, and its 3px padding + 1px border below the span plus
-   the 6px offset means -2px. Width = the chip's 136px (114 + 2*10 + 2*1);
-   !important beats both the inline min-width and stock's 160px floor. The
-   chip's blue focus border continues down the list's sides and bottom as
-   inset shadows; the top corners square off against the chip, and the
-   chip's own hairline is the divider (no top ring here). */
+   margins seat it flush: the span fills the chip to its 1px border (the
+   padding is the span's own), so -1px left, and the border below the span
+   plus the 6px offset means -5px. Width = the chip's 136px (the span's
+   134 + 2*1 border); !important beats both the inline min-width and
+   stock's 160px floor. The chip's blue focus border continues down the
+   list's sides and bottom as inset shadows; the top corners square off
+   against the chip, and the chip's own hairline is the divider (no top
+   ring here). */
 #ty-auto-suggest:has(> .auto-suggest-for-fences) {
-    margin-top: -2px;
-    margin-left: -11px;
+    margin-top: -5px;
+    margin-left: -1px;
     min-width: 136px !important;
     border-top-left-radius: 0;
     border-top-right-radius: 0;

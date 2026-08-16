@@ -258,11 +258,15 @@ than `--text-color`.
   bordered card, and inside it a 140px centered contenteditable well that
   grows an accent border on focus (`.code-tooltip .ty-input:focus
   { border-color: var(--primary-color) }`) - a form control on a panel. The
-  theme makes the panel itself the chip (`padding: 3px 10px`, 4px radius,
-  `--ui-border-color` hairline, `--shadow-sm`, `--bg-color` / `--dark-panel-bg`)
-  and strips the span (`border: 0`, zero margin/padding, left-aligned, no
-  width floor, `max-width: 9.5em` with `overflow: hidden` + ellipsis, UI
-  face 12px/400, `vertical-align: top`). Hover on an un-edited chip layers
+  theme makes the panel itself the chip (4px radius, `--ui-border-color`
+  hairline, `--shadow-sm`, `--bg-color` / `--dark-panel-bg`, `padding: 0`)
+  and makes the span the whole field (`border: 0`, zero margin, the chip's
+  `padding: 3px 10px` on the span itself so every pixel inside the border
+  is the contenteditable - one hit target, one I-beam; with the padding on
+  the wrapper the rim was dead, since frame.js skips clicks targeting
+  `.code-tooltip` and hands nothing to the span; left-aligned, no width
+  floor, `max-width: 134px` (= the editing width) with `overflow: hidden` +
+  ellipsis, UI face 12px/400, `vertical-align: top`). Hover on an un-edited chip layers
   `--item-hover-bg-color` as a gradient image over the mode's background.
   Ink: idle (block
   focused, chip not) the label's `#95a3b5` at full opacity, so entering the
@@ -296,8 +300,9 @@ than `--text-color`.
   absolutely positioned `::after`, so it cannot size the box and 9.5em fits
   the longest localized string; mac.css centers it with `padding-left: 50%
   !important` on the empty span plus `left:0; right:0` on the `::after` -
-  the theme zeroes that padding at equal importance and higher specificity
-  ((0,4,0) over (0,3,0)) and left-aligns the `::after`, so the hint reads
+  the theme sets that padding back to the chip's 10px at equal importance
+  and higher specificity ((0,4,0) over (0,3,0)) and pulls the `::after` in
+  to `left: 10px; right: 10px`, left-aligned, so the hint reads
   like the value it stands in for and the empty span keeps the 114px rect
   the list is anchored to. frame.js `makeVisible` anchors the auto-suggest
   list once, at first show, to the span's left edge and width, so a
@@ -313,13 +318,15 @@ than `--text-color`.
   stock 38, row text ellipsizes under `calc(100% - 24px)`, hover and
   `.active` both `--suggest-active-bg`, arrow cursor) and fuses the fence
   variant with its chip into one combobox: `#ty-auto-suggest:has(>
-  .auto-suggest-for-fences)` gets `margin-top: -2px; margin-left: -11px;
+  .auto-suggest-for-fences)` gets `margin-top: -5px; margin-left: -1px;
   min-width: 136px !important`, squared top corners, and the chip's focus
   blue (`#6db3ec` / `#296599`) as inset shadows on its sides and bottom;
   `body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences
   .code-tooltip:focus-within` squares the chip's bottom corners, turns its
   bottom border into the hairline divider, and drops its shadow. Geometry:
-  span 114px → chip 136 × 26 (10px + 1px each side, 3px + 1px top/bottom);
+  span 134 × 24 (114 content + 2 x 10 padding, 3px vertical padding) → chip
+  136 × 26 (1px border around it), so the span's rect sits 1px inside the
+  chip's edge, hence -1px / -5px (6px offset minus the 1px bottom border);
   frame.js `makeVisible` puts the list at `top = span.bottom + 6, left =
   span.left, min-width = span.width` once per show and never flips it,
   hence the fixed margins; frame.js also sets an inline `max-height = 5 *
