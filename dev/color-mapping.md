@@ -265,8 +265,12 @@ than `--text-color`.
   is the contenteditable - one hit target, one I-beam; with the padding on
   the wrapper the rim was dead, since frame.js skips clicks targeting
   `.code-tooltip` and hands nothing to the span; left-aligned, no width
-  floor, `max-width: 134px` (= the editing width) with `overflow: hidden` +
-  ellipsis, UI face 12px/400, `vertical-align: top`). Hover on an un-edited chip layers
+  floor, `max-width: 142px` (= the editing width) with `overflow: hidden` +
+  ellipsis, UI face 13px/400 on an 18px line - the reference's
+  `--font-ui-small`, what its `input[type=text]` and `.suggestion-item`
+  use and what this theme's outline/file-tree rows already are; the badge
+  keeps the flair's 12px-class size, they never show together -
+  `vertical-align: top`). Hover on an un-edited chip layers
   `--item-hover-bg-color` as a gradient image over the mode's background.
   Ink: idle (block
   focused, chip not) the label's `#95a3b5` at full opacity, so entering the
@@ -286,10 +290,11 @@ than `--text-color`.
   dark `#296599` (= `rgb(45,130,205)` at 70% over `#202020`; was `#2c689c`
   over the old `#2b2b2b` panel); still 1px, no ring. Width policy: idle
   (block focused, chip not) hugs the value, no floor (a one-letter id is a
-  29px chip), capped at 9.5em with an ellipsis; editing (`:focus-within`)
-  and empty both take a fixed 9.5em field (114px; the longest localized
-  placeholder measured in Inter 12px is Spanish "lenguaje de código" at
-  106px), `text-overflow: clip` while editing so the caret scrolls the
+  29px chip), capped at 142px with an ellipsis; editing (`:focus-within`)
+  and empty both take a fixed 142px field (122px of content; the longest
+  localized placeholder measured in Inter 13px is Spanish "lenguaje de
+  código" at 117px, Catalan 116.5px; the width is really set by the list
+  below, which must fit reStructuredText - see Geometry), `text-overflow: clip` while editing so the caret scrolls the
   hidden overflow instead of growing the box. The expansion snaps: an eased
   opening left the caret painted at its old spot while the box grew
   (WebKit does not repaint the caret per frame during a transition) - the
@@ -297,13 +302,13 @@ than `--text-color`.
   reference's `--anim-motion-swing` curve (cubic-bezier(0, 0.55, 0.45, 1),
   what app.css puts on width transitions). The border color eases 140ms
   ease-in-out, the reference's input-focus beat. The placeholder is an
-  absolutely positioned `::after`, so it cannot size the box and 9.5em fits
-  the longest localized string; mac.css centers it with `padding-left: 50%
+  absolutely positioned `::after`, so it cannot size the box and the fixed
+  field fits the longest localized string; mac.css centers it with `padding-left: 50%
   !important` on the empty span plus `left:0; right:0` on the `::after` -
   the theme sets that padding back to the chip's 10px at equal importance
   and higher specificity ((0,4,0) over (0,3,0)) and pulls the `::after` in
   to `left: 10px; right: 10px`, left-aligned, so the hint reads
-  like the value it stands in for and the empty span keeps the 114px rect
+  like the value it stands in for and the empty span keeps the 142px rect
   the list is anchored to. frame.js `makeVisible` anchors the auto-suggest
   list once, at first show, to the span's left edge and width, so a
   hugging span slid out from under its list per keystroke and an empty
@@ -313,19 +318,19 @@ than `--text-color`.
   round 6)**: `#ty-auto-suggest.auto-suggest-container` is one shared
   `position:fixed` container for every suggest type; the theme restyles it
   for all (page fill, 1px `--ui-border-color` ring drawn as an inset shadow
-  plus `--shadow-sm`, 4px radius, `padding: 6px 4px`, 12px/1.5 type, 26px
+  plus `--shadow-sm`, 4px radius, `padding: 6px 4px`, 13px/18px type, 26px
   gapless rows with a 5px radius, `.ty-file-icon` column 24px instead of
   stock 38, row text ellipsizes under `calc(100% - 24px)`, hover and
   `.active` both `--suggest-active-bg`, arrow cursor) and fuses the fence
   variant with its chip into one combobox: `#ty-auto-suggest:has(>
   .auto-suggest-for-fences)` gets `margin-top: -5px; margin-left: -1px;
-  min-width: 136px !important`, squared top corners, and the chip's focus
+  min-width: 144px !important`, squared top corners, and the chip's focus
   blue (`#6db3ec` / `#296599`) as inset shadows on its sides and bottom;
   `body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences
   .code-tooltip:focus-within` squares the chip's bottom corners, turns its
   bottom border into the hairline divider, and drops its shadow. Geometry:
-  span 134 × 24 (114 content + 2 x 10 padding, 3px vertical padding) → chip
-  136 × 26 (1px border around it), so the span's rect sits 1px inside the
+  span 142 × 24 (122 content + 2 x 10 padding, 3px vertical padding) → chip
+  144 × 26 (1px border around it), so the span's rect sits 1px inside the
   chip's edge, hence -1px / -5px (6px offset minus the 1px bottom border);
   frame.js `makeVisible` puts the list at `top = span.bottom + 6, left =
   span.left, min-width = span.width` once per show and never flips it,
@@ -333,8 +338,10 @@ than `--text-color`.
   first-row clientHeight + 12` once per session, which under border-box
   sizing is exactly five 26px rows plus the 6px paddings - the reason the
   ring is an inset shadow (a border would clip row five) and the rows carry
-  no gap. Inner width 134 (136 minus the ring), longest id
-  `reStructuredText` = 95.3px at 12px Inter, so 4 + 24 + 95.3 + 6 + 4 fits;
+  no gap. Text area = 144 - 8 container padding - 24 icon column - 6 row
+  padding = 106px; the longest id `reStructuredText` = 103.3px at 13px
+  Inter, which is what fixes the chip at 144 (the first even width that
+  fits it; the placeholder needs only 139);
   the ellipsis only appears when the classic 8px scrollbar shows on hover
   for lists longer than five rows (prefix "r"). Diagram fences (stock chip
   placement) get the same fused list geometry, since the chip's box is the

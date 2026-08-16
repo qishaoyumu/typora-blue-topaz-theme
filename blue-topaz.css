@@ -669,17 +669,20 @@ hr {
        box, so a scrolled value runs to the border - a long-id-only wart). */
     text-align: left;
     min-width: 0;
-    max-width: 134px;
+    max-width: 142px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    /* The same value the top-right label sets in the UI face, so the swap
-       reads as one object in two states; sized to the reference's editing
-       flair (12px/400). */
+    /* The UI face at the reference's --font-ui-small (13px): what its text
+       inputs (input[type=text]) and suggestion rows use, and what this
+       theme's outline and file-tree rows already are - so the field sits
+       in the same size family as the rest of the chrome, one notch above
+       the 12px flair-sized badge it replaces (the two never show at once).
+       An 18px line keeps the 26px chip module (3 + 18 + 3 + 2 border). */
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 400;
-    line-height: 1.5;
+    line-height: 18px;
     /* Idle (block focused, chip not): the label's grey, so entering the
        block reads as the badge moving down into a chip; the field rule
        brightens it to body ink when editing starts. Full opacity here - a
@@ -699,13 +702,16 @@ hr {
 
 /* Two widths, one per identity. Idle (block focused, chip not): hug the
    value like the label it replaced. Editing (chip focused, or empty and
-   showing its placeholder): a fixed 134px field (border-box: 114 of
-   content + the 2 x 10 padding; chip = 136), the same width the base rule
+   showing its placeholder): a fixed 142px field (border-box: 122 of
+   content + the 2 x 10 padding; chip = 144), the same width the base rule
    caps at, so the box never changes size while typing. Two reasons. The
    localized "code language" placeholder is an absolutely positioned
    ::after (mac.css), so it cannot size the box - the box must be wide
-   enough for the longest translation (measured in Inter 12px: Spanish
-   "lenguaje de código" 108px, Catalan 107.6px). And Typora anchors the
+   enough for the longest translation (measured in Inter 13px: Spanish
+   "lenguaje de código" 117px, Catalan 116.5px), and the list below must
+   fit the longest id (reStructuredText, 103.3px, after its 24px icon
+   column and 14px of paddings: 144 is the first even width that does).
+   And Typora anchors the
    auto-suggest list once, at first show, to the span's rect (frame.js
    makeVisible: getClientRects()[0], top = bottom + 6, left = left,
    minWidth = width; never repositioned, never flipped) - a hugging span
@@ -721,7 +727,7 @@ hr {
    blur (no caret then) keeps the base rule's easing. */
 .md-fences .code-tooltip .ty-cm-lang-input:empty,
 .md-fences .code-tooltip:focus-within .ty-cm-lang-input {
-    min-width: 134px;
+    min-width: 142px;
     transition: min-width 0s, color 140ms ease-in-out;
 }
 
@@ -2635,16 +2641,18 @@ footer.ty-footer {
    clientHeight) + 12 once per session (whichever list opens first), which
    under border-box sizing is exactly five gapless rows plus the 6px top and
    bottom padding - a real border would eat into that and clip the fifth
-   row. Type is the chip's own (12px, line-height 1.5), so the fence list
-   reads as the chip continued. */
+   row. Type is the chip's own (13px on an 18px line - the reference's
+   --font-ui-small, which its .suggestion-item rows use too), so the fence
+   list reads as the chip continued and every row is one 26px chip
+   module. */
 .auto-suggest-container {
     background: var(--bg-color);
     border: 0;
     box-shadow: inset 0 0 0 1px var(--ui-border-color), var(--shadow-sm);
     border-radius: 4px;
     padding: 6px 4px;
-    font-size: 12px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 18px;
     overflow-x: hidden;
 }
 
@@ -2678,8 +2686,9 @@ footer.ty-footer {
 
 /* Typora's language icons stay (their colours are baked into the icon
    font); the column narrows from stock's 38px to 24px so all 163 ids fit
-   the fused list's 134px inner width untruncated (the longest,
-   reStructuredText, measures 95.3px at 12px Inter). */
+   the fused list untruncated: 144 - 8 container padding - 24 icon - 6 row
+   padding = 106px for the text, and the longest, reStructuredText,
+   measures 103.3px at 13px Inter. */
 .auto-suggest-container .ty-file-icon {
     width: 24px;
 }
@@ -2697,8 +2706,8 @@ footer.ty-footer {
    min-width = span.width) and never repositions or flips it, so fixed
    margins seat it flush: the span fills the chip to its 1px border (the
    padding is the span's own), so -1px left, and the border below the span
-   plus the 6px offset means -5px. Width = the chip's 136px (the span's
-   134 + 2*1 border); !important beats both the inline min-width and
+   plus the 6px offset means -5px. Width = the chip's 144px (the span's
+   142 + 2*1 border); !important beats both the inline min-width and
    stock's 160px floor. The chip's blue focus border continues down the
    list's sides and bottom as inset shadows; the top corners square off
    against the chip, and the chip's own hairline is the divider (no top
@@ -2706,7 +2715,7 @@ footer.ty-footer {
 #ty-auto-suggest:has(> .auto-suggest-for-fences) {
     margin-top: -5px;
     margin-left: -1px;
-    min-width: 136px !important;
+    min-width: 144px !important;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     box-shadow: inset 1px 0 0 #6db3ec, inset -1px 0 0 #6db3ec,
