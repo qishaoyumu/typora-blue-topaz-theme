@@ -656,9 +656,11 @@ hr {
        140px well). Idle, the span hugs its value with no floor - a
        one-letter id is a 29px chip - and caps at the editing width, so an
        over-long id ellipsizes rather than pushing the chip past the block.
+       min-width:0 is what actually removes stock's 140px .ty-input floor.
        overflow:hidden is what lets the caret scroll inside the fixed
        editing field instead of growing it. */
     text-align: left;
+    min-width: 0;
     max-width: 9.5em;
     overflow: hidden;
     white-space: nowrap;
@@ -2646,10 +2648,15 @@ footer.ty-footer {
 }
 
 /* Row text ellipsizes only when the classic 8px scrollbar appears on hover
-   for lists longer than five rows (prefix "r" gives six ids). */
+   for lists longer than five rows (prefix "r" gives six ids). Aligned top,
+   not middle: an inline-block with hidden overflow puts its baseline on
+   its bottom edge, and middle-aligning that 18px box against the row's
+   strut grew the line to 19px (row 27, measured); at top the box and the
+   strut coincide and the row is the 26px the rest of the geometry
+   assumes. */
 .auto-suggest-container li > span {
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: top;
     max-width: calc(100% - 24px);
     overflow: hidden;
     text-overflow: ellipsis;
