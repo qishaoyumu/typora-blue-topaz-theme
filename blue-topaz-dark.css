@@ -56,12 +56,19 @@
     /* Text-input focus step: the reference's dark --color-base-40. */
     --ui-border-focus-color: #555555;
     --window-border: 1px solid var(--dark-border-color);
-    --dark-panel-bg: #2b2b2b;
+    /* Raised panels (code-tooltip, quick-open, suggest list, modal,
+       notification, footer word-count): the reference fills its
+       --suggestion/--modal/--prompt-background with the page colour
+       #202020 and lets border + shadow carry the shape; the old #2b2b2b
+       lift had no reference source. */
+    --dark-panel-bg: #202020;
     --dark-surface-2: #1a1a1a;
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
 
     --side-bar-bg-color: #151515;
+    /* Menus = --background-secondary in dark too. */
+    --menu-bg-color: #151515;
     /* Follows the dark --file-active-bg (measured 0.1); light's transparent
        --active-file-border-color needs no dark override. */
     --active-file-bg-color: var(--file-active-bg);
@@ -495,8 +502,11 @@ kbd {
 }
 
 /* ========== Footer ========== */
-/* footer.ty-footer: background and border resolve to dark via --bg-color and
-   --window-border (both overridden in :root), so no dark block is needed. */
+/* The reference's dark --status-bar-bg; the border resolves through
+   --window-border. */
+footer.ty-footer {
+    background: #000000;
+}
 
 #footer-word-count-info {
     background: var(--dark-panel-bg);
@@ -511,7 +521,9 @@ kbd {
 }
 
 #md-searchpanel input {
-    background: var(--dark-panel-bg);
+    /* Recessed one step under the #202020 panel, like the quick-open input,
+       so the field stays visible now that panel = page. */
+    background: var(--dark-surface-2);
     border-color: var(--dark-border-color);
     color: var(--text-color);
 }
@@ -540,13 +552,8 @@ kbd {
 
 /* ========== Preferences, Mega Menu, Modals ========== */
 /* The megamenu rules in blue-topaz.css read theme vars that the dark :root
-   overrides, so they resolve to dark values through the import. Only the
-   recent-files dropdown needs a dark-specific surface so it matches the
-   other dark menus below. */
-
-#recent-file-pane .dropdown-menu {
-    background-color: var(--dark-panel-bg);
-}
+   overrides, so they resolve to dark values through the import (the
+   recent-files dropdown included: it reads --menu-bg-color). */
 
 .modal-content {
     background: var(--dark-panel-bg);
@@ -581,9 +588,9 @@ kbd {
     background: var(--item-hover-bg-color);
 }
 
+/* Background comes from --menu-bg-color through the import. */
 .context-menu,
 .dropdown-menu {
-    background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
     box-shadow: var(--shadow-sm);
 }

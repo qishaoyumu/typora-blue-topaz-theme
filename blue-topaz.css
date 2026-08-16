@@ -58,6 +58,9 @@
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
 
     --side-bar-bg-color: #fcfcfc;
+    /* Context and dropdown menus: the reference's --menu-background is
+       --background-secondary, the sidebar tone, one notch off the page. */
+    --menu-bg-color: #fcfcfc;
     /* Follows --file-active-bg: Typora base paints the tree's active card
        itself via this variable (its .file-tree-node.active rule outranks the
        theme by load order), so the variable is the real control surface. */
@@ -2494,7 +2497,9 @@ body.pin-outline.no-collapse-outline .outline-content .outline-item-wrapper:has(
 /* ========== 24. Footer / Status bar ========== */
 footer.ty-footer {
     border-top: var(--window-border);
-    background: var(--bg-color);
+    /* The reference's --status-bar-bg (light #f3f3f3, dark #000000): a
+       band one notch off the page, not the page itself. */
+    background: #f3f3f3;
 }
 
 .footer-item {
@@ -2772,7 +2777,7 @@ footer.ty-footer {
 }
 
 #recent-file-pane .dropdown-menu {
-    background-color: var(--bg-color);
+    background-color: var(--menu-bg-color);
 }
 
 .megamenu-menu-panel .dropdown-menu > li > a {
@@ -3024,7 +3029,7 @@ footer.ty-footer {
 
 .context-menu,
 .dropdown-menu {
-    background: var(--bg-color);
+    background: var(--menu-bg-color);
     border: 1px solid var(--ui-border-color);
     box-shadow: var(--shadow-sm);
     border-radius: 4px;

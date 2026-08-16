@@ -6,6 +6,8 @@
 |---|---|---|
 | `--background-primary` | `#ffffff` | `--bg-color` |
 | `--background-secondary` | `#fcfcfc` | `--side-bar-bg-color` |
+| `--menu-background` (= `--background-secondary`) | `#fcfcfc` | `--menu-bg-color` — context menu, dropdown menus, the recent-files dropdown; one notch off the page like the sidebar (was `--bg-color`) |
+| `--status-bar-bg` | `#f3f3f3` | `footer.ty-footer` background literal (was `--bg-color`); the word-count popup stays a `--bg-color` panel |
 | `--text-normal` | `#0e0e0e` | `--text-color` |
 | `--background-modifier-border` | `#dddddd` | `--ui-border-color` — generic 1px UI hairline (window, panels, inputs, fence language chip) |
 | `--background-modifier-border-focus` | `#bdbdbd` (core `--color-base-40`; the theme leaves it unset) | `--ui-border-focus-color` — text-input focus in the reference's grammar: the border steps one notch to neutral, no accent, no ring (app.css `input[type=text]:focus { border-color }`; Blue Topaz zeroes the focus-visible box-shadow). Consumers: `#file-library-search-input:focus`, `#recent-file-panel-search-input:focus` (the fence language chip tried this step first and moved to the has-focus accent, see Fence chrome). Other stock inputs (in-document search, table-resize `3 x 5`, megamenu filters) still take Typora's accent focus — deliberately left for a later pass |
@@ -62,6 +64,8 @@ helpers.
 |---|---|---|
 | `--background-primary` | `#202020` | `--bg-color` |
 | `--background-secondary` | `#151515` | `--side-bar-bg-color` |
+| `--menu-background` (= `--background-secondary`) | `#151515` | `--menu-bg-color` — context menu, dropdown menus, recent-files dropdown (was `--dark-panel-bg`) |
+| `--status-bar-bg` | `#000000` | `footer.ty-footer` background literal (was `--bg-color`) |
 | `--text-normal` | `#c6c6c6` | `--text-color` |
 | `--text-folder-file` | `#b3b3b3` | `--file-text-color` |
 | `--accent-em` | `#a4ca8e` | em color |
@@ -102,8 +106,8 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | `--control-text-color` | `#8a8a8a` | File-list-view meta info (parent-loc / summary / time text color) |
 | `--dark-border-color` | `#343434` | Generic 1px border tone for the dark scheme: window, code tooltip, sidebar, search, modals, table edit UI, etc. (the table body's cell dividers use a darker `#1a1a1a`) |
 | `--ui-border-focus-color` | `#555555` | Text-input focus step, the reference's dark `--color-base-40` (resting `#343434` → focus `#555555`, the same one-notch delta as light `#ddd` → `#bdbdbd`); consumers listed in the light table |
-| `--dark-panel-bg` | `#2b2b2b` | Raised-panel fill: editing-control code-tooltip, search input, quick-open, auto-suggest, modal, context/dropdown menu, notification, footer word-count. NOT the hover-preview card (`#242424` measured, see below) or the #ty-tooltip accent bubble |
-| `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, meta block, quick-open input, table cell dividers |
+| `--dark-panel-bg` | `#202020` | Raised-panel fill: editing-control code-tooltip, quick-open, auto-suggest, modal, notification, footer word-count. The reference's `--suggestion-background` / `--modal-background` / `--prompt-background` all resolve to the page colour `#202020`; the panel's shape comes from `--dark-border-color` + `--shadow-sm`, not a lift (the earlier `#2b2b2b` had no reference source). NOT the hover-preview card (`#242424` measured, see below), the menus (`--menu-bg-color`), or the #ty-tooltip accent bubble |
+| `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, meta block, quick-open input, in-document search input (`#md-searchpanel input`, one step under its `#202020` panel), table cell dividers |
 | `--indent-guide-color` | `rgba(255, 255, 255, 0.12)` | Indent guide line for the file tree and nested body lists; white tint matching Obsidian's `rgba(var(--mono-rgb-100), 0.12)` on dark (the outline guide keeps light's mode-independent `--outline-guide-color`). Body-list guides are a deliberate deviation, see the light table |
 | `--file-icon-color` | `var(--primary-color)` | File icon fill; dark's measured icon blue (rgb 45,130,205) equals the primary formula |
 | `--indent-guide-active-color` | `hsla(208, 64%, 49%, 0.4)` | Outline indent guide on hover; the measured dark `--theme-color-translucent-04` (base 64/49 formula, not the brightened 72/58 sidebar variant) |
