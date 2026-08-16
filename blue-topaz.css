@@ -69,7 +69,11 @@
        reference file explorer marks the active file by its card alone). */
     --active-file-border-color: transparent;
 
-    --item-hover-bg-color: #f0f0f0;
+    /* The reference's --background-modifier-hover, kept translucent (black
+       at 0.067) rather than pre-blended: one wash that reads the same on
+       #ffffff, #fcfcfc, or a panel, so no consumer needs its own contrast
+       math. */
+    --item-hover-bg-color: rgba(0, 0, 0, 0.067);
     --item-hover-text-color: #0e0e0e;
     --control-text-color: #747474;
     --control-text-hover-color: #0e0e0e;
@@ -1184,12 +1188,11 @@ body.typora-export #write .md-fences span.CodeMirror-selectedtext {
     --toc-guide-2: var(--outline-guide-color);
     --toc-guide-3: var(--outline-guide-color);
     --toc-guide-4: var(--outline-guide-color);
-    /* The sidebar wash's contrast, rebuilt on the body background: sidebar
-       hovers #f0f0f0 on #fcfcfc (ΔL* 3.9); the same ΔL* on #ffffff lands at
-       #f3f3f3. (Dark: #2a2a2a on #151515 = ΔL* 9.1 → #383838 on #202020.)
-       Reusing --item-hover-bg-color verbatim would halve the perceived step
-       in dark mode — the wash is a contrast, not a color. */
-    --toc-hover-bg: #f3f3f3;
+    /* The sidebar's hover wash. Now that --item-hover-bg-color is the
+       reference's translucent token, the same alpha lands the same step on
+       the #ffffff body as on the sidebar; no per-surface contrast rebuild
+       (the earlier #f3f3f3 / #383838 pre-blends) and no dark override. */
+    --toc-hover-bg: var(--item-hover-bg-color);
 }
 
 /* base-control gives the content <p> `margin:20px 0;padding:0 20px` — the old

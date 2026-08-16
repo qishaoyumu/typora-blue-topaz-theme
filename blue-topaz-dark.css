@@ -67,7 +67,10 @@
     --active-file-bg-color: var(--file-active-bg);
     --active-file-text-color: var(--file-text-color);
 
-    --item-hover-bg-color: #2a2a2a;
+    /* The reference's dark --background-modifier-hover (white at 0.067),
+       translucent so it reads on the #151515 sidebar and the #202020 panels
+       alike; the old #2a2a2a pre-blend vanished on the panels. */
+    --item-hover-bg-color: rgba(255, 255, 255, 0.067);
     --item-hover-text-color: #e4e4e4;
     --control-text-color: #8a8a8a;
     --control-text-hover-color: #c6c6c6;
@@ -410,12 +413,6 @@ hr {
 /* ========== Footnotes, YAML, mark, kbd ========== */
 .reversefootnote {
     color: #797979;
-}
-
-/* The sidebar wash's ΔL* (9.1: #2a2a2a on #151515) rebuilt on the #202020
-   body — see the light theme's derivation note. */
-.md-toc {
-    --toc-hover-bg: #383838;
 }
 
 #write pre.md-meta-block {
