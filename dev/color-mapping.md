@@ -52,6 +52,8 @@ helpers.
 | `--folder-hover-bg` | `rgba(0, 0, 0, 0.067)` | Neutral-gray folder hover; measured (`--nav-item-background-hover` black 0.067) |
 | `--item-hover-bg-color` | `rgba(0, 0, 0, 0.067)` | Generic item hover wash: outline rows, sidebar search hits, sidebar footer items, megamenu rows (hover and active alike, per the reference settings nav) / buttons, unibody settings nav active, the source-mode footer toggle, unibody titlebar buttons, `.btn-default:hover`, dropdown-menu items. Obsidian `--background-modifier-hover` (`rgba(var(--mono-rgb-100), 0.067)`), kept translucent instead of the earlier `#f0f0f0` pre-blend so one token reads the same on `#ffffff`, `#fcfcfc`, and panels; `--toc-hover-bg` (the in-document TOC row hover) now aliases it, replacing the hand-computed `#f3f3f3` |
 | `--file-icon-color` | `rgb(65, 159, 231)` | File icon fill; the reference light icon is a brighter blue than the accent (measured `--text-folder-file-icon`), while dark's equals the primary formula |
+| `--embed-border-color` | `hsla(207, 61.6%, 54%, 0.035)` | Missing-image box frame (`.md-image.md-img-error` at rest) and its hover fill; Blue Topaz `--embed-color` = accent at s×0.8 / l×1, alpha 0.035 (`.file-embed` 2px border) |
+| `--primary-color-04` | `hsla(207, 77%, 54%, 0.4)` | Missing-image box hover ring; Blue Topaz `--theme-color-translucent-04` (`.file-embed:hover` border) |
 | `--file-text-color` | `#272727` | Default file-node text color (folders override to `--text-color` for stronger contrast) |
 | `--active-file-text-color` | `var(--file-text-color)` | Active row text = normal text, as measured in the reference (only hover brightens); base paints the tree's active text through this variable |
 | Hard-coded `#eb7c46` | `#eb7c46` | Active-file icon hover color (Obsidian's signature orange-red), shared between light and dark. A decorative hover accent, not body text; ~2.5:1 on the light background, kept for brand identity |
@@ -114,6 +116,8 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | `--dark-surface-2` | `#1a1a1a` | Recessed dark surface: code block, line-number gutter, meta block, quick-open input, in-document search input (`#md-searchpanel input`, one step under its `#202020` panel), table cell dividers |
 | `--indent-guide-color` | `rgba(255, 255, 255, 0.12)` | Indent guide line for the file tree and nested body lists; white tint matching Obsidian's `rgba(var(--mono-rgb-100), 0.12)` on dark (the outline guide keeps light's mode-independent `--outline-guide-color`). Body-list guides are a deliberate deviation, see the light table |
 | `--file-icon-color` | `var(--primary-color)` | File icon fill; dark's measured icon blue (rgb 45,130,205) equals the primary formula |
+| `--embed-border-color` | `hsla(208, 76.8%, 98%, 0.055)` | Missing-image box frame / hover fill; dark `--embed-color` = accent at s×1.2 / l×2, alpha 0.055 (measured `rgba(246, 250, 254, 0.055)`) |
+| `--primary-color-04` | `hsla(208, 64%, 49%, 0.4)` | Missing-image box hover ring; the base dark accent formula at 0.4 (same family as `--indent-guide-active-color`) |
 | `--indent-guide-active-color` | `hsla(208, 64%, 49%, 0.4)` | Outline indent guide on hover; the measured dark `--theme-color-translucent-04` (base 64/49 formula, not the brightened 72/58 sidebar variant) |
 
 **Tooltips** follow the upstream split (2026-08, correcting the earlier
@@ -469,6 +473,32 @@ while the title is expanded for editing.
 Each type maps `--alert-bg` / `--alert-accent` / `--alert-icon`; shared
 `.md-alert` and `.md-alert::before` rules draw the gradient body and the
 4px left bar from them, so the machinery lives in one place.
+
+## Missing-image placeholder (`.md-image.md-img-error`)
+
+Typora marks an image that failed to load with `.md-img-error` on the inline
+`.md-image` span (which carries the path in `data-src`) and keeps the raw
+source `.md-meta` visible in the line. The reference renders
+`.internal-embed.file-embed.mod-empty-attachment` instead, measured live
+2026-08-22: block-level, 2px `--embed-color` border, `--radius-l` 15px,
+`0.1em 0.5em` padding, `0.1em 0` margin, transparent background, centered
+`--text-muted` text at `--font-smaller` (0.875em); hover = 2px
+`--theme-color-translucent-04` ring + `--embed-color` fill + `--radius-m` 7px.
+
+The port reproduces the box at rest (`:not(.md-expand)`) with
+`--embed-border-color` / `--primary-color-04` / `--control-text-color`, shows
+the path via `::after { content: attr(data-src) }`, and puts Lucide's
+`image-off` (Obsidian's icon set, path data from `obsidian.asar`) in `::before`
+at Blue Topaz's file-row icon size (0.9rem, opacity 0.9). The reference's
+sentence ("could not be found") is not reproduced: Typora exposes no UI locale
+to CSS (`<html lang="en">` is static), so the icon carries the "missing"
+meaning instead. `.md-meta` stays in the box as an invisible overlay
+(`opacity: 0`, absolutely positioned) so a click still lands a caret in the
+source and Typora opens `.md-expand` — `display: none` would turn the click
+into a whole-element selection. The `.md-expand` state keeps the stock source
+line only; the reference's edit mode stacks source + box under its editor
+active-line band, which this port does not have for body blocks. Export strips
+`.md-img-error` (main.js), so nothing of this reaches PDF/HTML.
 
 ## Call sites of `--primary-color`
 

@@ -116,6 +116,11 @@
     /* Dark's measured icon blue equals the primary formula (rgb 45,130,205),
        unlike light, whose icon has its own brighter blue. */
     --file-icon-color: var(--primary-color);
+    /* Missing-attachment box: dark --embed-color = accent at s*1.2 / l*2,
+       alpha 0.055 (a near-white wash); the hover ring is the base accent
+       formula at 0.4, not the brighter 72/58 of --primary-color-01/02. */
+    --embed-border-color: hsla(208, 76.8%, 98%, 0.055);
+    --primary-color-04: hsla(208, 64%, 49%, 0.4);
 
     --file-text-color: #b3b3b3;
 

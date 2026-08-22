@@ -139,6 +139,10 @@ done
 
 ![Blue Topaz preview](../screenshots/light.png)
 
+Missing image (placeholder box; click it to edit the path):
+
+![Missing image](./does-not-exist.png)
+
 ## Math
 
 Inline math: $E = mc^2$
