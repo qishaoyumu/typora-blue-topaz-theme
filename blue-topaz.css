@@ -2548,11 +2548,40 @@ body.pin-outline.no-collapse-outline .outline-content .outline-item-wrapper:has(
 }
 
 /* ========== 24. Footer / Status bar ========== */
+/* Windows/Linux only: macOS keeps the word count and toggles in the title
+   bar. The default runs a width-driven state machine (window.css): a
+   full-width band below 1000px, and with the sidebar pinned between 1000
+   and 1270px; otherwise a transparent cluster of icons inset 12px at the
+   right. The band is a platform surface with no reference analogue (the
+   reference's status bar is a corner box), so it takes the sidebar's
+   --background-secondary tone and joins the sidebar footer it abuts; the
+   floating states stay transparent. The tiers below mirror the default's
+   selectors and breakpoints so each state keeps its own look instead of
+   one (0,1,1) rule painting the band over the floating states, which is
+   what happened before: black band at <1000 and in source mode, the
+   default's page-colour band at 1000-1270, transparent at >=1270. The
+   top edge exists only below 1000px: the default's `border: 0 !important`
+   at >=1000 strips it from its own 1000-1270 band too, and the tone step
+   carries the band there. */
 footer.ty-footer {
     border-top: var(--window-border);
-    /* The reference's --status-bar-bg (light #f3f3f3, dark #000000): a
-       band one notch off the page, not the page itself. */
-    background: #f3f3f3;
+    background: var(--side-bar-bg-color);
+}
+
+@media (min-width: 1000px) {
+    footer.ty-footer {
+        background: transparent;
+    }
+
+    .pin-outline footer.ty-footer {
+        background: var(--side-bar-bg-color);
+    }
+}
+
+@media (min-width: 1270px) {
+    .pin-outline footer.ty-footer {
+        background: transparent;
+    }
 }
 
 .footer-item {

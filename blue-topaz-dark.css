@@ -506,11 +506,8 @@ kbd {
 }
 
 /* ========== Footer ========== */
-/* The reference's dark --status-bar-bg; the border resolves through
-   --window-border. */
-footer.ty-footer {
-    background: #000000;
-}
+/* footer.ty-footer rides the import: its band states read
+   --side-bar-bg-color and --window-border, which the dark :root swaps. */
 
 #footer-word-count-info {
     background: var(--dark-panel-bg);

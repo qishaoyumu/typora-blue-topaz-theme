@@ -7,7 +7,7 @@
 | `--background-primary` | `#ffffff` | `--bg-color` |
 | `--background-secondary` | `#fcfcfc` | `--side-bar-bg-color` |
 | `--menu-background` (= `--background-secondary`) | `#fcfcfc` | `--menu-bg-color` — context menu, dropdown menus, the recent-files dropdown; one notch off the page like the sidebar (was `--bg-color`) |
-| `--status-bar-bg` | `#f3f3f3` | `footer.ty-footer` background literal (was `--bg-color`); the word-count popup stays a `--bg-color` panel |
+| `--status-bar-bg` | `#f3f3f3` | Not taken: the reference's status bar is a corner box, Typora's `footer.ty-footer` (Windows/Linux) is a width-driven band/float; the band states read `--side-bar-bg-color` (`--background-secondary`) to join the sidebar footer, the floating states stay transparent. The word-count popup stays a `--bg-color` panel |
 | `--scrollbar-active-thumb-bg` | `#ddddddd9` | `::-webkit-scrollbar-thumb:hover` and `:active`, one shared step (were `#ccc` / `#bbb`); the resting thumb keeps `#dcdcdcbe` |
 | `--text-normal` | `#0e0e0e` | `--text-color` |
 | `--background-modifier-border` | `#dddddd` | `--ui-border-color` — generic 1px UI hairline (window, panels, inputs, fence language chip) |
@@ -67,7 +67,7 @@ helpers.
 | `--background-primary` | `#202020` | `--bg-color` |
 | `--background-secondary` | `#151515` | `--side-bar-bg-color` |
 | `--menu-background` (= `--background-secondary`) | `#151515` | `--menu-bg-color` — context menu, dropdown menus, recent-files dropdown (was `--dark-panel-bg`) |
-| `--status-bar-bg` | `#000000` | `footer.ty-footer` background literal (was `--bg-color`) |
+| `--status-bar-bg` | `#000000` | Not taken (see light); the footer band reads `--side-bar-bg-color` `#151515` |
 | `--scrollbar-active-thumb-bg` | `#4d4d4d88` | `::-webkit-scrollbar-thumb:hover` and `:active`, one shared step (were `#555` / `#666`); the resting thumb keeps `#3f3f3f7e` |
 | `--text-normal` | `#c6c6c6` | `--text-color` |
 | `--text-folder-file` | `#b3b3b3` | `--file-text-color` |
