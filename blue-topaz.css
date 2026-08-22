@@ -2559,6 +2559,17 @@ footer.ty-footer {
     color: var(--control-text-color);
 }
 
+/* Source-mode toggle (Windows/Linux status bar): the default paints its
+   "on" state with a #eee literal (window.css), a light slab on the dark
+   band. The reference's status bar has one grammar for clickable items,
+   the hover wash (.status-bar-item.mod-clickable:hover =
+   --background-modifier-hover, text --text-normal), and a pressed toggle
+   reads the same wash. (1,1,1) ties the default and wins by load order. */
+.typora-sourceview-on #toggle-sourceview-btn {
+    background: var(--item-hover-bg-color);
+    color: var(--text-color);
+}
+
 #footer-word-count-info {
     background: var(--bg-color);
     border: 1px solid var(--ui-border-color);
