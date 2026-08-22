@@ -2102,14 +2102,25 @@ kbd {
     opacity: 0.85;
 }
 
-/* Uniform 2px spacing at all levels (fixes 6px in subfolders caused by
-   grid preventing margin collapse; 2px matches the reference rows' measured
-   margin-bottom). Root needs explicit grid too since .file-node-root has no
-   .file-node-expanded class. */
-.file-node-expanded > .file-node-children,
-.file-node-root > .file-node-children {
+/* Uniform 2px spacing at all levels: 2px is the reference rows' measured
+   margin-bottom (live: .nav-file-title margin 0 0 2px, 25.5px boxes on a
+   27.5px rhythm); a grid gap because grid stops margins collapsing, which
+   gave 6px in subfolders. The parent-child seam gets the same 2px as an
+   explicit margin-top: content and card heights are fully aligned, so
+   without it that seam collapses to 0 and the hover and active cards touch.
+   Keyed on structure, not on .file-node-expanded: Typora stamps that class
+   only on nodes it knew had children at render time, and a folder opened
+   without it (Windows, 2026-08-22) fell back to the bare 25px rhythm with
+   touching cards. Any open, non-empty children container qualifies; the
+   default's `.file-node-collapsed > .file-node-children { display: none }`
+   keeps closed folders closed, and :not(:empty) leaves unfetched folders
+   without a phantom 2px. The root row is included: it stands in for an
+   ordinary opened folder, whose first child sits 2px below it like any
+   other. */
+.file-tree-node:not(.file-node-collapsed) > .file-node-children:not(:empty) {
     display: grid;
     gap: 2px;
+    margin-top: 2px;
 }
 
 /* Root caret: statically expanded. Typora gives the root row no
@@ -2137,14 +2148,6 @@ kbd {
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
     transform: rotate(90deg);
-}
-
-/* Explicit 2px at the parent-child seam, matching the sibling grid gap:2px.
-   Content and background heights are fully aligned, so without this margin
-   the parent-child spacing would collapse to 0; the explicit value keeps
-   every gap uniform. */
-.file-node-expanded > .file-node-children {
-    margin-top: 2px;
 }
 
 /* Per-level indent = --file-indent-step + 1px border = 17px (Obsidian's nav
