@@ -23,7 +23,7 @@ theme's own variables.
 | Panel rhythm | margin-left 30px, 64px between panels | margin-left 48px, 32px between panels, content padding-top 32px | settings content padding 32px 48px |
 | `.long-btn` cards | 18px text, 12/20 padding, solid primary (theme bug) | bordered card, 14px/1.5, 8/16 padding, 16px primary icon, muted 12px inline hint | settings buttons 13px, 4/12 padding, 30px tall; cards sized one step up |
 | `.megamenu-menu-panel .btn` | 12/20 padding, `#aaa` border | 4/12 padding, 13px, `--ui-border-color` | settings buttons 13px / 30px |
-| Sidebar rows (>=531px) | 44px full-bleed strip, inherited size | 32px inset rounded items (margin 1px 8px, radius 5px, 14px), icons shown | settings nav items 14px, 30px rows, radius 5px, inset active overlay |
+| Sidebar rows (>=531px) | 44px full-bleed strip, inherited size | 32px inset rounded items (margin 1px 8px, radius 5px, 14px), icons shown; active = hover wash (`--item-hover-bg-color`), text `--text-color` | settings nav items 14px, 30px rows, radius 5px; `.vertical-tab-nav-item.is-active` and `:hover` both `--background-modifier-hover`, text `--text-normal` (2026-08-22: replaced the earlier `--active-file-*` tint, which was the file tree's active grammar, not the settings nav's) |
 | Sidebar rows (<=530px) | 60px icon rail, 24px centered icons | untouched (media-scoped) | Typora's own narrow form factor |
 | Sidebar header title | 18px | 15px / 600 | settings-adjacent; absolute layout kept |
 | Recent-files table | 10pt / 300 (`!important` in default) | 13px `!important` / 400, th 600, themed row hover | settings body 15px, description 12px; tables take the compact step |
@@ -144,7 +144,9 @@ every platform (macOS included)**, so nothing here may hang off
   `.nav-group-item:active/.active` `#4b4b4b` inside
   `@media (prefers-color-scheme: dark)` — keyed to the OS appearance, not
   the active theme. Under a dark OS with a light theme this frankensteins;
-  the theme re-pins these to `--active-file-*` (what their base rules use).
+  the theme re-pins `.export-item.active` to `--active-file-*` (what their
+  base rules use) and `.nav-group-item.active` to the hover wash +
+  `--text-color` (reference settings nav: active = hover).
   Body `light`/`dark` classes *do* follow the active theme (`setIsDarkMode`),
   only the media blocks follow the OS.
 - **Settings harness**: the React app renders fully in plain headless Chrome

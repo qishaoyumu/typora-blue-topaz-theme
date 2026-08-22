@@ -2805,16 +2805,17 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
     color: var(--text-color);
 }
 
+/* Current page and hover share one look, as the reference's settings nav
+   does (app.css paints .vertical-tab-nav-item.is-active and :hover with the
+   same --background-modifier-hover; text stays --text-normal, no bold; the
+   default Blue Topaz leaves both alone). The hover selector mirrors the
+   default's `.megamenu-menu-list:not(.saved) li a:hover` so it ties its
+   specificity (0,3,2) and wins by load order, dropping the default's
+   --item-hover-text-color brightening that the reference does not have. */
+.megamenu-menu-list:not(.saved) li a:hover,
 .megamenu-menu-list li a.active {
-    color: var(--active-file-text-color);
-    background: var(--active-file-bg-color);
-}
-
-/* Hovering the active row must not demote it to the plain hover look — the
-   default hover selector outguns .active on specificity. */
-.megamenu-menu-list li a.active:hover {
-    color: var(--active-file-text-color);
-    background: var(--active-file-bg-color);
+    color: var(--text-color);
+    background: var(--item-hover-bg-color);
 }
 
 /* Wide-window sidebar rows: the default is a 44px full-bleed strip; compact
@@ -3135,10 +3136,13 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
     color: var(--active-file-text-color);
 }
 
+/* Settings nav: active = hover wash, text normal (reference
+   .vertical-tab-nav-item.is-active); the export list keeps the selection
+   tint above — it is a list pick, not a nav. */
 .ty-preferences .nav-group-item:active,
 .ty-preferences .nav-group-item.active {
-    background: var(--active-file-bg-color);
-    color: var(--active-file-text-color);
+    background: var(--item-hover-bg-color);
+    color: var(--text-color);
 }
 
 .modal-content {
@@ -3205,11 +3209,6 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
 
 .ty-preferences .nav-group-item {
     color: var(--text-color);
-}
-
-.ty-preferences .nav-group-item.active {
-    background: var(--active-file-bg-color);
-    color: var(--primary-color);
 }
 
 /* Tooltips follow upstream Blue Topaz's own split: UI hints are the accent
