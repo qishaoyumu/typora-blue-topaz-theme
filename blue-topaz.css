@@ -1101,12 +1101,21 @@ body.typora-export #write .md-fences span.CodeMirror-selectedtext {
     /* The editable source stays in the box, invisible, so a click lands a
        caret in it and Typora opens .md-expand exactly as it does for the
        stock source line; display:none would turn the click into a
-       whole-element selection instead. */
+       whole-element selection instead. The overlay copies the expanded
+       line's geometry (left-aligned from the span's border edge, monospace
+       at the same 13.6px = 0.85em of the 16px span), so the caret WebKit
+       places on click is already where the expanded source will draw it;
+       with a centered, smaller overlay the caret stayed at the old spot
+       until the next keystroke (WebKit does not repaint a caret on a pure
+       layout change). */
     position: absolute;
-    inset: 0;
+    inset: -1px -2px;
     display: block;
     overflow: hidden;
     opacity: 0;
+    text-align: left;
+    font-family: var(--monospace);
+    font-size: calc(0.85em / 0.875);
 }
 
 .md-image.md-img-error:not(.md-expand)::before {
