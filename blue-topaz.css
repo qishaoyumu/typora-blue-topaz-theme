@@ -2113,11 +2113,13 @@ kbd {
    without it (Windows, 2026-08-22) fell back to the bare 25px rhythm with
    touching cards. Any open, non-empty children container qualifies; the
    default's `.file-node-collapsed > .file-node-children { display: none }`
-   keeps closed folders closed, and :not(:empty) leaves unfetched folders
-   without a phantom 2px. The root row is included: it stands in for an
-   ordinary opened folder, whose first child sits 2px below it like any
-   other. */
-.file-tree-node:not(.file-node-collapsed) > .file-node-children:not(:empty) {
+   keeps closed folders closed, and :has(> .file-library-node) leaves
+   unfetched folders and files without a phantom 2px (file rows keep the
+   template's whitespace inside their children box, so :not(:empty) did
+   not: it gave file siblings a 4px gap). The root row is included: it
+   stands in for an ordinary opened folder, whose first child sits 2px
+   below it like any other. */
+.file-tree-node:not(.file-node-collapsed) > .file-node-children:has(> .file-library-node) {
     display: grid;
     gap: 2px;
     margin-top: 2px;
