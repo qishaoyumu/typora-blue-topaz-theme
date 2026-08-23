@@ -1285,17 +1285,76 @@ body.typora-export #write .md-fences span.CodeMirror-selectedtext {
    values exactly, so the former 0.75em/baseline-offset overrides are gone.
    Footnote refs (sup.md-footnote) keep their own rule above. */
 
-/* The reference's footnote section: body ink at 14px, no top rule. */
-.md-def-footnote {
+/* The reference's footnote section (reading view, measured live):
+   <section class="footnotes"> <hr> <ol> <li> <p>text <a class=
+   "footnote-backref">↩︎</a>. The <hr> is the ordinary rule (2px, 2rem
+   margins), the list sits at 14px in full body ink, its "1." marker is the
+   faint gray right-aligned in a 26.5px gutter, and the backref is the same
+   faint gray at 14px in the body font, no underline, accent on hover.
+   Typora keeps every definition as its own editable block instead
+   (div.footnotes.md-def-footnote: md-def-name "1" / md-def-split /
+   md-def-content / md-reverse-footnote-area > a.reversefootnote), so the
+   section is synthesised: the first definition after a non-definition block
+   carries the rule as its top border with the rule's margins, the name is
+   dressed as the marker, and base.css's .footnotes opacity .8 is lifted so
+   the text keeps body ink (measured 165 vs the reference's 198 in dark).
+   While a definition is focused the stock "[^ 1 ]:" source form returns,
+   as the body ref's brackets do. Ids show verbatim ("note."); the reference
+   renumbers by order, which CSS cannot. #write-scoped to outrank base.css
+   and base-control.css regardless of load order. */
+#write .md-def-footnote {
     color: var(--text-color);
+    opacity: 1;
     font-size: 0.875em;
-    margin-top: 2em;
-    padding-top: 0.5em;
+    /* The reference's <li> measures 37.09px around a 21px line: its <p>
+       margins (0.5em = 7px) plus ~1px each side. */
+    margin: 0 0 calc(0.5em + 1px);
+    padding: calc(0.5em + 1px) 0 0;
 }
 
-/* Back-link in the reference's muted gray (dark overrides to #797979). */
-.reversefootnote {
+#write > .md-def-footnote:first-child,
+#write > :not(.md-def-footnote) + .md-def-footnote {
+    margin-top: 2rem;
+    border-top: 2px solid #bfbfbf;
+    padding-top: calc(2rem + 0.5em + 1px);
+}
+
+#write .md-def-footnote:not(.md-focus) .md-def-name {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 0;
+    font-weight: 400;
+    text-align: right;
     color: #7f7f7f;
+}
+
+#write .md-def-footnote:not(.md-focus) .md-def-name::before {
+    content: none;
+}
+
+#write .md-def-footnote:not(.md-focus) .md-def-name::after {
+    content: ".";
+    position: static;
+    font-weight: 400;
+    color: inherit;
+}
+
+#write .md-def-footnote:not(.md-focus) .md-def-split {
+    min-width: 0;
+}
+
+/* Back-link: base-control sets ui-monospace + underline on
+   .md-reverse-footnote-area a; the reference's is body font, no underline,
+   faint gray, accent on hover at full opacity (the global a:hover dims). */
+#write .md-reverse-footnote-area a {
+    font-family: inherit;
+    text-decoration: none;
+    color: #7f7f7f;
+}
+
+#write .md-reverse-footnote-area a:hover {
+    color: var(--primary-color);
+    opacity: 1;
 }
 
 /* [TOC] in the flat outline's language. [TOC] is Typora's own extension — the

@@ -427,7 +427,15 @@ hr {
 }
 
 /* ========== Footnotes, YAML, mark, kbd ========== */
-.reversefootnote {
+/* Synthesised footnote rule takes the dark hr color; marker and back-link
+   take the dark faint gray. */
+#write > .md-def-footnote:first-child,
+#write > :not(.md-def-footnote) + .md-def-footnote {
+    border-top-color: #3f3f3f;
+}
+
+#write .md-def-footnote:not(.md-focus) .md-def-name,
+#write .md-reverse-footnote-area a {
     color: #797979;
 }
 
