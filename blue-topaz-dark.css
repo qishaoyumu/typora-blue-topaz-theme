@@ -590,12 +590,20 @@ kbd {
     box-shadow: var(--shadow-md);
 }
 
-.modal-header {
-    border-bottom-color: #444;
+.modal-backdrop.in {
+    background: rgba(10, 10, 10, 0.4);
 }
 
-.modal-footer {
-    border-top-color: #444;
+.modal .btn-default {
+    background: #2b2b2b;
+}
+
+.modal .btn-default:hover {
+    background: #373737;
+}
+
+.modal .btn-primary:hover {
+    background: hsl(208, 64%, 39%);
 }
 
 /* The light hover uses hsl(207,77%,44%), sharing the 77% saturation of light

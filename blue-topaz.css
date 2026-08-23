@@ -3674,12 +3674,8 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
 
 /* Unibody-only fixes. These class names also exist on macOS, so the rules
    hang off the .unibody-window body class that only Windows/Linux windows
-   carry: the defaults paint light literals (#fff backdrop, #fafafa disabled
-   chip, #ccc focus flash) that dark mode never overrides. */
-.unibody-window .modal-backdrop {
-    background-color: var(--bg-color);
-}
-
+   carry: the defaults paint light literals (#fafafa disabled chip, #ccc
+   focus flash) that dark mode never overrides. */
 .unibody-window .menu-style-btn.disabled,
 .unibody-window .menu-style-btn.disabled:hover {
     color: var(--control-text-color);
@@ -3751,18 +3747,124 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
     color: var(--text-color);
 }
 
+/* Dialog frame in the reference's .modal grammar — 24px radius, 16px
+   inset, 20px/600 title, no header/footer rules, a flat 40% backdrop wash
+   with no blur — shared by all three stock dialogs (#table-insert-dialog,
+   #common-dialog, #image-create-folder-confirm). mac.css's 300px width,
+   top:0 and centred text are platform geometry and stay; the reference's
+   560px min-width is not ported. */
 .modal-content {
     background: var(--bg-color);
     border: 1px solid var(--ui-border-color);
-    border-radius: 6px;
+    border-radius: 24px;
+    padding: 16px;
+    box-shadow: var(--shadow-md);
 }
 
 .modal-header {
-    border-bottom: 1px solid #eee;
+    border: 0;
+    padding: 0 0 12px;
+}
+
+.modal-body {
+    padding: 0;
 }
 
 .modal-footer {
-    border-top: 1px solid #eee;
+    border: 0;
+    padding: 16px 0 0;
+}
+
+.modal-footer .btn + .btn {
+    margin-left: 8px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-backdrop.in {
+    background: rgba(220, 220, 220, 0.4);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+/* Dialog buttons: the reference's plain button (#efefef, 7px, 30px) and
+   mod-cta (accent, white). Scoped to .modal so the generic .btn-* rules
+   below keep serving the megamenu. */
+.modal .btn-default {
+    background: #efefef;
+    border: 0;
+    border-radius: 7px;
+    height: 30px;
+    padding: 4px 12px;
+    font-size: 13px;
+    color: var(--text-color);
+}
+
+.modal .btn-default:hover {
+    background: #e6e6e6;
+}
+
+.modal .btn-primary {
+    background: var(--interactive-accent);
+    border: 0;
+    border-radius: 7px;
+    height: 30px;
+    padding: 4px 12px;
+    font-size: 13px;
+    color: #fff;
+}
+
+.modal .btn-primary:hover {
+    background: hsl(207, 77%, 44%);
+}
+
+/* Insert-table form: the two number fields in the reference's text-input
+   grammar (30px, 4px 8px, 13px, 1px border, 7px radius, neutral focus)
+   with "Columns" / "Rows" as plain muted labels instead of Bootstrap's
+   boxed add-ons. Flex replaces the table-cell layout that squared the
+   field's inner corners; two of Bootstrap's table-cell sizing hacks have
+   to be undone for it, or the 300px dialog overflows: the add-on's
+   width:1% collapses the label to nothing once it is a flex item (hence
+   width:auto + flex:none), and the field's automatic minimum size keeps
+   it at its intrinsic 182px (hence min-width:0). */
+#table-insert-dialog .input-group {
+    display: flex;
+    align-items: center;
+}
+
+#table-insert-dialog .input-group-addon {
+    display: block;
+    width: auto;
+    flex: none;
+    background: transparent;
+    border: 0;
+    padding: 0 8px 0 0;
+    font-size: 13px;
+    color: var(--ui-muted-color);
+}
+
+#table-insert-dialog .form-control {
+    display: block;
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    margin-left: 0;
+    height: 30px;
+    padding: 4px 8px;
+    font-size: 13px;
+    border: 1px solid var(--ui-border-color);
+    border-radius: 7px;
+    background: var(--bg-color);
+    box-shadow: none;
+    color: var(--text-color);
+}
+
+#table-insert-dialog .form-control:focus {
+    border-color: var(--ui-border-focus-color);
+    box-shadow: none;
 }
 
 .btn-primary {
