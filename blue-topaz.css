@@ -529,13 +529,32 @@ hr {
 }
 
 /* ========== 12. Table ========== */
+/* Typora wraps every table — editor (figure.md-table-fig.table-figure) and
+   export (figure.table-figure) alike — in a figure that is a BFC
+   (overflow-x:auto), so the stock 1.2em figure margin stacked on the
+   table's own 20px for 39px where the reference shows 20 (its table
+   margin collapses with the paragraph's 16). The 20px block margin
+   therefore lives on the figure and the table goes to 0: the figure's
+   margin collapses with its neighbours again. fit-content + auto margins
+   shrink the figure onto the centred table so the edit toolbar (section
+   13) spans exactly the table's width; wider tables are capped at 100%
+   and keep scrolling inside the figure. position:relative gives that
+   toolbar its containing block. */
+#write figure.table-figure {
+    width: -webkit-fit-content;
+    width: fit-content;
+    max-width: 100%;
+    margin: 20px auto;
+    position: relative;
+}
+
 /* Shrink-to-fit and centered, as measured in the reference: no width rule
-   (Typora base forces width:100%, hence the explicit auto), margin auto,
-   20px block margins, 1.3 line-height, and no outer borders — rows
-   separate by zebra fills alone, under a 1px hairline shadow. Cells
-   anchor to the top (the reference's core does the same), and body cells
-   drop to the reference's --table-text-size (text × 0.9375 = 15px) while
-   headers keep the full size.
+   (Typora base forces width:100%, hence the explicit auto), 1.3
+   line-height, and no outer borders — rows separate by zebra fills alone,
+   under a 1px hairline shadow. Cells anchor to the top (the reference's
+   core does the same), and body cells drop to the reference's
+   --table-text-size (text × 0.9375 = 15px) while headers keep the full
+   size.
    The :not(.md-reset) guards fence this skin off Typora's in-document UI
    chrome: the table-resize popover's 13px pick-grid is itself a <table>
    appended INSIDE #write, and these (1,0,1) rules would beat its (0,1,1)
@@ -545,7 +564,7 @@ hr {
 #write table:not(.md-reset) {
     border-collapse: collapse;
     width: auto;
-    margin: 20px auto;
+    margin: 0;
     line-height: 1.3;
     box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
@@ -555,6 +574,11 @@ hr {
     padding: 4px 10px;
     border: none;
     vertical-align: top;
+    /* The reference core's --table-column-min-width (6ch, border-box):
+       an empty cell measures 56.7px at the 15px body size there; Typora's
+       stock table.md-table td{min-width:32px} made empty cells half as
+       wide. */
+    min-width: 6ch;
 }
 
 #write td:not(.md-reset) {
