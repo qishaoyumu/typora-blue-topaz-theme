@@ -315,8 +315,7 @@ h6 {
    list-style string) and draws a bullet glyph 14.2px left of the text,
    freeing the dot-to-text distance from the UA's fixed marker gap. ol
    keeps the native decimal marker: same engine, so its gap matches the
-   reference automatically. The reference draws no indent guides in lists
-   (verified live), so the old v1.0 guide lines are gone. */
+   reference automatically. Nested-list indent guides are drawn below. */
 #write ul, #write ol {
     padding-left: 0;
 }
@@ -357,8 +356,13 @@ h6 {
     color: #7f7f7f;
 }
 
-/* Nested-list indent guides — a deliberate deviation kept from v1.0 (the
-   reference draws none in reading view; user-confirmed 2026-07-26).
+/* Nested-list indent guides. The reference draws them in reading view
+   through Obsidian's "Indentation guides" setting (on by default; app.css
+   `.markdown-rendered.show-indentation-guide li > ul::before`, measured
+   2026-08-23): a 1px `--indentation-guide-color` (mono 12%) line at
+   inset-inline-start -0.85em (-13.6px) of the nested list box for any
+   parent. That offset assumes Chromium's marker gap; WebKit places the
+   digit 5px further out, so the anchors here follow the marker ink instead.
    Anchors re-derived for the drawn-dot geometry: the nested box's left
    edge equals the parent text edge, the parent dot ink centers ~11.6px
    left of it. The ol anchor centers on the DIGIT ink alone (measured
@@ -380,11 +384,18 @@ h6 {
     background: var(--indent-guide-color);
 }
 
-#write li > ul::before {
+/* The anchor follows the PARENT list's marker, the one the guide hangs
+   from, not the nested list's own type: an ol item holding a ul (or the
+   reverse) still hangs its guide from the parent's digit (or dot). Keyed on
+   the child type, a ul under an ol item took the dot anchor and sat 7px
+   right of the digit (2026-08-23, seen inside a blockquote). */
+#write ul > li > ul::before,
+#write ul > li > ol::before {
     left: -12px;
 }
 
-#write li > ol::before {
+#write ol > li > ul::before,
+#write ol > li > ol::before {
     left: -19px;
 }
 
