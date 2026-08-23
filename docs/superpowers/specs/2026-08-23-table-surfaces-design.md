@@ -76,8 +76,8 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 | 本体 | 整体重测；修间距 20px 与最小宽 6ch；不搬 BT resize 手柄与 ellipsis/overflow |
 | 光标格 | 不加标记；记入 TODO，留到下个大版本与模式体系一起议 |
 | 把手 | 悬停显形：14px 贴外缘，grip，faint 色，5px 圆角，按下 accent |
-| 拖动态 | 原位 accent 10% 淡底加 `--text-muted` 文字；幽灵 accent 实底白字；落点 2px accent 线，隐藏三角 |
-| 工具条 | 贴上缘横排，无容器，宽随表；图标 16px `--text-muted`；hover 6.7% 圆底 5px；当前对齐 accent 图标加 accent 15% 底 |
+| 拖动态 | 原位 accent 10% 淡底加 muted 文字（Obsidian `--text-muted`，本主题落 `--ui-muted-color`）；幽灵 accent 实底白字；落点 2px accent 线，隐藏三角 |
+| 工具条 | 贴上缘横排，无容器，宽随表；图标 16px muted（同上，`--ui-muted-color`）；hover 6.7% 圆底 5px；当前对齐 accent 图标加 accent 15% 底 |
 | 弹层 | 面板 `--menu-bg-color`、1px 边、7px 圆角、`--shadow-sm`；网格三态：空透明，当前中性实底，新选 accent 15% 加 accent 边，表头行同态各加深一档；输入框走 Obsidian 语法，焦点灰 `--ui-border-focus-color`；"确定"走 mod-cta |
 | 模态 | 控件与弹层同语法；三个模态框体用通用规则按 Obsidian `.modal`：24px 圆角、16px 内距、标题 20px/600、去分隔线、遮罩色；不搬宽度与 `min-width`；去掉 mac.css 的 1px 模糊 |
 
@@ -157,7 +157,7 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 .ty-table-edit .right-th-button { float: none; margin-left: auto; }
 #write .ty-table-edit .btn-group > .btn { border-radius: 5px; }   /* (1,3,0) 拆掉 Bootstrap 把三个对齐钮焊成一颗药丸的圆角规则 (0,4,0)/(0,5,0) */
 .ty-table-edit .btn-group .btn + .btn { margin-left: 2px; }       /* 与条上的 flex gap 同值 */
-.ty-table-edit button.btn { padding: 4px 6px; border: 0; border-radius: 5px; background: transparent; box-shadow: none; color: var(--ui-muted-color); line-height: 1; }
+.ty-table-edit button.btn { display: flex; align-items: center; justify-content: center; padding: 4px 6px; border: 0; border-radius: 5px; background: transparent; box-shadow: none; color: var(--ui-muted-color); line-height: 1; }   /* flex 三条让 16px 图标墨迹在按钮里居中 */
 .ty-table-edit .ty-icon { font-size: 16px; line-height: 1; }
 .ty-table-edit button:hover { background: var(--item-hover-bg-color); }
 .ty-table-edit button.active { color: var(--primary-color); background: var(--suggest-active-bg); box-shadow: none; }
