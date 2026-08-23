@@ -3796,6 +3796,11 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
 
 .modal-backdrop.in {
     background: rgba(220, 220, 220, 0.4);
+    /* The 0.4 in that colour is meant to be the whole wash. Bootstrap's own
+       .modal-backdrop.in{opacity:.5} would otherwise multiply it down to 0.2;
+       mac.css resets it to 1 already, so this is a no-op here and the fix for
+       Windows and Linux, which load no mac.css. */
+    opacity: 1;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
 }
