@@ -949,14 +949,21 @@ hr {
     opacity: 1;
 }
 
-/* Two columns of three 2px dots, the reference's lucide grip. */
+/* Two columns of three 2px dots, the reference's lucide grip. The box has to
+   be a WHOLE number of 4px tiles: each tile paints its dot at its own centre,
+   so a 6x10 box put the second column's centre at x=6 and the third row's at
+   y=10 — exactly on the box edge, with half of each dot cut off. 8x12 (2x3
+   tiles) puts every centre 2px from its nearest edge, half the 4px pitch, so
+   the 1.5px paint radius clears the edge by 0.5px and every dot is whole.
+   inset:0 + margin:auto keeps the field centred in the handle, whose other
+   dimension JS sets from the row height / column width. */
 .typora-table-drag-area::before {
     content: "";
     position: absolute;
     inset: 0;
     margin: auto;
-    width: 6px;
-    height: 10px;
+    width: 8px;
+    height: 12px;
     background: radial-gradient(circle, var(--ui-faint-color) 1px, transparent 1.5px) 0 0 / 4px 4px;
 }
 

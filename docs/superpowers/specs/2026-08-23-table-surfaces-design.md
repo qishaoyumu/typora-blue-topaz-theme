@@ -114,7 +114,7 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 .typora-table-drag-area { opacity: 0; background: transparent; cursor: grab; }
 .typora-table-drag-area:hover { opacity: 1; }
 .typora-table-drag-area::before {
-  content: ""; position: absolute; inset: 0; margin: auto; width: 6px; height: 10px;
+  content: ""; position: absolute; inset: 0; margin: auto; width: 8px; height: 12px;   /* 必须是 4px 瓦片的整数倍：2x3 */
   background: radial-gradient(circle, var(--text-muted) 1px, transparent 1.5px) 0 0 / 4px 4px;   /* 两列三行 2px 点阵 */
 }
 .typora-table-drag-area:active { background: var(--interactive-accent); box-shadow: 0 0 0 2px var(--interactive-accent); cursor: grabbing; }
