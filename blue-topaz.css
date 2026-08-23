@@ -660,6 +660,28 @@ hr {
     box-shadow: var(--shadow-sm);
 }
 
+/* The panel keeps a fixed width so it never resizes under the pointer — the
+   OK button appears and disappears with input focus, and a panel that
+   breathed on every focus change would be worse than a slightly roomy one.
+   The width is therefore measured on the WIDEST state: OK visible and both
+   fields at "20"/"99", the most stock's max / maxlength allow. Measured on a
+   max-content clone (light and dark alike, Inter 14px):
+     title row content                    121.72
+     + wrap padding 1ch each side (8.67)   17.34   (.code-tooltip-content)
+     + panel border 1px each side           2
+     + panel padding 1px each side          2      (bootstrap .popover)
+     = 143.03  ->  144px
+   Stock's 134px sits on .md-resize-table-th .popover (0,2,0), so the override
+   has to match that selector and wins on load order; stock also pins the wrap
+   to 100px, which would leave the grid off-centre inside the wider panel. */
+.md-resize-table-th .popover {
+    width: 144px;
+}
+
+.md-grid-board-wrap {
+    width: auto;
+}
+
 .md-grid-board a {
     border: 1px solid var(--ui-border-color);
     border-radius: 2px;
@@ -699,13 +721,24 @@ hr {
     background: var(--grid-select-bg-strong);
 }
 
-/* The "3 x 5" row: reference text-input grammar (1px border, 7px radius,
+/* The "20 x 99" row: reference text-input grammar (1px border, 7px radius,
    neutral one-notch focus, no accent), the bare "x" in muted ink, and the
    OK button as the reference's mod-cta. Stock shows OK only while an
-   input has focus; that stays. */
+   input has focus; that stays.
+   Stock lays the row out as inline-block boxes drifting from a text-align
+   and spaced by a 1ch margin on the button, which put OK past the panel's
+   right edge whenever it showed. A flex row with one 4px gap spaces every
+   item the same way and centres the group; the 14px inherited from
+   Bootstrap's .popover-title goes so the wrap's own 1ch is the row's only
+   horizontal inset, which is what the panel width below is measured from. */
 .md-grid-board-wrap .popover-title {
     border-top: 1px solid var(--ui-border-color);
     color: var(--ui-muted-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 0;
 }
 
 .md-grid-board-wrap input {
@@ -714,6 +747,10 @@ hr {
     background: var(--bg-color);
     color: var(--text-color);
     height: 22px;
+    /* 4ch, not stock's 3ch: the 4px inset each side eats into the content
+       box, and a two-digit value (the most stock's max / maxlength allow)
+       was being clipped by 3px. */
+    width: 4ch;
     padding: 0 4px;
 }
 
@@ -727,7 +764,10 @@ hr {
     border-radius: 7px;
     color: #fff;
     height: 22px;
-    padding: 0 10px;
+    /* margin:0 drops stock's margin-left:1ch and margin-top:-2px — the flex
+       row above owns spacing and vertical centring now. */
+    margin: 0;
+    padding: 0 8px;
     font-size: 12px;
     line-height: 22px;
 }
