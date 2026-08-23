@@ -115,7 +115,7 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 .typora-table-drag-area:hover { opacity: 1; }
 .typora-table-drag-area::before {
   content: ""; position: absolute; inset: 0; margin: auto; width: 8px; height: 12px;   /* 必须是 4px 瓦片的整数倍：2x3 */
-  background: radial-gradient(circle, var(--text-muted) 1px, transparent 1.5px) 0 0 / 4px 4px;   /* 两列三行 2px 点阵 */
+  background: radial-gradient(circle, var(--ui-faint-color) 1px, transparent 1.5px) 0 0 / 4px 4px;   /* 两列三行 2px 点阵 */
 }
 .typora-table-drag-area:active { background: var(--interactive-accent); box-shadow: 0 0 0 2px var(--interactive-accent); cursor: grabbing; }
 .typora-table-drag-area:active::before { background-image: radial-gradient(circle, #fff 1px, transparent 1.5px); }
@@ -123,7 +123,7 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 
 /* 拖动态：同一个类按祖先区分 */
 #write .typora-on-moving td, #write .typora-on-moving th,
-#write td.typora-on-moving, #write th.typora-on-moving { color: var(--text-muted); background: var(--table-drag-src-bg); opacity: 1; }
+#write td.typora-on-moving, #write th.typora-on-moving { color: var(--ui-muted-color); background: var(--table-drag-src-bg); opacity: 1; }
 .typora-table-tracker .typora-on-moving td, .typora-table-tracker .typora-on-moving th,
 .typora-table-tracker td.typora-on-moving, .typora-table-tracker th.typora-on-moving
   { color: #fff; background: var(--interactive-accent); opacity: 1; padding: 4px 10px; }
@@ -157,15 +157,16 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 .ty-table-edit .right-th-button { float: none; margin-left: auto; }
 #write .ty-table-edit .btn-group > .btn { border-radius: 5px; }   /* (1,3,0) 拆掉 Bootstrap 把三个对齐钮焊成一颗药丸的圆角规则 (0,4,0)/(0,5,0) */
 .ty-table-edit .btn-group .btn + .btn { margin-left: 2px; }       /* 与条上的 flex gap 同值 */
-.ty-table-edit button { padding: 4px 6px; border: 0; border-radius: 5px; background: transparent; box-shadow: none; color: var(--text-muted); line-height: 1; }
+.ty-table-edit button.btn { padding: 4px 6px; border: 0; border-radius: 5px; background: transparent; box-shadow: none; color: var(--ui-muted-color); line-height: 1; }
 .ty-table-edit .ty-icon { font-size: 16px; line-height: 1; }
 .ty-table-edit button:hover { background: var(--item-hover-bg-color); }
 .ty-table-edit button.active { color: var(--primary-color); background: var(--suggest-active-bg); box-shadow: none; }
 .ty-table-edit button:focus { outline: 0; }
-.md-resize-table-th .popover { margin-left: 0; }   /* 弹层对齐网格按钮左缘 */
+/* 弹层对齐网格按钮左缘。宽度那一半见 5.4，两条写在同一个选择器上，合成一条规则 */
+.md-resize-table-th .popover { width: 144px; margin-left: 5px !important; }   /* 弹层的包含块是条的内距盒，其左缘在表格左缘外 5px；5px 抵掉条的左内距。main.js 把 margin-left:-10px 写成内联样式，只有 !important 够得着 */
 ```
 
-- 按钮 24px 高。间距修到 20px 后，条顶越过前一块的盒底 4px；图标墨迹 16px 居中，离前块盒底还有 4px，不碰文字。
+- 按钮 24px 高。间距修到 20px 后，条顶越过前一块的盒底 6px（条高 24 + `translateY` 2 − figure 上外距 20；原先写的 4 漏算了 translate）；图标墨迹 16px 在条内居中，顶边再退 4px，于是只越过盒底 2px，落在前一块行盒的行距里，不碰文字。
 - 条的包含块是 `#write`（出厂的），不是 figure。figure 是滚动容器（出厂 `figure{overflow-x:auto}`，单轴 visible 会算成 auto），一旦让它当包含块，悬在它内容盒上方一整条高度的工具条就落进裁切区里没了；让它不定位，条的包含块是 figure 的祖先，裁切够不着它 —— 宽表照旧在 figure 内滚动，条完整，垃圾桶落在 figure 可见的右缘。
 - Windows 的 `.md-table-more` 带文字，随 flex 排在垃圾桶旁。验收放在 Windows VM 尾项。
 
@@ -180,13 +181,13 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 .md-grid-board tr[row='1'] .md-grid-ext { background: var(--grid-current-bg-strong); }   /* 约 40% */
 .md-grid-board a.md-active, .md-grid-board a:hover { background: var(--suggest-active-bg); border-color: var(--primary-color); }
 .md-grid-board tr[row='1'] a.md-active, .md-grid-board tr[row='1'] a:hover { background: var(--grid-select-bg-strong); }   /* accent 约 30% */
-.md-resize-table-th .popover { width: 144px; }    /* 压出厂 134px，见下 */
+.md-resize-table-th .popover { width: 144px; }    /* 压出厂 134px，见下；与 5.3 的 margin-left 同选择器，落地时合成一条规则 */
 .md-grid-board-wrap { width: auto; }              /* 压出厂 100px，否则网格在加宽后的面板里偏心 */
 /* 出厂把这行排成受 text-align 牵引的 inline-block，再靠按钮上的 1ch 外距分隔，
    "确定"一现身就顶出面板右缘。改成居中 flex 行，间距全交给一个 4px gap；
    Bootstrap .popover-title 继承来的 14px 左右内距去掉，让 wrap 自己的 1ch 成为
    这一行唯一的横向内缩 —— 面板宽度正是按这个量出来的。 */
-.md-grid-board-wrap .popover-title { border-top: 1px solid var(--ui-border-color); color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 0; }
+.md-grid-board-wrap .popover-title { border-top: 1px solid var(--ui-border-color); color: var(--ui-muted-color); display: flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 0; }
 .md-grid-board-wrap input { border: 1px solid var(--ui-border-color); border-radius: 7px; background: var(--bg-color); height: 22px; width: 4ch; padding: 0 4px; color: var(--text-color); }
 .md-grid-board-wrap input:focus { border-color: var(--ui-border-focus-color); }   /* (0,2,1) 压出厂 input:focus */
 #md-resize-grid { background: var(--interactive-accent); color: #fff; border: 0; border-radius: 7px; height: 22px; margin: 0; padding: 0 8px; font-size: 12px; }
@@ -202,15 +203,24 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 ```css
 .modal-content { border-radius: 24px; padding: 16px; border: 1px solid var(--ui-border-color); box-shadow: var(--shadow-md); }
 .modal-header, .modal-footer { border: 0; }
+/* 内距全部归零重排：`.modal-content` 的 16px 是唯一的框内内缩，出厂 bootstrap 给
+   header / body / footer 各 15px、给相邻按钮 5px，不清掉会叠在 16px 上。 */
+.modal-header { padding: 0 0 12px; }
+.modal-body { padding: 0; }
+.modal-footer { padding: 16px 0 0; }
+.modal-footer .btn + .btn { margin-left: 8px; }
 .modal-title { font-size: 20px; font-weight: 600; }
-/* opacity:1 不可省：出厂 bootstrap 的 .modal-backdrop.in{opacity:.5} 会把上面这个
-   0.4 再折一半成 0.2。mac.css 自带一条 opacity:1，所以 macOS 上它是空操作，真正
-   受益的是不加载 mac.css 的 Windows / Linux。 */
+/* 裸选择器那条管关闭态：bootstrap 关对话框时先摘 .in 再淡出，那段时间只有它命中，
+   缺了就会回落到 window.css 的不透明 #fff（Windows / Linux）或 bootstrap 的 #000
+   （macOS）闪一下。opacity:1 只能待在 .in 上：写到裸选择器会输给出厂
+   .modal-backdrop.in{opacity:.5}，0.4 再折一半成 0.2。mac.css 自带一条 opacity:1，
+   所以 macOS 上它是空操作，真正受益的是不加载 mac.css 的 Windows / Linux。 */
+.modal-backdrop { background: rgba(220,220,220,.4); }
 .modal-backdrop.in { background: rgba(220,220,220,.4); opacity: 1; backdrop-filter: none; -webkit-backdrop-filter: none; }
-/* 暗色：.modal-content 底 --dark-panel-bg，边 --dark-border-color；遮罩 rgba(10,10,10,.4)；Windows 的 .unibody-window .modal-backdrop 同步改色 */
+/* 暗色：.modal-content 底 --dark-panel-bg，边 --dark-border-color（阴影读亮色那条的 --shadow-md，暗 :root 已改值，不必重写）；遮罩两条都用 rgba(10,10,10,.4) */
 
 #table-insert-dialog .input-group { display: flex; align-items: center; }
-#table-insert-dialog .input-group-addon { background: transparent; border: 0; color: var(--text-muted); padding: 0 8px 0 0; }
+#table-insert-dialog .input-group-addon { background: transparent; border: 0; color: var(--ui-muted-color); padding: 0 8px 0 0; }
 #table-insert-dialog .form-control { height: 30px; padding: 4px 8px; font-size: 13px; border: 1px solid var(--ui-border-color); border-radius: 7px; background: var(--bg-color); box-shadow: none; color: var(--text-color); }
 #table-insert-dialog .form-control:focus { border-color: var(--ui-border-focus-color); box-shadow: none; }
 .modal .btn-default { background: #efefef; border: 0; border-radius: 7px; height: 30px; padding: 4px 12px; font-size: 13px; color: var(--text-color); }
@@ -241,13 +251,15 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 3. 导出 HTML 与 PDF，抽查表格页：居中、20px、无控件残留。完整四路并入发布前门。
 4. Windows VM 尾项追加：工具条"更多"按钮、三个模态的遮罩、把手。
 
+> 落地记录：第 1 条的 WebKit 离屏 harness 在一次重启中随 `/private/tmp` 一起丢了。复审与两轮修复因此改用无头 Chrome 量 computed style 与几何，按同一套加载顺序挂 `bootstrap.css` / `base.css` / `base-control.css` / `mac.css` 或 `window.css` 再挂主题；这一轮还补挂了 `style/typora-icon/style.css`，图标是真字形，工具条的宽度读数才作数（此前无图标字体的读数偏窄）。文字渲染细节仍以 WKWebView 为准，需要时按记忆里的配方重建 harness。
+
 ## 7. 边界情况
 
 - 加行、加列按钮：Typora 无 DOM，造不出。记入 `TODO.md` 边界。
 - 把手显形要先让鼠标进入单元格，这是 Typora 的触发条件；Obsidian 也是悬停才见。
 - 弹层悬在表格左上角之上，与出厂相同；菜单覆盖内容。
-- 两列 6ch 的小表比工具条内容窄时，条按 `min-width: max-content` 向右溢出，不收缩按钮。
-- 列把手宽等于列宽，grip 点阵居中；列宽小于 12px 时点阵被裁。6ch 下限使这种情况不会发生。
+- 两列 6ch 的小表比工具条内容窄时，条按 `min-width: max-content` 向右溢出，不收缩按钮。溢出量实测（无头 Chrome，真图标字体，`#write` 内容盒 660px）：两列 6ch 的表宽 126.66px；工具条内容盒的下限，macOS 五个图标钮 148px，溢出 21.34px；Windows 多一个"更多"钮，标签默认 `display:none`，内容盒 175.33px，溢出 48.67px，指针悬停或键盘入焦时出厂把标签放出来，内容盒 250.64px，溢出 123.98px（标签文案随语言变，宽度随之浮动）。设计维持：按钮不收缩，宁可条比表宽。
+- 列把手宽等于列宽，grip 点阵居中；点阵改成 8×12 后，列宽小于 8px 才会容不下它。6ch 下限使这种情况不会发生。
 - 幽灵的幅面由 JS 内联宽高决定，CSS 只补内距与色。
 
 ## 8. 涉及文件清单
