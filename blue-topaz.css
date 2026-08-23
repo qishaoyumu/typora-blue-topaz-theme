@@ -427,6 +427,22 @@ a:hover {
     text-decoration: none;
 }
 
+/* Bare URLs: the reference leaves text-decoration-skip-ink at its default
+   auto, and so do we, but WebKit carves 3-4px gaps where Inter's "/" dips
+   below the baseline, while Chromium (the reference) carves 1.5px ones that
+   read as a continuous line. Same Inter 4.001, same CSS values, measured in
+   both engines; the gap width is engine-owned and has no CSS knob, so bare
+   URLs get the continuous line the reference is seen to have. Prose links
+   keep auto: no slashes, and auto still skips descenders there.
+   Typora's DOM differs per path: the editor wraps a bare URL in
+   span[md-inline="url"] and an <url> autolink in span[md-inline="autolink"]
+   (its <a> is .md-url), while export flattens both to a.url. */
+#write [md-inline="url"] a,
+#write [md-inline="autolink"] a,
+#write a.url {
+    text-decoration-skip-ink: none;
+}
+
 /* External-link icon: the reference's own glyph (its app.css SVG asset),
    hung off the right padding exactly as upstream (0.825em glyph, 0.9em
    padding slot, 0.25em down). http(s) links only — anchors (#...) and file
