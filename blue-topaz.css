@@ -673,9 +673,20 @@ hr {
      = 143.03  ->  144px
    Stock's 134px sits on .md-resize-table-th .popover (0,2,0), so the override
    has to match that selector and wins on load order; stock also pins the wrap
-   to 100px, which would leave the grid off-centre inside the wider panel. */
+   to 100px, which would leave the grid off-centre inside the wider panel.
+   The margin rides along on that same selector. The panel is appended inside
+   span.md-resize-table-th but positioned against the toolbar: it is absolute
+   and its nearest positioned ancestor is .ty-table-edit, so its containing
+   block is the BAR'S PADDING BOX, whose left edge sits at table_left − 5px
+   (the bar carries margin-left:-5px; padding:0 5px). Bootstrap's
+   .popover{left:0} would therefore park the panel 5px left of the table;
+   margin-left:5px cancels the bar's 5px left padding so the panel's left edge
+   meets the table's — which is also the grid button's — left edge. This is
+   the section's one !important: main.js writes margin-left:-10px inline on
+   the panel markup it builds, and nothing weaker reaches an inline style. */
 .md-resize-table-th .popover {
     width: 144px;
+    margin-left: 5px !important;
 }
 
 .md-grid-board-wrap {
@@ -898,16 +909,6 @@ hr {
 
 .ty-table-edit button:focus {
     outline: 0;
-}
-
-/* The size picker hangs under the grid button; stock shifts it 10px left
-   of the button, which now has nothing to the left of it. main.js writes
-   that shift as an inline margin-left on the panel markup it builds, so
-   this is the section's one !important: nothing weaker reaches an inline
-   style, and without it the panel would hang 10px left of the table's
-   edge instead of flush with it. */
-.md-resize-table-th .popover {
-    margin-left: 0 !important;
 }
 
 /* --- Row / column drag handles ---------------------------------------
