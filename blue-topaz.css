@@ -556,34 +556,17 @@ hr {
    margin collapses with the paragraph's 16). The 20px block margin
    therefore lives on the figure and the table goes to 0: the figure's
    margin collapses with its neighbours again. fit-content + auto margins
-   shrink the figure onto the centred table so the edit toolbar (section
-   13) spans exactly the table's width; wider tables are capped at 100%
-   and scroll inside the figure. position:relative gives that toolbar its
-   containing block. */
+   shrink the figure onto the centred table so the figure's width IS the
+   table's width — which is what main.js measures when it sizes the edit
+   toolbar (section 13); wider tables are capped at 100% and scroll inside
+   the figure. The figure stays unpositioned on purpose: it is a scroll
+   container, and a scroll container clips, so anything it were the
+   containing block for would be clipped with it. */
 #write figure.table-figure {
     width: -webkit-fit-content;
     width: fit-content;
     max-width: 100%;
     margin: 20px auto;
-    position: relative;
-}
-
-/* …but a scroll container also clips whatever its absolutely-positioned
-   descendants paint outside it, and that overflow-x:auto drags the other
-   axis along — a lone visible axis computes to auto, so the figure clips
-   vertically too. While the figure was static the toolbar's containing
-   block sat above it and the clip never reached the toolbar; making the
-   figure that containing block put the toolbar — which hangs a whole
-   bar-height ABOVE the figure's content box — inside the clip, and it
-   disappeared. Typora appends .ty-table-edit as a child of the figure
-   only while the table is focused and removes it on blur, so that child
-   is precisely the "being edited" state: lift the clip then, and leave
-   every other table scrolling. The cost is that a focused table wider
-   than the column spills instead of scrolling, and scrolls again as soon
-   as focus leaves. The drag handles need no such lift — their trackers
-   are body-level siblings, outside the figure entirely. */
-#write figure.table-figure:has(> .ty-table-edit) {
-    overflow: visible;
 }
 
 /* The figure carries the block margin, so the table inside must not add its
@@ -767,18 +750,29 @@ hr {
    + 10px and margin-top = -own height (so it hangs just above the table).
    The reference has no toolbar; its nearest kin are the Live Preview
    edge controls that hug the table and its .clickable-icon buttons. So
-   the bar is an uncontained strip exactly as wide as the table (the
-   figure shrink-wraps it since section 12): icons on the left, the
-   delete button flush right, no background, no border. width:auto
-   !important is one of this section's two exceptions to the no-!important
-   habit — it exists solely to beat that inline width, as the picker's
-   margin-left below beats another; left/right then span the figure. The
+   the bar is an uncontained strip exactly as wide as the table: icons on
+   the left, the delete button flush right, no background, no border.
+   That width comes from the inline style rather than from CSS. Since
+   section 12 the figure shrink-wraps its table, so "figure width" IS the
+   table's width and the bar measures table + 10px — an even 5px of
+   overhang on each side once it sits at its static position (it is the
+   figure's first child, so that position is the figure's content origin,
+   and stays there whether or not the figure is positioned). Giving the
+   bar margin-left:-5px and padding:0 5px turns that overhang into
+   symmetric padding: the CONTENT box then starts on the table's left edge
+   and ends on its right, so the first button and the delete button align
+   exactly to the table. No !important is needed — the inline width is
+   used as-is, the -5px only has to beat base-control's
+   .ty-table-edit{margin-left:-4px} (0,1,0), which this (1,1,1) selector
+   does. Leaving the figure unpositioned is what keeps the bar out of the
+   figure's scroll clip: its containing block is #write, an ancestor of
+   the figure, so a wide table scrolls inside the figure while the bar
+   stays whole and ends flush with the figure's visible right edge. The
    inline margin-top stays, a 2px translate adds the breathing gap. */
 #write figure.table-figure > .ty-table-edit {
-    width: auto !important;
-    left: 0;
-    right: 0;
-    margin-left: 0;
+    margin-left: -5px;
+    padding: 0 5px;
+    box-sizing: border-box;
     min-width: max-content;
     transform: translateY(-2px);
     background: transparent;
@@ -853,9 +847,9 @@ hr {
 /* The size picker hangs under the grid button; stock shifts it 10px left
    of the button, which now has nothing to the left of it. main.js writes
    that shift as an inline margin-left on the panel markup it builds, so
-   this is the section's second !important: nothing weaker reaches an
-   inline style, and without it the panel would hang 10px left of the
-   table's edge instead of flush with it. */
+   this is the section's one !important: nothing weaker reaches an inline
+   style, and without it the panel would hang 10px left of the table's
+   edge instead of flush with it. */
 .md-resize-table-th .popover {
     margin-left: 0 !important;
 }
