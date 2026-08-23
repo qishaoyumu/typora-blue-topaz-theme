@@ -123,6 +123,16 @@
        Blue Topaz's .suggestion-item.is-selected = --theme-color-translucent-015,
        the accent at 0.15 (blends to #e0effb on white). */
     --suggest-active-bg: hsla(207, 77%, 54%, 0.15);
+    /* Table size-picker grid (the 3 x 5 popover): Typora ships its three
+       cell states as light literals (#999 / #555 / #c8caf4 / #94a7b9 /
+       #dcdcdc). The reference has no such control; its selection grammar
+       supplies the "new size" state (accent 0.15 + accent border, the
+       header row a notch deeper at accent 0.30) and a neutral fill marks
+       the table's current size (text ink at 0.25, header row 0.40), all
+       pre-blended on the menu colour #fcfcfc. */
+    --grid-current-bg: #c0c0c0;
+    --grid-current-bg-strong: #9d9d9d;
+    --grid-select-bg-strong: #bedcf5;
     /* The reference file icon has its own blue, brighter than the accent in
        light mode (measured rgb(65,159,231) vs #2f93e4); dark's measured icon
        equals the primary formula, so dark overrides this to the primary. */
@@ -654,9 +664,93 @@ hr {
 }
 
 /* ========== 13. Table edit UI ========== */
+/* --- Size picker --------------------------------------------------------
+   A click-invoked dropdown, so it wears the menu colour and the
+   reference's .menu frame (7px radius, 1px border, small shadow). Every
+   element inside carries .md-reset except the grid's <a> cells, which is
+   why the table skin's :not(.md-reset) guards matter and why the theme's
+   generic a:hover (opacity .8 + transition) leaked onto hovered cells. */
 .md-table-resize-popover {
-    background: var(--bg-color);
+    background: var(--menu-bg-color);
     border: 1px solid var(--ui-border-color);
+    border-radius: 7px;
+    box-shadow: var(--shadow-sm);
+}
+
+.md-grid-board a {
+    border: 1px solid var(--ui-border-color);
+    border-radius: 2px;
+    background: transparent;
+    opacity: 1;
+    transition: none;
+}
+
+.md-grid-board a:hover {
+    opacity: 1;
+}
+
+/* Stock paints the whole header row #dcdcdc; the header's meaning is
+   carried by its deeper state fills instead. */
+.md-grid-board tr[row='1'] {
+    background: transparent;
+}
+
+/* Current table size (td.md-grid-ext, the <a> on top stays transparent). */
+.md-grid-board .md-grid-ext {
+    background: var(--grid-current-bg);
+}
+
+.md-grid-board tr[row='1'] .md-grid-ext {
+    background: var(--grid-current-bg-strong);
+}
+
+/* New size: hover preview and typed value share a.md-active. */
+.md-grid-board a.md-active,
+.md-grid-board a:hover {
+    background: var(--suggest-active-bg);
+    border-color: var(--primary-color);
+}
+
+.md-grid-board tr[row='1'] a.md-active,
+.md-grid-board tr[row='1'] a:hover {
+    background: var(--grid-select-bg-strong);
+}
+
+/* The "3 x 5" row: reference text-input grammar (1px border, 7px radius,
+   neutral one-notch focus, no accent), the bare "x" in muted ink, and the
+   OK button as the reference's mod-cta. Stock shows OK only while an
+   input has focus; that stays. */
+.md-grid-board-wrap .popover-title {
+    border-top: 1px solid var(--ui-border-color);
+    color: var(--ui-muted-color);
+}
+
+.md-grid-board-wrap input {
+    border: 1px solid var(--ui-border-color);
+    border-radius: 7px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    height: 22px;
+    padding: 0 4px;
+}
+
+.md-grid-board-wrap input:focus {
+    border-color: var(--ui-border-focus-color);
+}
+
+#md-resize-grid {
+    background: var(--interactive-accent);
+    border: 0;
+    border-radius: 7px;
+    color: #fff;
+    height: 22px;
+    padding: 0 10px;
+    font-size: 12px;
+    line-height: 22px;
+}
+
+#md-resize-grid:hover {
+    background: hsl(207, 77%, 44%);
 }
 
 /* No arrow on the pick-grid panel: in the theme's (and the reference's)
@@ -676,8 +770,9 @@ hr {
    the bar is an uncontained strip exactly as wide as the table (the
    figure shrink-wraps it since section 12): icons on the left, the
    delete button flush right, no background, no border. width:auto
-   !important is the one exception to the no-!important habit — it exists
-   solely to beat that inline width; left/right then span the figure. The
+   !important is one of this section's two exceptions to the no-!important
+   habit — it exists solely to beat that inline width, as the picker's
+   margin-left below beats another; left/right then span the figure. The
    inline margin-top stays, a 2px translate adds the breathing gap. */
 #write figure.table-figure > .ty-table-edit {
     width: auto !important;
@@ -756,9 +851,13 @@ hr {
 }
 
 /* The size picker hangs under the grid button; stock shifts it 10px left
-   of the button, which now has nothing to the left of it. */
+   of the button, which now has nothing to the left of it. main.js writes
+   that shift as an inline margin-left on the panel markup it builds, so
+   this is the section's second !important: nothing weaker reaches an
+   inline style, and without it the panel would hang 10px left of the
+   table's edge instead of flush with it. */
 .md-resize-table-th .popover {
-    margin-left: 0;
+    margin-left: 0 !important;
 }
 
 /* --- Row / column drag handles ---------------------------------------
