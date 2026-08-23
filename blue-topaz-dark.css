@@ -55,6 +55,10 @@
     --ui-border-color: var(--dark-border-color);
     /* Text-input focus step: the reference's dark --color-base-40. */
     --ui-border-focus-color: #555555;
+    --ui-muted-color: #8a8a8a;
+    --ui-faint-color: #797979;
+    /* rgb(45,130,205) × 0.1 on #202020. */
+    --table-drag-src-bg: #212a31;
     --window-border: 1px solid var(--dark-border-color);
     /* Raised panels (code-tooltip, quick-open, suggest list, modal,
        notification, footer word-count): the reference fills its

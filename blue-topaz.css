@@ -53,6 +53,16 @@
        notch to a neutral (--background-modifier-border-focus = --color-base-40),
        no accent, no ring. */
     --ui-border-focus-color: #bdbdbd;
+    /* Muted chrome ink: the reference's --text-muted as worn by
+       .clickable-icon (#7f7f7f light / #8a8a8a dark). */
+    --ui-muted-color: #7f7f7f;
+    /* Faint chrome ink for the table drag handles: the reference's
+       --table-drag-handle-color (#7f7f7f light / #797979 dark). */
+    --ui-faint-color: #7f7f7f;
+    /* Row/column being dragged, in place: the reference's selection tint
+       (accent at 0.10) pre-blended on the page so the zebra fill under it
+       does not bleed through: #2f93e4 × 0.1 on #ffffff. */
+    --table-drag-src-bg: #eaf4fc;
     --window-border: 1px solid var(--ui-border-color);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -642,6 +652,126 @@ hr {
 .ty-table-edit {
     background: var(--bg-color);
     border: 1px solid var(--ui-border-color);
+}
+
+/* --- Row / column drag handles ---------------------------------------
+   Typora already lets you drag a row or column: on mouseenter of any cell
+   it parks #typora-table-row-tracker at the row's top-left and
+   #typora-table-col-tracker at the column's, each holding a
+   .typora-table-drag-area grip whose row-height / column-width is set by
+   JS — but the grip ships at opacity:0, so only the cursor hints at it.
+   The reference's .table-row-drag-handle / .table-col-drag-handle are the
+   same idea made visible: 14px (16 − 2 ring) outside the table's left /
+   top edge, a grip glyph in faint ink, 5px outer corners, invisible until
+   hovered, accent-filled while held. Only the CSS dimension changes; the
+   JS-set one stays. */
+#typora-table-row-tracker,
+#typora-table-col-tracker {
+    cursor: auto;
+}
+
+#typora-table-row-tracker .typora-table-drag-area {
+    width: 14px;
+    left: -14px;
+    border-radius: 5px 0 0 5px;
+}
+
+#typora-table-col-tracker .typora-table-drag-area {
+    height: 14px;
+    top: -14px;
+    border-radius: 5px 5px 0 0;
+}
+
+.typora-table-drag-area {
+    opacity: 0;
+    background: transparent;
+    cursor: grab;
+}
+
+.typora-table-drag-area:hover {
+    opacity: 1;
+}
+
+/* Two columns of three 2px dots, the reference's lucide grip. */
+.typora-table-drag-area::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 6px;
+    height: 10px;
+    background: radial-gradient(circle, var(--ui-faint-color) 1px, transparent 1.5px) 0 0 / 4px 4px;
+}
+
+.typora-table-drag-area:active {
+    background: var(--interactive-accent);
+    box-shadow: 0 0 0 2px var(--interactive-accent);
+    cursor: grabbing;
+}
+
+.typora-table-drag-area:active::before {
+    background-image: radial-gradient(circle, #fff 1px, transparent 1.5px);
+}
+
+/* --- Drag in progress --------------------------------------------------
+   main.js marks the dragged row/column .typora-on-moving (stock: transparent
+   text on a grey 50% wash) and only then clones it into the tracker as the
+   ghost that follows the mouse — so the ghost carries the same class. The
+   two are told apart by ancestor: the source stays in #write and takes the
+   reference's selection tint with muted text; the ghost lives in the
+   body-level tracker and takes the reference's .table-col-drag-ghost look,
+   accent fill with white text. The ghost table gets no #write skin, so its
+   cell padding and body size are restated here. */
+#write .typora-on-moving td,
+#write .typora-on-moving th,
+#write td.typora-on-moving,
+#write th.typora-on-moving {
+    color: var(--ui-muted-color);
+    background: var(--table-drag-src-bg);
+    opacity: 1;
+}
+
+.typora-table-tracker .typora-on-moving td,
+.typora-table-tracker .typora-on-moving th,
+.typora-table-tracker td.typora-on-moving,
+.typora-table-tracker th.typora-on-moving {
+    color: #fff;
+    background: var(--interactive-accent);
+    opacity: 1;
+    padding: 4px 10px;
+}
+
+.typora-table-tracker .typora-on-moving td,
+.typora-table-tracker td.typora-on-moving {
+    font-size: 15px;
+}
+
+/* Drop indicator: JS stretches the marker to the full table width (row) or
+   height (column) and parks it on the target edge; the reference draws a
+   2px accent line there, so the two stock caret icons go. */
+.typora-table-insert-marker .fa {
+    display: none;
+}
+
+#typora-table-row-insert-marker::before,
+#typora-table-col-insert-marker::before {
+    content: "";
+    position: absolute;
+    background: var(--interactive-accent);
+}
+
+#typora-table-row-insert-marker::before {
+    left: 0;
+    right: 0;
+    top: -1px;
+    height: 2px;
+}
+
+#typora-table-col-insert-marker::before {
+    top: 0;
+    bottom: 0;
+    left: -1px;
+    width: 2px;
 }
 
 /* ========== 14. Inline code & Code blocks ========== */
