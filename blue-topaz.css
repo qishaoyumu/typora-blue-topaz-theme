@@ -571,7 +571,7 @@ hr {
 
 /* The figure carries the block margin, so the table inside must not add its
    own: stock base.css has figure > table { margin: 0 } at (0,0,2), which the
-   generic (1,0,1) rule below would otherwise beat. */
+   generic (1,1,1) rule below would otherwise beat. */
 #write figure.table-figure > table:not(.md-reset) {
     margin: 0;
 }
@@ -588,7 +588,7 @@ hr {
    HTML block drops a bare <table> straight into #write.
    The :not(.md-reset) guards fence this skin off Typora's in-document UI
    chrome: the table-resize popover's 13px pick-grid is itself a <table>
-   appended INSIDE #write, and these (1,0,1) rules would beat its (0,1,1)
+   appended INSIDE #write, and these (1,1,1) rules would beat its (0,1,1)
    stock rules — .md-reset is Typora's own hands-off marker carried by
    every element of such chrome. The dark overrides repeat the guards:
    they win by load order at equal specificity, so both must match. */
@@ -3858,8 +3858,11 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
     color: var(--text-color);
 }
 
+/* Hover = the theme's --item-hover-bg-color laid over the button, pre-blended
+   because the button is opaque and a translucent wash would read as a second
+   colour rather than the same one notch down: 239 − 239 × 0.067 = 223. */
 .modal .btn-default:hover {
-    background: #e6e6e6;
+    background: #dfdfdf;
 }
 
 .modal .btn-primary {
@@ -3891,7 +3894,6 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
 }
 
 #table-insert-dialog .input-group-addon {
-    display: block;
     width: auto;
     flex: none;
     background: transparent;
@@ -3902,7 +3904,6 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
 }
 
 #table-insert-dialog .form-control {
-    display: block;
     flex: 1;
     width: auto;
     min-width: 0;
