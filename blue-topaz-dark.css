@@ -725,14 +725,14 @@ div.code-tooltip {
 
     /* Table: light print sets no table colors, so export would fall back to the
        translucent dark screen fills; re-assert an opaque dark zebra instead. */
-    #write th {
+    #write th:not(.md-reset) {
         background: #25303f !important;
         color: var(--text-color) !important;
     }
-    #write tbody tr {
+    #write tbody tr:not(.md-reset) {
         background: #202020 !important;
     }
-    #write tbody tr:nth-child(odd) {
+    #write tbody tr:not(.md-reset):nth-child(odd) {
         background: #1a1a1a !important;
     }
 
