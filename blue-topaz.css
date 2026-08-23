@@ -329,8 +329,16 @@ h6 {
     margin-inline-start: 30.19px;
 }
 
+/* Nested items step in by the reference's --list-indent (2.25em = 36px),
+   not the top-level 30.19px; measured on four levels of mixed nesting. */
+#write li li {
+    margin-inline-start: 36px;
+}
+
 #write li {
-    /* The reference's item breathing is 1.2px block padding, no margin. */
+    /* The reference's item breathing is 1.2px block padding, no margin.
+       Positioned so the drawn markers anchor to the item's own edge. */
+    position: relative;
     margin: 0;
     padding: 1.2px 0;
 }
@@ -350,7 +358,29 @@ h6 {
     color: #7f7f7f;
 }
 
-/* Gray list markers (with the drawn dot, only ol still renders one) */
+/* The ordered marker is drawn too. The reference keeps Chromium's native
+   "1. " marker, whose box ends at the item edge so the period's ink sits
+   ~6px before the text (measured -18.5..-6px for "1."); WebKit's native
+   outside marker adds its own 7px padding and lands the same "1." at
+   -23.75..-12px. A counter-drawn marker right-aligned to the item edge with
+   the trailing space reproduces the Chromium gap in the same font. The
+   list-item counter honours start= and value= (verified in WKWebView). */
+#write ol {
+    list-style: none;
+}
+
+#write ol > li:not(.md-task-list-item)::before {
+    content: counter(list-item) ". ";
+    position: absolute;
+    right: 100%;
+    white-space: pre;
+    /* Chromium's UA sheet gives ::marker tabular figures; Inter's tabular
+       "1" carries a foot, which is why the reference's "1." inks 12.5px wide. */
+    font-variant-numeric: tabular-nums;
+    color: #7f7f7f;
+}
+
+/* Gray list markers: both are drawn now, the native ones stay blanked. */
 #write ul > li::marker,
 #write ol > li::marker {
     color: #7f7f7f;
@@ -384,19 +414,14 @@ h6 {
     background: var(--indent-guide-color);
 }
 
-/* The anchor follows the PARENT list's marker, the one the guide hangs
-   from, not the nested list's own type: an ol item holding a ul (or the
-   reverse) still hangs its guide from the parent's digit (or dot). Keyed on
-   the child type, a ul under an ol item took the dot anchor and sat 7px
-   right of the digit (2026-08-23, seen inside a blockquote). */
-#write ul > li > ul::before,
-#write ul > li > ol::before {
-    left: -12px;
-}
-
-#write ol > li > ul::before,
-#write ol > li > ol::before {
-    left: -19px;
+/* The reference's fixed offset: inset-inline-start -0.85em = -13.6px of the
+   nested list box (the parent text edge) for any parent marker, its 1px
+   border-inline-end spanning -13.6..-12.6px. With both markers now drawn
+   on the reference's geometry, the same offset lands the line where the
+   reference has it: through the dot, and through the digit of "1.". */
+#write li > ul::before,
+#write li > ol::before {
+    left: -13.6px;
 }
 
 /* ========== Definition lists ========== */

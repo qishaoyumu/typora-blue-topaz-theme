@@ -402,10 +402,11 @@ hr {
     background: #212529;
 }
 
-/* Gray list markers and the drawn ul bullet */
+/* Gray list markers: the drawn ul bullet and the drawn ol number */
 #write ul > li::marker,
 #write ol > li::marker,
-#write ul > li:not(.md-task-list-item)::before {
+#write ul > li:not(.md-task-list-item)::before,
+#write ol > li:not(.md-task-list-item)::before {
     color: #797979;
 }
 /* ========== Images ========== */
