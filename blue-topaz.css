@@ -3842,6 +3842,14 @@ body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-t
     font-weight: 600;
 }
 
+/* Bootstrap closes a dialog by dropping .in first and fading afterwards, so
+   for the length of that fade only the bare selector matches: without this
+   rule the wash reverts to window.css's opaque #fff (Windows and Linux) or
+   bootstrap's #000 (macOS) and flashes as it fades out. */
+.modal-backdrop {
+    background: rgba(220, 220, 220, 0.4);
+}
+
 .modal-backdrop.in {
     background: rgba(220, 220, 220, 0.4);
     /* The 0.4 in that colour is meant to be the whole wash. Bootstrap's own

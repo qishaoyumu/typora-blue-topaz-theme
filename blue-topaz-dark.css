@@ -583,7 +583,12 @@ kbd {
 .modal-content {
     background: var(--dark-panel-bg);
     border-color: var(--dark-border-color);
-    box-shadow: var(--shadow-md);
+}
+
+/* Bare selector for the closing fade, when bootstrap has already removed .in
+   and only this matches; see the light file for the full reasoning. */
+.modal-backdrop {
+    background: rgba(10, 10, 10, 0.4);
 }
 
 .modal-backdrop.in {
