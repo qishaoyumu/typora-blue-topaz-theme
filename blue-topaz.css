@@ -649,9 +649,98 @@ hr {
     display: none;
 }
 
-.ty-table-edit {
-    background: var(--bg-color);
-    border: 1px solid var(--ui-border-color);
+/* --- Edit toolbar -------------------------------------------------------
+   Typora appends div.ty-table-edit inside the figure, before the table,
+   absolutely positioned, and sets two inline styles: width = figure width
+   + 10px and margin-top = -own height (so it hangs just above the table).
+   The reference has no toolbar; its nearest kin are the Live Preview
+   edge controls that hug the table and its .clickable-icon buttons. So
+   the bar is an uncontained strip exactly as wide as the table (the
+   figure shrink-wraps it since section 12): icons on the left, the
+   delete button flush right, no background, no border. width:auto
+   !important is the one exception to the no-!important habit — it exists
+   solely to beat that inline width; left/right then span the figure. The
+   inline margin-top stays, a 2px translate adds the breathing gap. */
+#write figure.table-figure > .ty-table-edit {
+    width: auto !important;
+    left: 0;
+    right: 0;
+    margin-left: 0;
+    min-width: max-content;
+    transform: translateY(-2px);
+    background: transparent;
+    border: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.ty-table-edit .right-th-button {
+    float: none;
+    margin-left: auto;
+}
+
+/* On Windows and Linux main.js appends a SECOND .right-th-button holding the
+   text "More" button (File.isMac hides it on macOS). Two auto margins would
+   split the free space evenly and strand the delete button mid-bar, so only
+   the first one pushes; the rest ride along with it. No-op on macOS. */
+.ty-table-edit .right-th-button ~ .right-th-button {
+    margin-left: 0;
+}
+
+.ty-table-edit .btn-group .btn + .btn {
+    margin-left: 0;
+}
+
+/* Buttons in the reference's .clickable-icon grammar: 16px glyph
+   (--icon-s, the size its table controls use), 4px/6px inset, 5px
+   corners, muted ink; hover the 6.7% wash; the current alignment reads as
+   accent ink on the accent-15% selection tint, with Bootstrap's inset
+   shadow and #adadad border gone. The .btn in the selector is load-
+   bearing: bootstrap's .btn-group-xs > .btn (0,2,0) would otherwise keep
+   its 1px/5px inset. Centring the glyph as a flex item is the same
+   grammar's doing, and it also makes the box exactly inset + glyph:
+   base-control's .ty-table-edit .btn-group-xs > .btn (0,3,0) still owns
+   the button's 1.4 line-height, and an inline glyph would be sized by
+   that strut instead of by itself. */
+.ty-table-edit button.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 6px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--ui-muted-color);
+    line-height: 1;
+}
+
+.ty-table-edit .ty-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.ty-table-edit button:hover {
+    background: var(--item-hover-bg-color);
+    color: var(--ui-muted-color);
+}
+
+.ty-table-edit button.active,
+.ty-table-edit button.active:hover {
+    color: var(--primary-color);
+    background: var(--suggest-active-bg);
+    box-shadow: none;
+}
+
+.ty-table-edit button:focus {
+    outline: 0;
+}
+
+/* The size picker hangs under the grid button; stock shifts it 10px left
+   of the button, which now has nothing to the left of it. */
+.md-resize-table-th .popover {
+    margin-left: 0;
 }
 
 /* --- Row / column drag handles ---------------------------------------

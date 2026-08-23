@@ -247,11 +247,6 @@ hr {
     border-color: var(--dark-border-color);
 }
 
-.ty-table-edit {
-    background: var(--bg-color);
-    border-color: var(--dark-border-color);
-}
-
 /* ========== Code ========== */
 #write code {
     /* rgb(213,128,0), the reference's measured dark inline-code orange (the
