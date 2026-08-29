@@ -1136,13 +1136,20 @@ table.md-grid-board {
    Row and column are told apart by where main.js puts the class — on the
    <tr> for a row drag, on every cell of the column for a column drag — so
    the two sets of selectors are disjoint and the edge rules below can key
-   off that alone. */
+   off that alone.
+   The text is NOT dimmed. The reference's drag marker class carries no CSS
+   at all: the whole of the source row/column's appearance is the selection
+   overlay, and the ink underneath keeps the colour it had. Stock's
+   color:transparent still has to be answered, so the cell's own colour is
+   restated — a body cell inherits --text-color and section 12 sets that
+   same token on th, in both skins (dark overrides the header's background
+   alone). */
 #write tr.typora-on-moving > td,
 #write tr.typora-on-moving > th,
 #write td.typora-on-moving,
 #write th.typora-on-moving {
     position: relative;
-    color: var(--ui-muted-color);
+    color: var(--text-color);
     opacity: 1;
 }
 
