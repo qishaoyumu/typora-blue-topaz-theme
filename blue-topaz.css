@@ -692,9 +692,13 @@ hr {
      + panel border 1px each side           2
      + panel padding 1px each side          2      (bootstrap .popover)
      = 143.03  ->  144px
-   That measurement is what fixes the width; the wrap padding was trimmed to
-   8px each side afterwards (see below), which the width keeps as slack
-   rather than spending, so the title row now has 1.6px to breathe in.
+   That measurement is what fixes the width, and it turned out to be a
+   fraction short: re-measured with the webfont actually loaded, the widest
+   row wants 123.56px while 1ch of wrap padding leaves 122.34px, so the two
+   inputs were being flex-shrunk by 0.61px each to fit. Trimming the wrap to
+   8px a side (see below) gives the row 124px to sit in — the fields render
+   at their declared 4ch and 0.44px is left over. The panel width itself
+   does not move.
    Stock's 134px sits on .md-resize-table-th .popover (0,2,0), so the override
    has to match that selector and wins on load order; stock also pins the wrap
    to 100px, which would leave the grid off-centre inside the wider panel.
@@ -720,10 +724,11 @@ hr {
    low in the window (main.js pins the panel at top:20px and has no flip).
    Trimming the three insets to 6px/8px, 4px and 6px takes 21.6px off without
    crowding anything, and the 14px the toolbar rose by (section above) comes
-   off the panel's bottom edge too. The horizontal half of the trim is spent
-   the other way: the grid is stretched to the full content width, so the
-   30px of dead margin that used to frame it becomes cell, and the picker
-   reads as one block instead of a small grid adrift in a wide panel. */
+   off the panel's bottom edge too. The horizontal half of the trim does two
+   things: it gives the title row above the 1.2px it was short of, and it
+   hands the rest to the grid, which is stretched to the full content width
+   so the 30px of dead margin that used to frame it becomes cell. The picker
+   then reads as one block instead of a small grid adrift in a wide panel. */
 .md-grid-board-wrap {
     width: auto;
     padding: 6px 8px;
