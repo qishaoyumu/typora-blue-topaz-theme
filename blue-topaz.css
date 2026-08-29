@@ -600,6 +600,23 @@ hr {
     margin: 20px auto;
     line-height: 1.3;
     box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+    /* Not for this skin's own sake — it pins the offsetParent of the cells.
+       A static cell's offsetParent is its table (HTML's offsetParent walk
+       accepts a td/th/table ancestor, but only while the element itself is
+       static); a positioned one falls through to #write. The drag overlay in
+       section 13 has to position the source cells, so during a COLUMN drag
+       the source header cell alone would switch reference frames — and
+       main.js reads exactly that number to decide where the row/column
+       lands: it builds its drop thresholds as th.offsetLeft + figure
+       offset, so one cell measuring from #write instead of the table threw
+       that threshold off by the table's own indent (212px on a centred
+       860px column here) and put the drop one column away from the pointer.
+       Making the table itself positioned keeps every cell's offsetParent on
+       the table whether or not the cell is positioned, which is what the
+       arithmetic assumes. Rows never had the problem: main.js measures the
+       <tr>, and the class that positions cells during a row drag lands on
+       the <tr>, which stays static. */
+    position: relative;
 }
 
 #write th:not(.md-reset),
@@ -891,13 +908,21 @@ table.md-grid-board {
    uncontained strip with no room of its own has to pay. It has to stay a
    transform: resizeTableEdit() rewrites the inline margin-top on every
    layout pass, and a translate does not disturb the height it measures
-   there. */
+   there.
+   That translate also makes the bar a stacking context, which traps the size
+   picker's stock z-index:1060 inside it — the picker can only outrank the
+   table through the BAR's own layer. The bar and the table are siblings at
+   z-index:auto with the bar first, so once section 12 positions the table
+   (for offsetParent's sake) the table would paint over the open picker.
+   z-index:1 puts the bar back in front, and stays well under the trackers'
+   99, which is what lets the drag handle keep painting over the bar. */
 #write figure.table-figure > .ty-table-edit {
     margin-left: -5px;
     padding: 0 5px;
     box-sizing: border-box;
     min-width: max-content;
     transform: translateY(-16px);
+    z-index: 1;
     background: transparent;
     border: 0;
     display: flex;
