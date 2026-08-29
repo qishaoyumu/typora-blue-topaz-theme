@@ -612,6 +612,22 @@ hr {
     min-width: 6ch;
 }
 
+/* An empty cell that holds no inline content generates no line box, so its
+   row collapses to the 8px its padding is worth. Typora's own editor markup
+   never gets there: every cell carries a span.td-span, which stock sizes
+   inline-block with a 10px floor. Two shapes do — a table written as raw
+   HTML in the document, and Typora's own exported markup, which strips
+   .td-span on the way out (so this also lands in HTML and PDF export).
+   An empty inline-block ::after restores the line box for exactly those:
+   :empty cannot match a cell that holds a .td-span, so nothing in the editor
+   changes, and the pseudo-element sits on the <td> rather than inside the
+   contenteditable span, where it would be in reach of the caret. */
+#write td:not(.md-reset):empty::after,
+#write th:not(.md-reset):empty::after {
+    content: "";
+    display: inline-block;
+}
+
 #write td:not(.md-reset) {
     font-size: 0.9375em;
 }
