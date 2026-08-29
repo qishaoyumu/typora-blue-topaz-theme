@@ -1006,7 +1006,10 @@ table.md-grid-board {
    same idea made visible: 14px (16 − 2 ring) outside the table's left /
    top edge, a grip glyph in faint ink, 5px outer corners, invisible until
    hovered, accent-filled while held. Only the CSS dimension changes; the
-   JS-set one stays. */
+   JS-set one stays.
+   The two handles do NOT share a grip: the reference draws lucide's
+   grip-vertical on the row handle and grip-horizontal on the column one, so
+   the dot field turns with the axis it drags. Each is laid out below. */
 #typora-table-row-tracker,
 #typora-table-col-tracker {
     cursor: auto;
@@ -1030,26 +1033,48 @@ table.md-grid-board {
     cursor: grab;
 }
 
-.typora-table-drag-area:hover {
+/* :active belongs here with :hover. The cursor leaves the handle as soon as
+   it moves off the drag axis (the handle is only 14px across the other one),
+   and it is :hover, not :active, that a pointer-capture drag drops — without
+   this the pill vanished mid-drag and left a bare accent block behind. */
+.typora-table-drag-area:hover,
+.typora-table-drag-area:active {
     opacity: 1;
 }
 
-/* Two columns of three 2px dots, the reference's lucide grip. The box has to
-   be a WHOLE number of 4px tiles: each tile paints its dot at its own centre,
-   so a 6x10 box put the second column's centre at x=6 and the third row's at
-   y=10 — exactly on the box edge, with half of each dot cut off. 8x12 (2x3
-   tiles) puts every centre 2px from its nearest edge, half the 4px pitch, so
-   the 1.5px paint radius clears the edge by 0.5px and every dot is whole.
-   inset:0 + margin:auto keeps the field centred in the handle, whose other
-   dimension JS sets from the row height / column width. */
+/* The grip is a tiled radial-gradient: one dot per tile, painted at the
+   tile's centre. So the field has to be a WHOLE number of tiles — a 6x10
+   box on a 4px tile put the second column's centre at x=6 and the third
+   row's at y=10, exactly on the box edge, and cut half of each dot off.
+   With N whole tiles every centre sits half a pitch from its nearest edge,
+   which the 1.5px paint radius clears. inset:0 + margin:auto centres the
+   field in the handle, whose other dimension JS sets from the row height /
+   column width. Per-handle fields below. */
 .typora-table-drag-area::before {
     content: "";
     position: absolute;
     inset: 0;
     margin: auto;
+    background: radial-gradient(circle, var(--ui-faint-color) 1px, transparent 1.5px) 0 0 / 4px 4px;
+}
+
+/* Row handle: grip-vertical, two columns of three. 8x12 = 2x3 tiles of 4px,
+   ink 6x10 against the reference's measured 5.83x10.5. */
+#typora-table-row-tracker .typora-table-drag-area::before {
     width: 8px;
     height: 12px;
-    background: radial-gradient(circle, var(--ui-faint-color) 1px, transparent 1.5px) 0 0 / 4px 4px;
+}
+
+/* Column handle: grip-horizontal, three columns of two — the field turns
+   with the axis. The reference's dot pitch turns with it too (4.667 x 4.0
+   there against 3.5 x 4.083 on the row handle), so the tile is 5x4 rather
+   than 4x4: 15x8 = 3x2 whole tiles, ink 12x6 against its measured 12x6.67.
+   15px of field needs 15px of lane, which the 6ch minimum column width
+   (section 12) always gives. */
+#typora-table-col-tracker .typora-table-drag-area::before {
+    width: 15px;
+    height: 8px;
+    background-size: 5px 4px;
 }
 
 .typora-table-drag-area:active {
