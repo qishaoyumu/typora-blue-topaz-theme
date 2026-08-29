@@ -1222,7 +1222,28 @@ table.md-grid-board {
    --table-drop-indicator-half-width (2px) out of both sides, so the line
    reads 4px with 2px corners; the negative offset here is that same half
    width, which keeps the line centred on the edge JS aimed at. The two
-   stock caret icons go. */
+   stock caret icons go.
+   The marker has to be lifted out of #write's shadow first. Stock puts both
+   markers — and both trackers — among <content>'s FIRST children and #write
+   LAST (index.html, in order: row tracker, col tracker, row marker, col
+   marker, #write), and gives the markers no z-index of their own. #write is
+   position:relative at z-index:auto carrying background-color:inherit, i.e.
+   an opaque --bg-color fill, so it paints over every earlier sibling that
+   shares its layer and the marker's own box never reaches the screen. Stock
+   survives that because the only thing it draws is the two carets, and
+   .typora-table-insert-marker .fa ships with z-index:99 — the marker not
+   being a stacking context, that 99 escapes into the root one and lifts the
+   caret over #write. Hiding the carets in favour of a line drawn on the
+   marker itself gives the lift up with them.
+   99 is the trackers' own layer, and the two cannot collide: main.js hides
+   the off-axis tracker for the whole drag, and on the drag axis the grip
+   sits outside the table (left of it, or above it) while the marker spans
+   the table. <content> is both the containing block and a scroll container,
+   so the lift cannot leak over the sidebar or the footer. */
+.typora-table-insert-marker {
+    z-index: 99;
+}
+
 .typora-table-insert-marker .fa {
     display: none;
 }
