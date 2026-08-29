@@ -863,14 +863,27 @@ table.md-grid-board {
    does. Leaving the figure unpositioned is what keeps the bar out of the
    figure's scroll clip: its containing block is #write, an ancestor of
    the figure, so a wide table scrolls inside the figure while the bar
-   stays whole and ends flush with the figure's visible right edge. The
-   inline margin-top stays, a 2px translate adds the breathing gap. */
+   stays whole and ends flush with the figure's visible right edge.
+   The inline margin-top stays and a translate adds the gap above the
+   table — 16px of it, not the 2px a bar on its own would need, because
+   the column drag handle claims the 14px band immediately above the table
+   (see the handles below) and paints over the whole of #write: the tracker
+   is #write's SIBLING at z-index 99, while #write{transform:translateZ(0)}
+   seals everything inside it into one stacking context. At 2px the two
+   overlapped by 12px, and the handle — invisible at opacity:0, but still
+   hit-testable — swallowed the clicks meant for the first two buttons.
+   16px clears the band with 2px to spare; the cost is that the bar now
+   reaches 20px into the block above instead of 6px, which is what an
+   uncontained strip with no room of its own has to pay. It has to stay a
+   transform: resizeTableEdit() rewrites the inline margin-top on every
+   layout pass, and a translate does not disturb the height it measures
+   there. */
 #write figure.table-figure > .ty-table-edit {
     margin-left: -5px;
     padding: 0 5px;
     box-sizing: border-box;
     min-width: max-content;
-    transform: translateY(-2px);
+    transform: translateY(-16px);
     background: transparent;
     border: 0;
     display: flex;
