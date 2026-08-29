@@ -615,15 +615,21 @@ hr {
 }
 
 /* An empty cell that holds no inline content generates no line box, so its
-   row collapses to the 8px its padding is worth. Typora's own editor markup
-   never gets there: every cell carries a span.td-span, which stock sizes
-   inline-block with a 10px floor. Two shapes do — a table written as raw
-   HTML in the document, and Typora's own exported markup, which strips
-   .td-span on the way out (so this also lands in HTML and PDF export).
-   An empty inline-block ::after restores the line box for exactly those:
-   :empty cannot match a cell that holds a .td-span, so nothing in the editor
-   changes, and the pseudo-element sits on the <td> rather than inside the
-   contenteditable span, where it would be in reach of the caret. */
+   row collapses to the 8px its padding is worth. The shape this happens to
+   is a table written or pasted into the document as raw HTML. Typora's own
+   markup never gets there, at either end: in the editor every cell carries a
+   span.td-span, which stock sizes inline-block with a 10px floor, and on the
+   way out the export serializer writes an empty cell as <td>&nbsp;</td>
+   (main.js: `case o.table_cell: return _(e,n) || "&nbsp;"`), whose nbsp
+   makes the line box by itself. So this rule never fires in export and is
+   not what keeps exported tables even.
+   An empty inline-block ::after restores the line box for the raw-HTML case:
+   :empty cannot match a cell that holds a .td-span or an nbsp, so neither
+   Typora shape is touched, and the pseudo-element sits on the <td> rather
+   than inside the contenteditable span, where it would be in reach of the
+   caret. :empty is also strict about whitespace — a hand-written
+   <td> </td> keeps its text node and still collapses; the narrow selector
+   was the point, and that residue is recorded as a boundary in the spec. */
 #write td:not(.md-reset):empty::after,
 #write th:not(.md-reset):empty::after {
     content: "";
@@ -874,11 +880,12 @@ table.md-grid-board {
    The inline margin-top stays and a translate adds the gap above the
    table — 16px of it, not the 2px a bar on its own would need, because
    the column drag handle claims the 14px band immediately above the table
-   (see the handles below) and paints over the whole of #write: the tracker
-   is #write's SIBLING at z-index 99, while #write{transform:translateZ(0)}
-   seals everything inside it into one stacking context. At 2px the two
-   overlapped by 12px, and the handle — invisible at opacity:0, but still
-   hit-testable — swallowed the clicks meant for the first two buttons.
+   (see the handles below) and paints over the bar: the handle's tracker is
+   #write's SIBLING carrying z-index:99, while the bar is a positioned
+   element at z-index:auto inside #write, so the two are compared in the
+   root stacking context and 99 wins outright. At 2px they overlapped by
+   12px, and the handle — invisible at opacity:0, but still hit-testable —
+   swallowed the clicks meant for the first buttons on the bar.
    16px clears the band with 2px to spare; the cost is that the bar now
    reaches 20px into the block above instead of 6px, which is what an
    uncontained strip with no room of its own has to pay. It has to stay a

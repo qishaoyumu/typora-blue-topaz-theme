@@ -116,7 +116,8 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 - 选择器用 `table-figure`。编辑器里是 `md-table-fig table-figure`，导出里只有 `table-figure`，两态都命中。
 - `6ch` 落地前在 Obsidian 实机量一次空 td 的 `offsetWidth`，以实测为准。两边都是 border-box，但字形不同。
 - 现有 `#write table:not(.md-reset){margin:20px auto}` 的外距**保留**：编辑器与导出的表格都包在 `figure.table-figure` 里，归零交给上面那条 figure 作用域的规则，间距统一由 figure 承担；泛规则的 `20px auto` 留给没有 figure 的表格 —— 原始 HTML 块会把裸 `<table>` 直接落进 `#write`，那种表格仍要靠它居中和留白。`width:auto`、六值、阴影、守卫不动。
-- **空行不是 Markdown 表的问题。** Typora 自己渲染的单元格里永远有一个 `span.td-span`，出厂给它 `display:inline-block; min-height:10px` 和 `:empty:after{content:" "}`，全空行与内容行等高（实测 27.50px）。塌成 8px 薄条的只有两种形状：文档里手写的裸 HTML 表格，和 **Typora 自己的导出标记**（导出会剔掉 `.td-span`，所以屏幕上正常的表在 HTML / PDF 里会出现薄条）。`:empty` 保证只命中这两种；伪元素落在 `<td>` 上而不是 `contenteditable` 的 span 里，够不着光标，也不与出厂 `:empty:after` 重复。空列无需处理，`min-width:6ch` 已兜底。
+- **空行不是 Typora 表的问题，两端都不是。** 编辑器里每个单元格都有 `span.td-span`，出厂给它 `display:inline-block; min-height:10px` 和 `:empty:after{content:" "}`，全空行与内容行等高（实测 27.50px）。导出侧虽然确实剔掉了 `.td-span`，但序列化器把空格写成 `<td>&nbsp;</td>`（`main.js` byte 378283 `case o.table_cell: return _(e,n) || "&nbsp;"`，HTML 与 PDF 同一分支），那个 nbsp 自己就撑出行盒 —— 实测有无兜底规则都是 27.50px。**所以这条规则在导出里从来不会命中，也不是导出表格整齐的原因。**
+- 真正会塌成 8px 薄条的只有一种形状：**文档里手写或从别处粘贴进来的 HTML 表格**（实测 8.00 → 27.50）。`:empty` 保证只命中它；伪元素落在 `<td>` 上而不是 `contenteditable` 的 span 里，够不着光标，也不与出厂 `:empty:after` 重复。空列无需处理，`min-width:6ch` 已兜底。
 
 ### 5.2 把手与拖动态
 
@@ -171,6 +172,7 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 
 - `--table-drag-src-bg` 改回**半透明** accent 10%（亮 `hsla(207,77%,54%,.1)` / 暗 `hsla(208,64%,49%,.1)`），亮暗各一，记入 color-mapping。它现在画在覆盖层上而不是当单元格底色，所以斑马纹与表头自己的 accent 底必须透出来——这正是原版 `is-selected` 覆盖层的做法；预混不透明版本会把它们盖死。
 - 描边不能用真 border：表格 `border-collapse: collapse`，拖动中突然出现的边会把整张网格重排。改用 `::before` 绝对定位覆盖单元格 padding 盒。
+- **原版选中层的 `mix-blend-mode`（亮 `darken` / 暗 `lighten`）没有移植**，这里就是普通 alpha 叠加。后果是表头格叠了两层蓝：自身 accent 10% 洗底 + 覆盖层 accent 10%，实测叠出约 19% accent，比正文格明显深一档。观感可接受，属有意简化 —— `mix-blend-mode` 会让覆盖层与斑马纹、表头底色三者互算，在本主题的不透明底色体系里收益不确定，不值得为它引入一个新的混合上下文。记在这里，免得下次被当成 bug 重查一遍。
 - 幽灵必须 `display:none`。列路径用 jQuery `.offset()` setter 往那个 div 写绝对页面坐标，任何仍占布局的藏法（`visibility` / `opacity` / `height:0`）都会把 tracker 的框撑到文档另一头，把手跟着跑掉。藏掉之后 tracker 保持空闲时的零尺寸盒，把手位置不变；落点阈值与 marker 尺寸全取自源表格，没有任何代码回读这个 div。
 - `:active` 必须和 `:hover` 一起给 `opacity: 1`。指针一旦偏离拖拽轴就离开把手（另一维只有 14px），而指针捕获期间掉的是 `:hover` 不是 `:active`——只挂 `:hover` 时药丸会在拖动中整个消失，只剩一块 accent 色块。
 - 落点线的负偏移就是原版的 half-width，所以 4px 线正好骑在 JS 瞄准的那条边上，不会偏 1px。
@@ -206,7 +208,8 @@ Obsidian 没有工具条。最近亲缘物有两个：Live Preview 表格边缘�
 .md-resize-table-th .popover { width: 144px; margin-left: 5px !important; }   /* 弹层的包含块是条的内距盒，其左缘在表格左缘外 5px；5px 抵掉条的左内距。main.js 把 margin-left:-10px 写成内联样式，只有 !important 够得着 */
 ```
 
-- 按钮 24px 高。**上抬 16px 而不是 2px**：列把手占着表格正上方 14px 的带子，而它整体画在 `#write` 全部内容之上（tracker 是 `#write` 的兄弟、`z-index:99`，`#write{transform:translateZ(0)}` 把内部一切封进同一个层叠上下文），`opacity:0` 仍可命中。2px 时两者重叠 12px，实测 `elementFromPoint` 打在 "Resize Table" 与 "Align Left" 上返回的是 `.typora-table-drag-area` —— 点下去开始拖列。16px 后条底 110、把手顶 112，留 2px 余量，五个按钮全部可点。
+- 按钮 24px 高。**上抬 16px 而不是 2px**：列把手占着表格正上方 14px 的带子，而它画在工具条之上 —— tracker 是 `#write` 的**兄弟**且带 `z-index:99`，工具条是 `#write` 内一个 `z-index:auto` 的定位元素，二者在根层叠上下文里比较，99 直接胜出；`opacity:0` 仍可命中。2px 时两者重叠 12px，实测 `elementFromPoint` 打在最前面几个按钮上返回的是 `.typora-table-drag-area` —— 点下去开始拖列（压住几个取决于首列宽度）。16px 后条底 110、把手顶 112，留 2px 余量，五个按钮全部可点。
+  - **勘误**：此前把机制写成 `#write{transform:translateZ(0)}` 造出层叠上下文，那条声明只在 `TypeMark/style/window.css`，而 macOS 的 `index.html` **不 link 它**（清单止于 `base.css` → `base-control.css` → `mac.css` → `codemirror.css` → 主题；`mac.css` 里那条 `translateZ(0)` 挂的是 `.html-for-mac video`）。macOS 上 `#write` 的 `transform` 实测为 `none`，不是层叠上下文。结论不依赖它：两种外壳下（挂与不挂 `window.css`）读数完全一致。注意 `content{overflow-y:auto}` 来自 `base-control.css`，所以下面第 4 条的裁剪结论不受此勘误影响。
 - 上抬必须用 `transform`：`resizeTableEdit()` 每次布局都重写内联 `margin-top`，用外距会被盖掉；`translateY` 也不污染它量的自身高度。
 - **代价：条顶越过前一块的盒底从 6px 变成 20px**（条高 24 + translate 16 − figure 上外距 20）。图标墨迹在条内居中、顶边退 4px，所以墨迹落在 `[前块盒底 − 16, 前块盒底]`。实测（无头 Chrome，16px/24px 行盒）图标墨迹 90–106 与前一块**最后一行的文字墨迹** 84–104 纵向重叠 14px；本例里那一行的横向范围没伸到表格底下所以没撞上，但只要前一块最后一行铺满正文宽，图标就会压在字上。工具条只在表格入焦时出现，属于短暂叠放，观感留待实机确认。
 - 另外两条路已排除：`:has()` 按需上移（行拖会中途隐藏列 tracker，条在 mousedown 瞬间掉 14px，一次拖拽两次跳动）、把手挪进表格上缘内侧（把手就不在表外了，与原版观感冲突）。
@@ -297,7 +300,7 @@ table.md-grid-board { width: 100%; table-layout: fixed; margin: 4px auto; }   /*
    - 模态：用 index.html 的静态 DOM 量圆角、内距、标题、按钮、输入框。
    - 输出 Obsidian 截图与 Typora 的并排合成图。
 2. 三路同步后用户实机验收，亮暗各一：表格入焦、hover、切换对齐、弹层从悬停到输入到确定、拖一次行与一次列、三个对话框（插入表格、删除文件确认、图片建文件夹确认）。
-3. 导出 HTML 与 PDF，抽查表格页：居中、20px、无控件残留、**全空行与内容行等高**（导出剔掉 `.td-span`，兜底规则就是为它）。完整四路并入发布前门。
+3. 导出 HTML 与 PDF，抽查表格页：居中、20px、无控件残留。**空行一项无需再验** —— 导出序列化器已把空格换成 `&nbsp;`，兜底规则在导出里根本不命中（见 §5.1）。完整四路并入发布前门。
 4. Windows VM 尾项追加：工具条"更多"按钮、三个模态的遮罩、把手。
 
 > 落地记录：第 1 条的 WebKit 离屏 harness 在一次重启中随 `/private/tmp` 一起丢了。复审与三轮修复因此改用无头 Chrome 量 computed style 与几何，按同一套加载顺序挂 `bootstrap.css` / `base.css` / `base-control.css` / `mac.css` 或 `window.css` 再挂主题；还补挂了 `style/typora-icon/style.css`，图标是真字形，工具条的宽度读数才作数（此前无图标字体的读数偏窄）。文字度量类结论（工具条压前块那 14px、面板标题行的余量）都是 **Chrome 量测，WKWebView 待实机**。
@@ -312,7 +315,7 @@ table.md-grid-board { width: 100%; table-layout: fixed; margin: 4px auto; }   /*
 - 两列 6ch 的小表比工具条内容窄时，条按 `min-width: max-content` 向右溢出，不收缩按钮。溢出量实测（无头 Chrome，真图标字体，`#write` 内容盒 660px）：两列 6ch 的表宽 126.66px；工具条内容盒的下限，macOS 五个图标钮 148px，溢出 21.34px；Windows 多一个"更多"钮，标签默认 `display:none`，内容盒 175.33px，溢出 48.67px，指针悬停或键盘入焦时出厂把标签放出来，内容盒 250.64px，溢出 123.98px（标签文案随语言变，宽度随之浮动）。设计维持：按钮不收缩，宁可条比表宽。
 - 列把手宽等于列宽，grip 点阵居中；点阵是 15×8，列宽小于 15px 才会容不下它。6ch 下限（实测 56.78px）使这种情况不会发生。
 
-以下八条是 CSS 够不着的 Typora 行为，逐条核实过，不必再查：
+以下十一条是本波逐条核实过的边界 —— 多数是 CSS 够不着的 Typora 行为，末尾三条是本主题自己选的取舍。不必再查：
 
 1. **把手必须先把指针放进单元格才现，且不随离开消失。** 事件是 `#write` 上对 `th, td` 的 `mouseenter click` 委托，没有任何表格外围的邻近触发区；显示后只有 `deleteTable()` / 拖拽结束 / `unfocusAll()` 会藏它。所以把手会长期停在表格上下缘 —— 工具条 16px 上抬正是为此。守卫 `children("[mdtype]")` 还意味着裸 HTML 表格永远没有把手。
 2. **拖动中没有整行 / 整列 hover 高亮。** `mousemove` 只算落点索引并挪 marker，从不给目标行列加类或写属性。非拖拽态的整行 hover 是 `#write tbody tr:hover`（已有）；整列 hover 任何情况下 CSS 都做不了（没有列 hover 选择器，Typora 生成的表也没有 `<colgroup>`）。
@@ -323,7 +326,8 @@ table.md-grid-board { width: 100%; table-layout: fixed; margin: 4px auto; }   /*
 7. **搜索面板 / 通知条开着时行拖的药丸会垂直错位 20 / 36px。**（备案）`m = $("content").offset().top` 只在模块初始化的 `setTimeout(…,200)` 里取一次；`window.css` 的 `.on-search-panel-open content{top:48px}` 与 `.ty-show-notification content{top:64px}` 会改 `content` 顶边而 `m` 不刷新。纯 JS 缺陷，CSS 无解。
 8. **列拖过程中工具条会整个消失。** 移动列落点线那一步先执行 `r.find(".ty-table-edit").remove()`，拖完由 `showTableEdit` 重建。出厂行为。
 9. 列拖的描边靠 `thead` 收上沿、`tbody tr:last-child` 收下沿。表体为空的退化表格（只有表头行）拿不到下沿那条 2px —— 需要 `:has()` 才能补，为一个退化形状不值得，记为已知缺口。
-10. **工具条上抬 16px 后，打开的弹层顶部约 10px 落在列把手带下面。** 弹层顶 116、把手带 112–126，横向重叠第一列宽度那一段。把手 `opacity:0` 不可见但可命中（`z-index:99`，画在 `#write` 全部内容之上），所以那 10px 里点下去开始拖列而不是命中面板。上抬之前弹层从 130 起，整个在把手带之下，没有这个区间 —— 属新增行为。这 10px 只是面板的内距，没有任何控件：网格首行首格顶边在 130，实测 `elementFromPoint` 命中 `<a>`。因此收紧内距时留了下限：面板边框 1 + 面板内距 1 + wrap 上内距 6 + 网格上外距 4 + `border-spacing` 2 = 14px，再压就要让首行落进把手带。
+10. **工具条上抬 16px 后，打开的弹层顶部约 10px 落在列把手带下面。** 弹层顶 116、把手带 112–126，横向重叠第一列宽度那一段。把手 `opacity:0` 不可见但可命中，所以那 10px 里点下去开始拖列而不是命中面板。弹层自带 Bootstrap 的 `z-index:1060`，之所以压不过 `z-index:99` 的把手，是因为**工具条自己的 `transform: translateY(-16px)` 造出了一个层叠上下文**，把弹层封在里面 —— 反事实实验证实：去掉工具条那条 transform，同一点就命中 `.md-grid-board-wrap` 而不是把手。也就是说这条边界与上抬是同一件事的两面；日后若改掉那个 transform，这条边界会自行消失（弹层反而变可点），记述需同步。
+11. **空格兜底不认只含空白的单元格。** `:empty` 要求元素连文本节点都没有，所以手写 HTML 表里换行缩进出来的 `<td> </td>` / `<td>\n</td>` 仍塌成 8.00px（实测）。手写表格带缩进是常态，这个形状不算罕见。选 `:empty` 是决策定的，换成 `:blank` 之类会同时把带空白的 Typora 单元格也卷进来，得不偿失 —— 记为选择器自身带来的已知取舍，不是实现偏离。上抬之前弹层从 130 起，整个在把手带之下，没有这个区间 —— 属新增行为。这 10px 只是面板的内距，没有任何控件：网格首行首格顶边在 130，实测 `elementFromPoint` 命中 `<a>`。因此收紧内距时留了下限：面板边框 1 + 面板内距 1 + wrap 上内距 6 + 网格上外距 4 + `border-spacing` 2 = 14px，再压就要让首行落进把手带。
 
 ## 8. 涉及文件清单
 
