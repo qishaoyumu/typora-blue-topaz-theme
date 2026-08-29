@@ -896,12 +896,34 @@ table.md-grid-board {
     margin-left: auto;
 }
 
-/* On Windows and Linux main.js appends a SECOND .right-th-button holding the
-   text "More" button (File.isMac hides it on macOS). Two auto margins would
+/* main.js always appends a SECOND .right-th-button holding the "More"
+   button, but only Windows and Linux ever show it. Two auto margins would
    split the free space evenly and strand the delete button mid-bar, so only
-   the first one pushes; the rest ride along with it. No-op on macOS. */
+   the first one pushes; the rest ride along with it. No-op on macOS, where
+   the rule below keeps the button hidden. */
 .ty-table-edit .right-th-button ~ .right-th-button {
     margin-left: 0;
+}
+
+/* macOS hides More at the source: showAlignCol() never .show()s it there
+   (File.isMac), and base-control draws the blind with
+   .html-for-mac .md-table-more{display:none}. That blind is (0,2,0), which
+   the button rule below is not — .ty-table-edit button.btn is (0,2,1) and
+   loads later, so the theme was putting a button back on the bar that
+   Typora means to be absent. Worse, stock unfolds its label on hover
+   (.md-table-more:hover .md-table-more-label{display:inline}) and the strip
+   jumped 36px wider under the pointer. Re-draw the blind at (0,3,0), which
+   clears (0,2,1) on class count, and macOS is back to stock. Windows and
+   Linux are untouched: there the button is real and stays.
+   The wrapper span goes with it. Hiding the button alone leaves an empty
+   flex item at the end of the bar, and the strip's 2px gap in front of it
+   pushes the delete button 2px off the table's right edge; collapsing the
+   span it lives in restores the flush end. Which span that is comes from
+   the same reading of main.js as the sibling rule above: it pushes exactly
+   two .right-th-button spans, delete first, More second. */
+.html-for-mac .ty-table-edit .md-table-more,
+.html-for-mac .ty-table-edit .right-th-button ~ .right-th-button {
+    display: none;
 }
 
 /* The three alignment buttons live in a Bootstrap .btn-group, which welds a
