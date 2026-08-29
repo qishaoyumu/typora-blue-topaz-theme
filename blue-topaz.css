@@ -59,10 +59,12 @@
     /* Faint chrome ink for the table drag handles: the reference's
        --table-drag-handle-color (#7f7f7f light / #797979 dark). */
     --ui-faint-color: #7f7f7f;
-    /* Row/column being dragged, in place: the reference's selection tint
-       (accent at 0.10) pre-blended on the page so the zebra fill under it
-       does not bleed through: #2f93e4 × 0.1 on #ffffff. */
-    --table-drag-src-bg: #eaf4fc;
+    /* Row/column being dragged, in place: the reference's selection tint,
+       the accent at 0.10. It is painted by an overlay on top of the cell
+       (section 13), exactly as the reference paints its is-selected ::after,
+       so it stays TRANSLUCENT: the zebra fill and the header's own accent
+       wash have to read through it the way they do there. */
+    --table-drag-src-bg: hsla(207, 77%, 54%, 0.1);
     --window-border: 1px solid var(--ui-border-color);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -1088,41 +1090,120 @@ table.md-grid-board {
 }
 
 /* --- Drag in progress --------------------------------------------------
-   main.js marks the dragged row/column .typora-on-moving (stock: transparent
-   text on a grey 50% wash) and only then clones it into the tracker as the
-   ghost that follows the mouse — so the ghost carries the same class. The
-   two are told apart by ancestor: the source stays in #write and takes the
-   reference's selection tint with muted text; the ghost lives in the
-   body-level tracker and takes the reference's .table-col-drag-ghost look,
-   accent fill with white text. The ghost table gets no #write skin, so its
-   cell padding and body size are restated here. */
-#write .typora-on-moving td,
-#write .typora-on-moving th,
+   The reference has no drag ghost. It slides the grip pill itself along the
+   table edge under the pointer and leaves the source row/column marked in
+   place, and Typora's tracker does the same thing for free: main.js writes
+   the tracker's top (row) or left (column) straight from the pointer every
+   mousemove, so the pill already tracks 1:1. What it adds on top is a ghost
+   — the dragged row/column re-parsed into .typora-table-data-area — and
+   that is what goes.
+   display:none, not visibility / opacity / height: the column path writes an
+   absolute page offset onto that div with jQuery's .offset() setter, so any
+   value that leaves it in flow stretches the tracker's box across the
+   document and takes the grip with it. Out of flow, the tracker keeps the
+   zero-sized box it has when idle and the grip stays where JS parks it.
+   Nothing reads the element back: the drop thresholds and the insert
+   marker's size all come from the source table, and no stock or theme rule
+   targets it. */
+.typora-table-data-area {
+    display: none;
+}
+
+/* The source row/column, left in place, in the reference's selection
+   vocabulary: the accent at 10% over the cell, a 2px accent stroke along the
+   SELECTION'S OUTER EDGE only, and 4px corners where two of those edges
+   meet. Stock instead paints the cells transparent-on-grey at 50%, all four
+   properties of which have to go.
+   The stroke cannot be a real border: the table is border-collapse:collapse,
+   and a border appearing here would relay the whole grid out from under the
+   pointer. An absolutely positioned ::before over the cell's padding box
+   draws it instead, and carries the tint as well so the zebra fill and the
+   header's own accent wash read through it exactly as they do under the
+   reference's translucent is-selected overlay. ::before, not ::after: the
+   empty-cell shim in section 12 owns ::after.
+   Row and column are told apart by where main.js puts the class — on the
+   <tr> for a row drag, on every cell of the column for a column drag — so
+   the two sets of selectors are disjoint and the edge rules below can key
+   off that alone. */
+#write tr.typora-on-moving > td,
+#write tr.typora-on-moving > th,
 #write td.typora-on-moving,
 #write th.typora-on-moving {
+    position: relative;
     color: var(--ui-muted-color);
+    opacity: 1;
+}
+
+/* Body cells only: the header's own accent fill already outranks stock's
+   grey at (1,1,1), while a body cell has no background of its own — the
+   zebra lives on the <tr> — so stock's grey is what would show. */
+#write tr.typora-on-moving > td,
+#write td.typora-on-moving {
+    background-color: transparent;
+}
+
+#write tr.typora-on-moving > td::before,
+#write tr.typora-on-moving > th::before,
+#write td.typora-on-moving::before,
+#write th.typora-on-moving::before {
+    content: "";
+    position: absolute;
+    inset: 0;
     background: var(--table-drag-src-bg);
-    opacity: 1;
+    border: 0 solid var(--interactive-accent);
+    pointer-events: none;
 }
 
-.typora-table-tracker .typora-on-moving td,
-.typora-table-tracker .typora-on-moving th,
-.typora-table-tracker td.typora-on-moving,
-.typora-table-tracker th.typora-on-moving {
-    color: #fff;
-    background: var(--interactive-accent);
-    opacity: 1;
-    padding: 4px 10px;
+/* Row drag: every cell draws the top and bottom edge, the outer two close
+   the ends. Longhand radii, so a one-column table keeps both sides round. */
+#write tr.typora-on-moving > td::before,
+#write tr.typora-on-moving > th::before {
+    border-top-width: 2px;
+    border-bottom-width: 2px;
 }
 
-.typora-table-tracker .typora-on-moving td,
-.typora-table-tracker td.typora-on-moving {
-    font-size: 15px;
+#write tr.typora-on-moving > :first-child::before {
+    border-left-width: 2px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+#write tr.typora-on-moving > :last-child::before {
+    border-right-width: 2px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+/* Column drag: the same three rules turned 90°. The header cell is always
+   the column's first (main.js marks every [mdtype='table_row'], thead
+   included); the last body row closes it. */
+#write td.typora-on-moving::before,
+#write th.typora-on-moving::before {
+    border-left-width: 2px;
+    border-right-width: 2px;
+}
+
+#write thead th.typora-on-moving::before,
+#write thead td.typora-on-moving::before {
+    border-top-width: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+#write tbody tr:last-child > td.typora-on-moving::before,
+#write tbody tr:last-child > th.typora-on-moving::before {
+    border-bottom-width: 2px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
 }
 
 /* Drop indicator: JS stretches the marker to the full table width (row) or
-   height (column) and parks it on the target edge; the reference draws a
-   2px accent line there, so the two stock caret icons go. */
+   height (column) and parks it on the target edge. The reference's
+   .table-drag-target is a zero-thickness div whose ::after bleeds
+   --table-drop-indicator-half-width (2px) out of both sides, so the line
+   reads 4px with 2px corners; the negative offset here is that same half
+   width, which keeps the line centred on the edge JS aimed at. The two
+   stock caret icons go. */
 .typora-table-insert-marker .fa {
     display: none;
 }
@@ -1132,20 +1213,21 @@ table.md-grid-board {
     content: "";
     position: absolute;
     background: var(--interactive-accent);
+    border-radius: 2px;
 }
 
 #typora-table-row-insert-marker::before {
     left: 0;
     right: 0;
-    top: -1px;
-    height: 2px;
+    top: -2px;
+    height: 4px;
 }
 
 #typora-table-col-insert-marker::before {
     top: 0;
     bottom: 0;
-    left: -1px;
-    width: 2px;
+    left: -2px;
+    width: 4px;
 }
 
 /* ========== 14. Inline code & Code blocks ========== */

@@ -57,8 +57,9 @@
     --ui-border-focus-color: #555555;
     --ui-muted-color: #8a8a8a;
     --ui-faint-color: #797979;
-    /* rgb(45,130,205) × 0.1 on #202020. */
-    --table-drag-src-bg: #212a31;
+    /* The accent at 0.10, translucent for the same reason as light: the
+       drag tint is an overlay over the cell, not a replacement fill. */
+    --table-drag-src-bg: hsla(208, 64%, 49%, 0.1);
     --window-border: 1px solid var(--dark-border-color);
     /* Raised panels (code-tooltip, quick-open, suggest list, modal,
        notification, footer word-count): the reference fills its

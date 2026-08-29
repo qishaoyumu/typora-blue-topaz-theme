@@ -51,7 +51,7 @@ helpers.
 | `--suggest-active-bg` | `hsla(207, 77%, 54%, 0.15)` | Selected/hovered row in suggestion-style lists: quick-open items, auto-suggest rows. Blue Topaz `.suggestion-item.is-selected` = `--theme-color-translucent-015` (blends to `#e0effb` on white); one state for hover and keyboard selection, and both may show at once |
 | `--text-muted` (as worn by `.clickable-icon`) | `#7f7f7f` | `--ui-muted-color` — muted chrome ink: table edit-toolbar icons, the size picker's "x" and labels, the insert-table dialog's Columns / Rows labels, the in-place text of a row/column being dragged |
 | `--table-drag-handle-color` | `#7f7f7f` | `--ui-faint-color` — grip dots of the table drag handles (`.typora-table-drag-area::before`) |
-| `--table-selection` (accent 0.10) | `#eaf4fc` (pre-blended on `#ffffff`) | `--table-drag-src-bg` — the row/column being dragged, in place; pre-blended so the zebra fill beneath does not bleed through |
+| `--table-selection` (accent 0.10) | `hsla(207, 77%, 54%, 0.1)` | `--table-drag-src-bg` — the row/column being dragged, in place. Translucent, like the reference's `is-selected` overlay: the tint is painted by an absolutely positioned `::before` over the cell (which also carries the 2px accent stroke along the selection's outer edge), so the zebra fill and the header's own accent wash have to read through it. It was an opaque pre-blend while it was a cell background instead |
 | — (no reference control; selection grammar) | `#c0c0c0` (text `#0e0e0e` × 0.25 on menu `#fcfcfc`) | `--grid-current-bg` — size-picker cells marking the table's current size (`td.md-grid-ext`) |
 | — | `#9d9d9d` (text × 0.40 on `#fcfcfc`) | `--grid-current-bg-strong` — the same in the picker's header row |
 | `--theme-color-translucent-03` analogue | `#bedcf5` (accent `#2f93e4` × 0.30 on `#fcfcfc`) | `--grid-select-bg-strong` — the picker's header-row cell of the new size; body-row new-size cells reuse `--suggest-active-bg` |
@@ -110,7 +110,7 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | `--suggest-active-bg` | `hsla(208, 64%, 49%, 0.15)` | Selected/hovered row in quick-open and auto-suggest lists; the base dark formula at 0.15 (`--theme-color-translucent-015`, blends to `#222f3a` on `#202020`) |
 | `--text-muted` (`.clickable-icon`) | `#8a8a8a` | `--ui-muted-color` |
 | `--table-drag-handle-color` | `#797979` | `--ui-faint-color` |
-| `--table-selection` (accent 0.10) | `#212a31` (pre-blended on `#202020`) | `--table-drag-src-bg` |
+| `--table-selection` (accent 0.10) | `hsla(208, 64%, 49%, 0.1)` | `--table-drag-src-bg` — translucent for the same reason as light |
 | — | `#414141` (text `#c6c6c6` × 0.25 on menu `#151515`) | `--grid-current-bg` |
 | — | `#5c5c5c` (text × 0.40 on `#151515`) | `--grid-current-bg-strong` |
 | — | `#1c364c` (accent rgb(45,130,205) × 0.30 on `#151515`) | `--grid-select-bg-strong` |
