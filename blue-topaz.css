@@ -900,6 +900,22 @@ table.md-grid-board {
     background: var(--grid-cell-bg);
     opacity: 1;
     transition: none;
+    /* The arrow, not the hand. The reference keeps the pointer for links
+       alone: its token block declares --cursor: default alongside
+       --cursor-link: pointer, and 56 selectors consume cursor: var(--cursor)
+       — bare `button` among them, plus .clickable-icon, .menu-item,
+       .suggestion-item, .checkbox-container, .canvas-color-picker-item —
+       against 10 that take --cursor-link, every one of them a link
+       (.external-link, .internal-link, .markdown-embed-link). The one
+       --cursor: pointer redefinition is in its touch block. The drag handles
+       are the single exception and say grab / grabbing outright, which is
+       what section 13 does too.
+       These cells are <a href="#">, so the hand is the UA's doing rather
+       than a choice; the same note covers the OK button below and the edit
+       toolbar's buttons in section 13, which get it from bootstrap's .btn.
+       Scoped to the table UI: the rest of Typora's chrome keeps the pointer
+       it has always had. */
+    cursor: default;
 }
 
 .md-grid-board a:hover {
@@ -999,6 +1015,8 @@ table.md-grid-board {
     padding: 0 8px;
     font-size: 12px;
     line-height: 22px;
+    /* Arrow, per the reference convention noted on .md-grid-board a. */
+    cursor: default;
 }
 
 #md-resize-grid:hover {
@@ -1160,6 +1178,10 @@ table.md-grid-board {
     box-shadow: none;
     color: var(--ui-muted-color);
     line-height: 1;
+    /* Arrow, per the reference convention noted on .md-grid-board a in the
+       size-picker block. bootstrap's .btn{cursor:pointer} is (0,1,0); this
+       (0,2,1) selector clears it without an !important. */
+    cursor: default;
 }
 
 .ty-table-edit .ty-icon {
