@@ -599,6 +599,20 @@ hr {
     width: auto;
     margin: 20px auto;
     line-height: 1.3;
+    /* Right + bottom hairline. It stays on the TABLE'S box, and the padding
+       the rule below adds moves it with the box rather than with the cells —
+       deliberately, because on screen the figure's own box is where it gets
+       clipped away in the first place: figure{overflow-x:auto} clips ink
+       overflow at its padding box, which shrink-wraps the table exactly, so
+       both 1px strips fall outside it. Measured on the shipped fixture: the
+       pixel a hairline would occupy beside a figure-wrapped table reads pure
+       background in both skins, while the same probe on a bare raw-HTML table
+       (no figure, no clip) reads rgb(229,229,229). Redrawing it on an inset
+       pseudo-element to follow the cells would therefore not preserve the
+       current look — it would ADD a line that today's tables do not have.
+       Print un-clips the figure (stock base.css: @media print{figure{
+       overflow-x:visible}}), but bootstrap's print sheet zeroes every
+       box-shadow, so the PDF has no hairline either way. */
     box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
     /* Not for this skin's own sake — it pins the offsetParent of the cells.
        A static cell's offsetParent is its table (HTML's offsetParent walk
@@ -617,6 +631,65 @@ hr {
        <tr>, and the class that positions cells during a row drag lands on
        the <tr>, which stays static. */
     position: relative;
+}
+
+/* A 20px band above the header row and a 14px lane down each side, carved out
+   of the TABLE'S OWN padding. Two things live there.
+   1. The approach lanes (section 13): Typora only shows a drag handle once the
+      pointer is inside a cell, because its trigger is
+      $("#write").on("mouseenter click", "th, td"). The reference's table
+      widget reaches 16px past its own edge (padding:16px; margin:0 -16px) and
+      lights the handle as the pointer approaches. A pseudo-element is not a
+      hit-test target of its own — hovering it is a hover of its host cell —
+      so a cell can be given a 14px reach outside the table, but only if the
+      table has 14px of its own to lend: figure{overflow-x:auto} clips
+      anything drawn beyond the table's border box.
+   2. The toolbar's clearance (section 13): its geometry is fixed at
+      bar_bottom = table_top + translate, so pushing the CELLS 20px down
+      inside the table is the only way to move the bar off the block above
+      without moving the table itself.
+   The padding goes on the TABLE, never on the figure. main.js builds its drop
+   thresholds as cell.offsetLeft/offsetTop + figure.offset(), and
+   offsetLeft/offsetTop are measured from the offsetParent's padding edge —
+   i.e. they already include the table's padding, while figure.offset() is
+   still the table's border-box origin. Padding the figure instead separates
+   those two origins and skews every threshold by the padding (measured:
+   -20px on rows, -14px on columns, ~0.7 of a row height), which no CSS can
+   compensate. Padding the table keeps the arithmetic exact (measured residual
+   0.3px, the same offsetTop rounding idle tables already have).
+   border-collapse must become separate: the collapsed model ignores a
+   table's own padding outright (measured: adding padding under collapse left
+   getBoundingClientRect() unchanged to the pixel). With border-spacing:0 the
+   two models render identically — the cells' region diffed at 0 differing
+   pixels in both skins, zebra fills and header wash included.
+   Scoped to .md-table, the class Typora puts on every table it renders
+   itself, so a table written or pasted as raw HTML keeps the collapsed model
+   and does not double up its own borders.
+   14px on BOTH sides although only the left carries a lane: the figure
+   shrink-wraps the table and centres it, so symmetric padding leaves the
+   cells' horizontal centre exactly where it was. */
+#write table.md-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    padding: 20px 14px 0;
+}
+
+/* Export and print have neither handles nor toolbar, so the band and the
+   lanes come off — otherwise every exported table carries 20px of dead space
+   above it and 14px of dead space beside it, and the lanes overflow the
+   table box inside figure{overflow-x:auto}. Restoring collapse also keeps an
+   exported raw-HTML table's borders from doubling. */
+.typora-export #write table.md-table,
+.typora-print #write table.md-table {
+    border-collapse: collapse;
+    padding: 0;
+}
+
+@media print {
+    #write table.md-table {
+        border-collapse: collapse;
+        padding: 0;
+    }
 }
 
 #write th:not(.md-reset),
@@ -728,16 +801,17 @@ hr {
    The margin rides along on that same selector. The panel is appended inside
    span.md-resize-table-th but positioned against the toolbar: it is absolute
    and its nearest positioned ancestor is .ty-table-edit, so its containing
-   block is the BAR'S PADDING BOX, whose left edge sits at table_left − 5px
-   (the bar carries margin-left:-5px; padding:0 5px). Bootstrap's
-   .popover{left:0} would therefore park the panel 5px left of the table;
-   margin-left:5px cancels the bar's 5px left padding so the panel's left edge
-   meets the table's — which is also the grid button's — left edge. This is
-   the section's one !important: main.js writes margin-left:-10px inline on
+   block is the BAR'S PADDING BOX, whose left edge sits 19px left of the
+   cells (the bar carries margin-left:-5px; padding:0 19px). Bootstrap's
+   .popover{left:0} would therefore park the panel out in the table's left
+   lane; margin-left cancels the bar's left padding so the panel's left edge
+   meets the cells' — which is also the grid button's — left edge. It tracks
+   the bar's padding-left value and has to move with it. This is the
+   section's one !important: main.js writes margin-left:-10px inline on
    the panel markup it builds, and nothing weaker reaches an inline style. */
 .md-resize-table-th .popover {
     width: 144px;
-    margin-left: 5px !important;
+    margin-left: 19px !important;
 }
 
 /* Stock dresses a 10-row grid in chrome sized for a tooltip: 1ch (8.8px) of
@@ -880,35 +954,40 @@ table.md-grid-board {
    the left, the delete button flush right, no background, no border.
    That width comes from the inline style rather than from CSS. Since
    section 12 the figure shrink-wraps its table, so "figure width" IS the
-   table's width and the bar measures table + 10px — an even 5px of
-   overhang on each side once it sits at its static position (it is the
-   figure's first child, so that position is the figure's content origin,
-   and stays there whether or not the figure is positioned). Giving the
-   bar margin-left:-5px and padding:0 5px turns that overhang into
-   symmetric padding: the CONTENT box then starts on the table's left edge
-   and ends on its right, so the first button and the delete button align
-   exactly to the table. No !important is needed — the inline width is
-   used as-is, the -5px only has to beat base-control's
-   .ty-table-edit{margin-left:-4px} (0,1,0), which this (1,1,1) selector
-   does. Leaving the figure unpositioned is what keeps the bar out of the
-   figure's scroll clip: its containing block is #write, an ancestor of
-   the figure, so a wide table scrolls inside the figure while the bar
-   stays whole and ends flush with the figure's visible right edge.
-   The inline margin-top stays and a translate adds the gap above the
-   table — 16px of it, not the 2px a bar on its own would need, because
-   the column drag handle claims the 14px band immediately above the table
-   (see the handles below) and paints over the bar: the handle's tracker is
-   #write's SIBLING carrying z-index:99, while the bar is a positioned
-   element at z-index:auto inside #write, so the two are compared in the
-   root stacking context and 99 wins outright. At 2px they overlapped by
-   12px, and the handle — invisible at opacity:0, but still hit-testable —
-   swallowed the clicks meant for the first buttons on the bar.
-   16px clears the band with 2px to spare; the cost is that the bar now
-   reaches 20px into the block above instead of 6px, which is what an
-   uncontained strip with no room of its own has to pay. It has to stay a
-   transform: resizeTableEdit() rewrites the inline margin-top on every
-   layout pass, and a translate does not disturb the height it measures
-   there.
+   table's BORDER-box width — padding included, getBoundingClientRect()
+   being a border-box measure — and the bar measures that + 10px. Its
+   static position is the figure's content origin (it is the figure's first
+   child), i.e. the table's left edge, so the overhang is an even 5px on
+   each side. margin-left:-5px pulls the bar's box out to cover it, and
+   padding: 0 19px = 5px of overhang + the table's own 14px lane pushes the
+   CONTENT box in to the CELLS' left and right edges, so the first button
+   and the delete button align to the cells rather than to the lanes. No
+   !important is needed — the inline width is used as-is, the -5px only has
+   to beat base-control's .ty-table-edit{margin-left:-4px} (0,1,0), which
+   this (1,1,1) selector does. Leaving the figure unpositioned is what
+   keeps the bar out of the figure's scroll clip: its containing block is
+   #write, an ancestor of the figure, so a wide table scrolls inside the
+   figure while the bar stays whole and ends flush with the figure's
+   visible right edge.
+   The inline margin-top stays and a translate places the bar vertically.
+   Its geometry is rigid: the inline margin-top is the bar's own height, so
+   bar_bottom = table_top + translate and bar_top = bar_bottom − 24. All the
+   free space above the table is the figure's own 20px block margin, and the
+   bar wants 24 of it plus the handle's band, so hanging the bar ABOVE the
+   table's top could only ever eat into the block above — measured at 20px of
+   overlap with translateY(-16px), and a negative figure margin cannot help
+   because it moves table and bar together. Section 12's 20px band is what
+   buys the room: the cells start 20px below the table's top edge, so the bar
+   can sit inside the table's own box. translateY(4px) puts bar_top exactly on
+   the preceding block's bottom edge — measured intrusion 0, against 20px
+   before — and bar_bottom 2px above the column handle, the same clearance the
+   handle had before. The handle would otherwise paint over the bar and swallow its
+   clicks: the handle's tracker is #write's SIBLING carrying z-index:99,
+   while the bar is a positioned element at z-index:auto inside #write, so
+   the two are compared in the root stacking context and 99 wins outright.
+   It has to stay a transform: resizeTableEdit() rewrites the inline
+   margin-top on every layout pass, and a translate does not disturb the
+   height it measures there.
    That translate also makes the bar a stacking context, which traps the size
    picker's stock z-index:1060 inside it — the picker can only outrank the
    table through the BAR's own layer. The bar and the table are siblings at
@@ -918,10 +997,10 @@ table.md-grid-board {
    99, which is what lets the drag handle keep painting over the bar. */
 #write figure.table-figure > .ty-table-edit {
     margin-left: -5px;
-    padding: 0 5px;
+    padding: 0 19px;
     box-sizing: border-box;
     min-width: max-content;
-    transform: translateY(-16px);
+    transform: translateY(4px);
     z-index: 1;
     background: transparent;
     border: 0;
@@ -1048,7 +1127,16 @@ table.md-grid-board {
    JS-set one stays.
    The two handles do NOT share a grip: the reference draws lucide's
    grip-vertical on the row handle and grip-horizontal on the column one, so
-   the dot field turns with the axis it drags. Each is laid out below. */
+   the dot field turns with the axis it drags. Each is laid out below.
+   Both handles now sit INSIDE the table's own box, in the lanes section 12
+   carved out of its padding, but only one of them needs telling. The row
+   tracker is parked on the <tr>, whose left edge already includes the
+   table's left padding, so -14px still lands the handle in the left lane.
+   The column tracker is parked on the FIGURE'S top (main.js: n.top = a.top,
+   a = figure.offset()), which is the table's border-box top, 20px above the
+   header cells — so the handle has to come back DOWN by that band: 6px
+   = 20 (the band) − 14 (the handle's own height) leaves it ending exactly
+   on the cells' top edge, with 2px between it and the toolbar above. */
 #typora-table-row-tracker,
 #typora-table-col-tracker {
     cursor: auto;
@@ -1062,7 +1150,7 @@ table.md-grid-board {
 
 #typora-table-col-tracker .typora-table-drag-area {
     height: 14px;
-    top: -14px;
+    top: 6px;
     border-radius: 5px 5px 0 0;
 }
 
@@ -1126,6 +1214,76 @@ table.md-grid-board {
     background-image: radial-gradient(circle, #fff 1px, transparent 1.5px);
 }
 
+/* --- Approach lanes ----------------------------------------------------
+   Stock only shows a handle once the pointer is INSIDE a cell: the trigger is
+   $("#write").on("mouseenter click", "th, td"). The reference lights its
+   handles as the pointer merely approaches the table's edge. A pseudo-element
+   is not a hit-test target of its own — the pointer over it is the pointer
+   over its HOST — so a 14px pseudo hung off a cell makes that cell's own
+   mouseenter fire from outside the table, with no JS. It has to be the cell:
+   the delegate's selector is "th, td", so a lane on the <tr> would fire the
+   wrong element's event.
+   The lanes live in the 14px / 20px band section 12 took out of the table's
+   padding; drawn beyond the table's border box they would be clipped away by
+   figure{overflow-x:auto}. Their hosts need to be positioned, which is only
+   safe because section 12 made the table itself position:relative — that is
+   what keeps every cell's offsetParent on the table, and main.js's drop
+   thresholds are built from cell.offsetLeft/offsetTop.
+   Two constraints on the shape of these rules, both load-bearing:
+   - They declare ONLY content, position and the four inset longhands. The
+     drag overlay below is the SAME pseudo-element (::after is taken by
+     section 12's empty-cell shim) and reclaims it with inset:0; a width or
+     height here would over-constrain that box and win against the inset it
+     is meant to lose to, leaving the overlay drawn short.
+   - :where() keeps them at (1,0,1), below the overlay's (1,1,2)/(1,1,3), so
+     the overlay wins outright for the whole of a drag. Losing the lane
+     while dragging costs nothing: the drag runs off document-level
+     mousemove, not off the cell.
+   The header row gets the column lane and the body's first column gets the
+   row lane; the corner cell can only have one ::before, so the header row has
+   no left lane — it is not reorderable as a row anyway. cursor:default keeps
+   the text I-beam off what reads as blank margin. */
+#write :where(table.md-table thead th),
+#write :where(table.md-table tbody tr > :first-child) {
+    position: relative;
+}
+
+#write :where(table.md-table thead th)::before {
+    content: "";
+    position: absolute;
+    top: -14px;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    cursor: default;
+}
+
+#write :where(table.md-table tbody tr > :first-child)::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    right: 100%;
+    top: 0;
+    bottom: 0;
+    cursor: default;
+}
+
+/* Export and print: no handles there, and with section 12's padding gone the
+   lanes would hang outside the table's box inside figure{overflow-x:auto}. */
+.typora-export #write :where(table.md-table thead th)::before,
+.typora-export #write :where(table.md-table tbody tr > :first-child)::before,
+.typora-print #write :where(table.md-table thead th)::before,
+.typora-print #write :where(table.md-table tbody tr > :first-child)::before {
+    content: none;
+}
+
+@media print {
+    #write :where(table.md-table thead th)::before,
+    #write :where(table.md-table tbody tr > :first-child)::before {
+        content: none;
+    }
+}
+
 /* --- Drag in progress --------------------------------------------------
    The reference has no drag ghost. It slides the grip pill itself along the
    table edge under the pointer and leaves the source row/column marked in
@@ -1151,9 +1309,9 @@ table.md-grid-board {
    SELECTION'S OUTER EDGE only, and 4px corners where two of those edges
    meet. Stock instead paints the cells transparent-on-grey at 50%, all four
    properties of which have to go.
-   The stroke cannot be a real border: the table is border-collapse:collapse,
-   and a border appearing here would relay the whole grid out from under the
-   pointer. An absolutely positioned ::before over the cell's padding box
+   The stroke cannot be a real border: cells carry none, so one appearing
+   here would relay the whole grid out from under the pointer, in either
+   border model. An absolutely positioned ::before over the cell's padding box
    draws it instead, and carries the tint as well so the zebra fill and the
    header's own accent wash read through it exactly as they do under the
    reference's translucent is-selected overlay. ::before, not ::after: the
@@ -1281,16 +1439,31 @@ table.md-grid-board {
     border-radius: 2px;
 }
 
+/* Both markers are stretched to the FIGURE's box (main.js: .width(fig
+   offsetWidth) for the row line, .height(fig offsetHeight) for the column
+   one), which since section 12 is the table's padded border box — 28px wider
+   and 20px taller than the cells. The line has to be pulled back to the cells
+   or it runs out into the lanes: 28px off the row line's right end (both
+   lanes) and 20px off the column line's bottom (the band, which the line
+   overshoots because it starts at the target column's header cell, i.e.
+   already below the band).
+   Known boundary: for a drop AFTER the last column, main.js takes the origin
+   from the figure instead of a cell (t = fig.offset(); t.left += fig
+   offsetWidth), so that one line lands on the table's right edge, 14px past
+   the cells, and 20px high of where the other cases sit. One inline-positioned
+   element with one ::before cannot tell the two branches apart, and the
+   inline offset is unreadable from CSS. The row line has no such split: its
+   last-position branch measures the <tr>, whose box is already the cells'. */
 #typora-table-row-insert-marker::before {
     left: 0;
-    right: 0;
+    right: 28px;
     top: -2px;
     height: 4px;
 }
 
 #typora-table-col-insert-marker::before {
     top: 0;
-    bottom: 0;
+    bottom: 20px;
     left: -2px;
     width: 4px;
 }
