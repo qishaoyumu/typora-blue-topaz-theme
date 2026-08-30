@@ -649,10 +649,11 @@ hr {
       inside the table is the only way to move the bar off the block above
       without moving the table itself.
    The padding goes on the TABLE, never on the figure. main.js builds its drop
-   thresholds as cell.offsetLeft/offsetTop + figure.offset(), and
-   offsetLeft/offsetTop are measured from the offsetParent's padding edge —
-   i.e. they already include the table's padding, while figure.offset() is
-   still the table's border-box origin. Padding the figure instead separates
+   thresholds as an offset within the table plus figure.offset() — columns
+   from th.offsetLeft, rows from the <tr>'s offsetTop — and offsetLeft /
+   offsetTop are measured from the offsetParent's padding edge, i.e. they
+   already include the table's padding, while figure.offset() is still the
+   table's border-box origin. Padding the figure instead separates
    those two origins and skews every threshold by the padding (measured:
    -20px on rows, -14px on columns, ~0.7 of a row height), which no CSS can
    compensate. Padding the table keeps the arithmetic exact (measured residual
@@ -662,12 +663,24 @@ hr {
    getBoundingClientRect() unchanged to the pixel). With border-spacing:0 the
    two models render identically — the cells' region diffed at 0 differing
    pixels in both skins, zebra fills and header wash included.
-   Scoped to .md-table, the class Typora puts on every table it renders
-   itself, so a table written or pasted as raw HTML keeps the collapsed model
-   and does not double up its own borders.
+   Scoped to .md-table, which the editor's own toHTML writes on the tables it
+   renders (the export serializer does not — see the neutralisation below), so
+   a table written or pasted as raw HTML keeps the collapsed model and the
+   band and lanes stay off it. Borders are not the reason: this skin sets
+   border:none on every cell, so a <table border="1"> pasted into the document
+   computes 0px none on its cells (only the table element itself keeps the
+   attribute's 1px) and has no doubled edge to avoid in either model.
    14px on BOTH sides although only the left carries a lane: the figure
    shrink-wraps the table and centres it, so symmetric padding leaves the
-   cells' horizontal centre exactly where it was. */
+   cells' horizontal centre exactly where it was.
+   The cost is 28px of width. The figure is still capped at max-width:100%,
+   but what it now wraps is cells + 28, so a table whose natural cell width
+   lands in the topmost 28px below #write's content box is compressed where
+   it used to fit, and its cells wrap. Measured on a 640px content box: a
+   3-column table wanting 637.13px rendered at its natural width before, and
+   now has its cells squeezed to 612 with the header row wrapping to two
+   lines (28.80 -> 49.59, cell block 56.30 -> 77.09). Anything already wider
+   than the content box only scrolls 28px sooner. */
 #write table.md-table {
     border-collapse: separate;
     border-spacing: 0;
@@ -675,10 +688,15 @@ hr {
 }
 
 /* Export and print have neither handles nor toolbar, so the band and the
-   lanes come off — otherwise every exported table carries 20px of dead space
-   above it and 14px of dead space beside it, and the lanes overflow the
-   table box inside figure{overflow-x:auto}. Restoring collapse also keeps an
-   exported raw-HTML table's borders from doubling. */
+   lanes come off. In practice this fires almost never: the EXPORT serializer
+   writes a table as <figure class='table-figure'><table> with no class at
+   all (main.js @378317), where the editor's own toHTML writes
+   .md-table-fig / .md-table (@35606) — so a markdown table on its way out
+   never picks the band or the lanes up to begin with, and an export-shaped
+   figure measures byte for byte what it did before this change. What the
+   block does guard is the one shape that can still match: a <table
+   class="md-table"> hand-written inside a raw HTML block, which would
+   otherwise carry editor chrome spacing onto paper. */
 .typora-export #write table.md-table,
 .typora-print #write table.md-table {
     border-collapse: collapse;
@@ -1221,8 +1239,9 @@ table.md-grid-board {
    is not a hit-test target of its own — the pointer over it is the pointer
    over its HOST — so a 14px pseudo hung off a cell makes that cell's own
    mouseenter fire from outside the table, with no JS. It has to be the cell:
-   the delegate's selector is "th, td", so a lane on the <tr> would fire the
-   wrong element's event.
+   the delegate resolves event.target.closest("th, td"), and a lane on the
+   <tr> hit-tests as the <tr>, which has no th/td ancestor — so it would fire
+   nothing at all.
    The lanes live in the 14px / 20px band section 12 took out of the table's
    padding; drawn beyond the table's border box they would be clipped away by
    figure{overflow-x:auto}. Their hosts need to be positioned, which is only
@@ -1240,9 +1259,15 @@ table.md-grid-board {
      while dragging costs nothing: the drag runs off document-level
      mousemove, not off the cell.
    The header row gets the column lane and the body's first column gets the
-   row lane; the corner cell can only have one ::before, so the header row has
-   no left lane — it is not reorderable as a row anyway. cursor:default keeps
-   the text I-beam off what reads as blank margin. */
+   row lane. The corner cell can only have one ::before and the column lane
+   claims it, so the header row has no left lane. That is a real asymmetry,
+   not a free choice: the header row IS draggable — main.js's row-drag start
+   maps thead to index 0 (o.closest("thead").length ? 0 : o.prevAll().length
+   + 1), moveTableRow(0, …) is supported, and the mouseenter delegate parks
+   the row tracker for a hovered th exactly as it does for a td. So a body
+   row lights its grip from 14px outside the table, while the header row's
+   grip still needs the pointer inside a header cell.
+   cursor:default keeps the text I-beam off what reads as blank margin. */
 #write :where(table.md-table thead th),
 #write :where(table.md-table tbody tr > :first-child) {
     position: relative;
@@ -1452,8 +1477,12 @@ table.md-grid-board {
    offsetWidth), so that one line lands on the table's right edge, 14px past
    the cells, and 20px high of where the other cases sit. One inline-positioned
    element with one ::before cannot tell the two branches apart, and the
-   inline offset is unreadable from CSS. The row line has no such split: its
-   last-position branch measures the <tr>, whose box is already the cells'. */
+   inline offset is unreadable from CSS. On a table wide enough to scroll the
+   horizontal half of that goes away — fig.offsetWidth is then the figure's
+   own clipped width, so the line lands on the figure's visible right edge
+   exactly as it did before (measured: x 918..922 in both), and only the 20px
+   rise is left. The row line has no such split: its last-position branch
+   measures the <tr>, whose box is already the cells'. */
 #typora-table-row-insert-marker::before {
     left: 0;
     right: 28px;
