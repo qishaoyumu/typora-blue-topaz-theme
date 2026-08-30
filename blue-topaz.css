@@ -127,14 +127,16 @@
     --suggest-active-bg: hsla(207, 77%, 54%, 0.15);
     /* Table size-picker grid (the 3 x 5 popover): Typora ships its three
        cell states as light literals (#999 / #555 / #c8caf4 / #94a7b9 /
-       #dcdcdc). The reference has no such control; its selection grammar
-       supplies the "new size" state (accent 0.15 + accent border, the
-       header row a notch deeper at accent 0.30) and a neutral fill marks
-       the table's current size (text ink at 0.25, header row 0.40), all
-       pre-blended on the menu colour #fcfcfc. */
-    --grid-current-bg: #c0c0c0;
-    --grid-current-bg-strong: #9d9d9d;
-    --grid-select-bg-strong: #bedcf5;
+       #dcdcdc). The reference has no such control, so its control grammar
+       supplies the states instead: a flat neutral fill for a cell at rest,
+       two deeper neutrals for the table's current size, and the accent
+       itself for the size being picked. Translucent, not pre-blended, so
+       the same three values sit correctly on the menu colour and on the
+       panel. --grid-select-bg-strong is gone with the pre-blends: the
+       picked size is one accent for every row now. */
+    --grid-cell-bg: rgba(0, 0, 0, 0.067);
+    --grid-current-bg: rgba(0, 0, 0, 0.16);
+    --grid-current-bg-strong: rgba(0, 0, 0, 0.26);
     /* The reference file icon has its own blue, brighter than the accent in
        light mode (measured rgb(65,159,231) vs #2f93e4); dark's measured icon
        equals the primary formula, so dark overrides this to the primary. */
@@ -875,11 +877,27 @@ table.md-grid-board {
     margin: 4px auto;
 }
 
+/* The cells are chips, not outlined boxes. Stock stacks two elements per
+   cell — the <td> carries the current-size fill and the <a> inside it the
+   border — and a radius on the <a> makes that stack visible: the td's fill
+   is square, so its four corners stand outside the a's rounded ones and the
+   cell reads as a rounded shape with four nubs. Measured at this size, the
+   td has 0 padding and the a's box IS the td's box (both 18.33 x 13), so
+   those corners were the only place the lower element ever showed.
+   One element paints now. The td's background is cleared, every fill moves
+   onto the <a>, and radius and fill therefore belong to the same box —
+   nothing square can surface at any corner. The rest follows the
+   reference's control language rather than stock's graph paper: no per-cell
+   border, flat fills, --radius-s (4px), and the picked size in solid accent
+   instead of a tint over a border. border-spacing stays at stock's 2px; at
+   3px the grid grew 11px (1px x 11 gaps) and pushed the OK row into the
+   toolbar below, which is the panel height the wrap's padding was trimmed
+   to buy. */
 .md-grid-board a {
     width: auto;
-    border: 1px solid var(--ui-border-color);
-    border-radius: 2px;
-    background: transparent;
+    border: 0;
+    border-radius: 4px;
+    background: var(--grid-cell-bg);
     opacity: 1;
     transition: none;
 }
@@ -894,25 +912,42 @@ table.md-grid-board {
     background: transparent;
 }
 
-/* Current table size (td.md-grid-ext, the <a> on top stays transparent). */
-.md-grid-board .md-grid-ext {
+/* Current table size. main.js marks the TD (td.md-grid-ext), so the class
+   stays where it is and only the paint moves: the td goes transparent and
+   the fill is drawn on the <a> it holds. */
+.md-grid-board .md-grid-ext,
+.md-grid-board tr[row='1'] .md-grid-ext {
+    background: transparent;
+}
+
+.md-grid-board .md-grid-ext > a {
     background: var(--grid-current-bg);
 }
 
-.md-grid-board tr[row='1'] .md-grid-ext {
+.md-grid-board tr[row='1'] .md-grid-ext > a {
     background: var(--grid-current-bg-strong);
 }
 
-/* New size: hover preview and typed value share a.md-active. */
+/* New size: hover preview and typed value share a.md-active, and the header
+   row is no longer singled out — one accent for the whole picked block, the
+   way the reference fills a selected control.
+   Four selectors, because two other rules outrank the plain one at (0,2,1).
+   Stock keeps its own header-row state at (0,3,2)
+   (.md-grid-board tr[row='1'] a.md-active {background:#94a7b9}), which a
+   picked header cell would otherwise wear — measured on the fixture before
+   this line existed: row 1 showed #94a7b9 where the body rows showed accent.
+   And the current-size rules above are (0,2,1) and (0,3,2), which a cell
+   that is current-size AND picked has to clear. Every combination is listed
+   rather than reached with !important. */
 .md-grid-board a.md-active,
-.md-grid-board a:hover {
-    background: var(--suggest-active-bg);
-    border-color: var(--primary-color);
-}
-
+.md-grid-board a:hover,
 .md-grid-board tr[row='1'] a.md-active,
-.md-grid-board tr[row='1'] a:hover {
-    background: var(--grid-select-bg-strong);
+.md-grid-board tr[row='1'] a:hover,
+.md-grid-board .md-grid-ext > a.md-active,
+.md-grid-board .md-grid-ext > a:hover,
+.md-grid-board tr[row='1'] .md-grid-ext > a.md-active,
+.md-grid-board tr[row='1'] .md-grid-ext > a:hover {
+    background: var(--interactive-accent);
 }
 
 /* The "40 x 99" row: reference text-input grammar (1px border, 7px radius,

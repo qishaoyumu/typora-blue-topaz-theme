@@ -118,11 +118,13 @@
     /* Suggestion-list selection: the same base blue formula at 0.15
        (--theme-color-translucent-015; blends to #222f3a on #202020). */
     --suggest-active-bg: hsla(208, 64%, 49%, 0.15);
-    /* Size-picker grid states pre-blended on the dark menu colour #151515:
-       text #c6c6c6 at 0.25 / 0.40, accent rgb(45,130,205) at 0.30. */
-    --grid-current-bg: #414141;
-    --grid-current-bg-strong: #5c5c5c;
-    --grid-select-bg-strong: #1c364c;
+    /* Size-picker chips: the light neutrals turned over, white instead of
+       black and a notch stronger because a dark surface swallows a wash.
+       The picked size takes --interactive-accent, which dark already
+       overrides, so the picker needs no rule of its own here. */
+    --grid-cell-bg: rgba(255, 255, 255, 0.08);
+    --grid-current-bg: rgba(255, 255, 255, 0.18);
+    --grid-current-bg-strong: rgba(255, 255, 255, 0.28);
     /* Dark's measured icon blue equals the primary formula (rgb 45,130,205),
        unlike light, whose icon has its own brighter blue. */
     --file-icon-color: var(--primary-color);

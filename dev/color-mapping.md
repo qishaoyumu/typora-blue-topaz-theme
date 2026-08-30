@@ -52,9 +52,9 @@ helpers.
 | `--text-muted` (as worn by `.clickable-icon`) | `#7f7f7f` | `--ui-muted-color` — muted chrome ink: table edit-toolbar icons, the size picker's "x" and labels, the insert-table dialog's Columns / Rows labels |
 | `--table-drag-handle-color` | `#7f7f7f` | `--ui-faint-color` — grip dots of the table drag handles (`.typora-table-drag-area::before`) |
 | `--table-selection` (accent 0.10) | `hsla(207, 77%, 54%, 0.1)` | `--table-drag-src-bg` — the row/column being dragged, in place. Translucent, like the reference's `is-selected` overlay: the tint is painted by an absolutely positioned `::before` over the cell (which also carries the 2px accent stroke along the selection's outer edge), so the zebra fill and the header's own accent wash have to read through it. It was an opaque pre-blend while it was a cell background instead. The overlay is the ONLY change: the reference's `mod-dragging` carries no CSS, so the cells keep `--text-color` — the muted ink this wore until 2026-08-29 had no reference source |
-| — (no reference control; selection grammar) | `#c0c0c0` (text `#0e0e0e` × 0.25 on menu `#fcfcfc`) | `--grid-current-bg` — size-picker cells marking the table's current size (`td.md-grid-ext`) |
-| — | `#9d9d9d` (text × 0.40 on `#fcfcfc`) | `--grid-current-bg-strong` — the same in the picker's header row |
-| `--theme-color-translucent-03` analogue | `#bedcf5` (accent `#2f93e4` × 0.30 on `#fcfcfc`) | `--grid-select-bg-strong` — the picker's header-row cell of the new size; body-row new-size cells reuse `--suggest-active-bg` |
+| `--background-modifier-hover` analogue (no reference control) | `rgba(0, 0, 0, 0.067)` | `--grid-cell-bg` — a size-picker cell at rest. The reference's own control fill, black 0.067, the same value `--item-hover-bg-color` carries; the cells are flat chips now, with no per-cell border |
+| — | `rgba(0, 0, 0, 0.16)` | `--grid-current-bg` — picker cells marking the table's current size. main.js marks the `<td>` (`td.md-grid-ext`) but the fill is painted on the `<a>` inside it, so one box owns both radius and fill and no square corner shows past the rounded one |
+| — | `rgba(0, 0, 0, 0.26)` | `--grid-current-bg-strong` — the same in the picker's header row |
 | `--interactive-normal` | `#efefef`, hover `#dfdfdf` | Modal plain-button fill (`.modal .btn-default` — Cancel in the insert-table, rename and new-folder dialogs); the reference's plain button. Hover is `--item-hover-bg-color` pre-blended rather than layered, because the button is opaque and a translucent wash there would read as a second colour instead of the same one a notch down: 239 − 239 × 0.067 = 223 |
 | `--folder-hover-bg` | `rgba(0, 0, 0, 0.067)` | Neutral-gray folder hover; measured (`--nav-item-background-hover` black 0.067) |
 | `--item-hover-bg-color` | `rgba(0, 0, 0, 0.067)` | Generic item hover wash: outline rows, sidebar search hits, sidebar footer items, megamenu rows (hover and active alike, per the reference settings nav) / buttons, unibody settings nav active, the source-mode footer toggle, unibody titlebar buttons, `.btn-default:hover`, dropdown-menu items. Obsidian `--background-modifier-hover` (`rgba(var(--mono-rgb-100), 0.067)`), kept translucent instead of the earlier `#f0f0f0` pre-blend so one token reads the same on `#ffffff`, `#fcfcfc`, and panels; `--toc-hover-bg` (the in-document TOC row hover) now aliases it, replacing the hand-computed `#f3f3f3` |
@@ -111,9 +111,9 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | `--text-muted` (`.clickable-icon`) | `#8a8a8a` | `--ui-muted-color` |
 | `--table-drag-handle-color` | `#797979` | `--ui-faint-color` |
 | `--table-selection` (accent 0.10) | `hsla(208, 64%, 49%, 0.1)` | `--table-drag-src-bg` — translucent for the same reason as light |
-| — | `#414141` (text `#c6c6c6` × 0.25 on menu `#151515`) | `--grid-current-bg` |
-| — | `#5c5c5c` (text × 0.40 on `#151515`) | `--grid-current-bg-strong` |
-| — | `#1c364c` (accent rgb(45,130,205) × 0.30 on `#151515`) | `--grid-select-bg-strong` |
+| — | `rgba(255, 255, 255, 0.08)` | `--grid-cell-bg` — white instead of light's black, a notch stronger because a dark surface swallows a wash |
+| — | `rgba(255, 255, 255, 0.18)` | `--grid-current-bg` |
+| — | `rgba(255, 255, 255, 0.28)` | `--grid-current-bg-strong` |
 | `--interactive-normal` | `#2b2b2b`, hover `#393939` | Modal plain-button fill; same pre-blend as light with dark's white 0.067 wash: 43 + (255 − 43) × 0.067 = 57 |
 | `--primary-color-02` | `hsla(208, 72%, 58%, 0.26)` | Search-result highlight |
 | `--search-hit-border` | `#525252` | In-document search candidate-hit outline; the same core formula pre-blended on dark: `#c6c6c6` × 0.3 over `#202020` — reproduces the earlier screenshot-measured value exactly (see the light table row for the formula's source) |
