@@ -123,8 +123,9 @@
        The picked size takes --interactive-accent, which dark already
        overrides, so the picker needs no rule of its own here. */
     --grid-cell-bg: rgba(255, 255, 255, 0.08);
-    --grid-current-bg: rgba(255, 255, 255, 0.18);
-    --grid-current-bg-strong: rgba(255, 255, 255, 0.28);
+    --grid-current-bg: rgba(255, 255, 255, 0.28);
+    --grid-current-bg-strong: rgba(255, 255, 255, 0.40);
+    --grid-current-accent: hsl(208, 64%, 36%);
     /* Dark's measured icon blue equals the primary formula (rgb 45,130,205),
        unlike light, whose icon has its own brighter blue. */
     --file-icon-color: var(--primary-color);

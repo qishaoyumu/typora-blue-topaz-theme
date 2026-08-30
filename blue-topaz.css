@@ -135,8 +135,9 @@
        panel. --grid-select-bg-strong is gone with the pre-blends: the
        picked size is one accent for every row now. */
     --grid-cell-bg: rgba(0, 0, 0, 0.067);
-    --grid-current-bg: rgba(0, 0, 0, 0.16);
-    --grid-current-bg-strong: rgba(0, 0, 0, 0.26);
+    --grid-current-bg: rgba(0, 0, 0, 0.22);
+    --grid-current-bg-strong: rgba(0, 0, 0, 0.34);
+    --grid-current-accent: hsl(207, 77%, 44%);
     /* The reference file icon has its own blue, brighter than the accent in
        light mode (measured rgb(65,159,231) vs #2f93e4); dark's measured icon
        equals the primary formula, so dark overrides this to the primary. */
@@ -945,25 +946,36 @@ table.md-grid-board {
 }
 
 /* New size: hover preview and typed value share a.md-active, and the header
-   row is no longer singled out — one accent for the whole picked block, the
-   way the reference fills a selected control.
-   Four selectors, because two other rules outrank the plain one at (0,2,1).
+   row is not singled out — one accent across the picked block, the way the
+   reference fills a selected control.
    Stock keeps its own header-row state at (0,3,2)
    (.md-grid-board tr[row='1'] a.md-active {background:#94a7b9}), which a
    picked header cell would otherwise wear — measured on the fixture before
-   this line existed: row 1 showed #94a7b9 where the body rows showed accent.
-   And the current-size rules above are (0,2,1) and (0,3,2), which a cell
-   that is current-size AND picked has to clear. Every combination is listed
-   rather than reached with !important. */
+   this selector existed: row 1 showed #94a7b9 where the body rows showed
+   accent. Hence the pair rather than one plain (0,2,1) selector. */
 .md-grid-board a.md-active,
 .md-grid-board a:hover,
 .md-grid-board tr[row='1'] a.md-active,
-.md-grid-board tr[row='1'] a:hover,
+.md-grid-board tr[row='1'] a:hover {
+    background: var(--interactive-accent);
+}
+
+/* The current size keeps a step of its own INSIDE the picked block. A
+   current-size cell is one the table already has — main.js marks the td
+   md-grid-ext across the existing rows x columns — and it is what tells you
+   whether the pick grows the table or shrinks it. Stock could show both
+   states at once by layering, a grey td under a tinted a; this skin paints
+   one box per cell on purpose, so the second state has to be a second
+   colour instead: the accent one step down, the same step the OK button
+   takes on hover. One step, both rows — the header row is not deepened
+   again, which would put three accents in a block eighteen pixels wide.
+   Specificity: (0,3,1) and (0,4,2), clearing both the plain accent rule
+   above and stock's own (0,2,1) / (0,3,2) states. */
 .md-grid-board .md-grid-ext > a.md-active,
 .md-grid-board .md-grid-ext > a:hover,
 .md-grid-board tr[row='1'] .md-grid-ext > a.md-active,
 .md-grid-board tr[row='1'] .md-grid-ext > a:hover {
-    background: var(--interactive-accent);
+    background: var(--grid-current-accent);
 }
 
 /* The "40 x 99" row: reference text-input grammar (1px border, 7px radius,
