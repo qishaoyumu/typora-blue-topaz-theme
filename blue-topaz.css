@@ -1270,6 +1270,42 @@ table.md-grid-board {
     background-image: radial-gradient(circle, #fff 1px, transparent 1.5px);
 }
 
+/* The pill's far edge, trimmed back onto the outline. main.js sizes the
+   handle from a ROUNDED measurement and then adds one — tr.offsetHeight + 1
+   for the row handle, cell.offsetWidth + 1 for the column one — so the pill
+   overshoots the outline's outer edge by 1 + (round(x) - x), and only at the
+   FAR edge: the near one is where the tracker itself is parked, and measures
+   flush. Measured before: WebKit +1.00 on both axes (whole device pixels at
+   DPR 2), Chrome +1.50 on a 27.50px row and +0.89 / +0.64 on fractional
+   column widths.
+   Nothing here can reach that inline style — it is what sizes the pill, and
+   main.js rewrites it on every mouseenter — so the surplus is clipped off the
+   paint instead. clip-path's reference is the handle's own border box, and
+   the ring lives 2px outside it, so three of the four insets go NEGATIVE to
+   keep it and the fourth takes the 1px: the row handle's bottom, the column
+   handle's right. Measured after, in WebKit: pill and outline flush at 0.00
+   on both axes, the ring's rounded corners intact. What is left is the
+   rounding alone, round(x) - x in [-0.5, +0.5) — Chrome +0.50 on a 27.50px
+   row and -0.11 on a 91.11px column, a sub-pixel gap in place of a visible
+   overshoot.
+   Clipping also puts the pill's three kept edges on their true fractional
+   positions, where the box-shadow had been snapping them to whole pixels. At
+   DPR 1 that shows: Chrome turns the outer edge pixel from solid accent into
+   an 84%-coverage blend (65,159,231 -> 113,183,237 on a 444.16 edge). At the
+   DPR 2 this actually ships on it does not — in WebKit the whole change is
+   the trimmed edge and nothing else, 30x2 device px at the row pill's bottom
+   and 2x30 at the column pill's right.
+   :active only, because that is the only state with anything to trim: idle
+   and hover paint no fill and no ring, and clipping them would cut into the
+   grip's dot field for nothing. */
+#typora-table-row-tracker .typora-table-drag-area:active {
+    clip-path: inset(-2px -2px -1px -2px);
+}
+
+#typora-table-col-tracker .typora-table-drag-area:active {
+    clip-path: inset(-2px -1px -2px -2px);
+}
+
 /* --- Approach lanes ----------------------------------------------------
    Stock only shows a handle once the pointer is INSIDE a cell: the trigger is
    $("#write").on("mouseenter click", "th, td"). The reference lights its
@@ -1389,9 +1425,19 @@ table.md-grid-board {
    dimension: measured on a 27.5px row, pill 144.80 to 177.80 against an
    outline of 146.80 to 174.30 — 2.00px proud at the top and 3.50px at the
    bottom, and 2.00px of the ring standing inside the cells on the other
-   axis. Outside, the outline reads 144.80 to 176.30, the ring stops on the
-   cells' edge, and all that is left over is main.js's +1 (0.5 of which is
-   its own offsetHeight rounding), entirely at the bottom.
+   axis. Outside, the outline reads 144.80 to 176.30 and the ring stops on
+   the cells' edge; the one thing left over, main.js's +1 on the handle's
+   JS-set dimension, is trimmed off the PILL instead — see the clip-path
+   beside the :active rules above.
+   Outside also means the stroke below the LAST row falls past the table's own
+   border box, and figure{overflow-x:auto} computes overflow-y:auto along with
+   it. Shipped on its own the outset stroke therefore handed the figure a 2px
+   vertical scroll range the moment the last row or any column was pressed —
+   measured in WebKit, scrollHeight 131 against clientHeight 129, and in
+   Chrome 133 against 131 — i.e. a scrollbar across the table for the whole
+   drag. Section 12's 2px of bottom padding is what absorbs it (131 against
+   131 everywhere afterwards), so the outset stroke and that padding have to
+   ship together; neither is correct alone.
    Row and column are told apart by where main.js puts the class — on the
    <tr> for a row drag, on every cell of the column for a column drag — so
    the two sets of selectors are disjoint and the edge rules below can key
@@ -1463,18 +1509,16 @@ table.md-grid-board {
 /* Column drag: the same three rules turned 90°. The header cell is always
    the column's first (main.js marks every [mdtype='table_row'], thead
    included); the last body row closes it.
-   The bottom edge is the one that has no room to move out. The table's
-   padding is 20px 14px 0, so the last row's cells end ON the table's border
-   box, which is also the padding box of figure{overflow-x:auto} — a scroll
-   container, and the same clip the table's own hairline shadow already
-   falls outside of (section 12). The stroke below the last row lands at
-   229.30..231.30 against a clip at 229.30 and is cut away whole: measured
-   on the fixture, every pixel below y=229 reads pure background, where the
-   inset stroke used to read accent at y=227 and y=228. That costs the
-   source column, and a row drag of the last row, its closing edge. Getting
-   it back needs 2px of room below the cells — padding-bottom on the table
-   or on the figure — and either one adds 2px to the height of every table
-   in every state, which is not a call this rule can make on its own. */
+   The bottom edge is the one that had no room to move out. With the table
+   padded 20px 14px 0, the last row's cells ended ON the table's border box,
+   which is also the padding box of figure{overflow-x:auto} — a scroll
+   container, and the same clip the table's own hairline shadow already falls
+   outside of (section 12). The stroke below the last row landed at
+   229.30..231.30 against a clip at 229.30 and was cut away whole: every pixel
+   below y=229 read pure background, so the source column, and a row drag of
+   the last row, had no closing edge at all. Section 12 now keeps 2px of
+   bottom padding for exactly this stroke — it paints at y=229 and y=230 — and
+   the column drop line's pull-back further down is 20 + 2 to match. */
 #write td.typora-on-moving::before,
 #write th.typora-on-moving::before {
     left: -2px;
