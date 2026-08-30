@@ -673,7 +673,23 @@ hr {
    14px on BOTH sides although only the left carries a lane: the figure
    shrink-wraps the table and centres it, so symmetric padding leaves the
    cells' horizontal centre exactly where it was.
-   The cost is 28px of width. The figure is still capped at max-width:100%,
+   The 2px at the bottom is a third tenant, and the only one that is neither
+   band nor lane: it is the room the drag overlay of section 13 needs for the
+   bottom of its source outline. That stroke is drawn OUTSIDE the cells, and
+   the last row's cells end ON the table's border box, which is also the
+   padding box of figure{overflow-x:auto} — the same clip the hairline above
+   already falls outside of. With no bottom padding the stroke below the last
+   row landed at 229.30..231.30 against a clip at 229.30 and was cut away
+   whole (measured: no paint below y=229), leaving a dragged column, and a
+   row drag of the last row, with no closing edge. 2px is exactly the stroke
+   and nothing more: the cells' own bottom does not move (229.30 either way),
+   so the band, the toolbar and every cell box are untouched and only what
+   sits BELOW a table shifts. One thing keys off the number and has to follow
+   it: main.js sizes the column drop line from the figure's offsetHeight, so
+   section 13's pull-back for that line is 20 + 2.
+   The cost is 2px of height per table — measured, table and figure 131.30 ->
+   133.30, the block after each table pushed down by 2px — and 28px of
+   width. The figure is still capped at max-width:100%,
    but what it now wraps is cells + 28, so a table whose natural cell width
    lands in the topmost 28px below #write's content box is compressed where
    it used to fit, and its cells wrap. Measured on a 640px content box: a
@@ -684,7 +700,7 @@ hr {
 #write table.md-table {
     border-collapse: separate;
     border-spacing: 0;
-    padding: 20px 14px 0;
+    padding: 20px 14px 2px;
 }
 
 /* Export and print have neither handles nor toolbar, so the band and the
@@ -1526,11 +1542,13 @@ table.md-grid-board {
 /* Both markers are stretched to the FIGURE's box (main.js: .width(fig
    offsetWidth) for the row line, .height(fig offsetHeight) for the column
    one), which since section 12 is the table's padded border box — 28px wider
-   and 20px taller than the cells. The line has to be pulled back to the cells
+   and 22px taller than the cells. The line has to be pulled back to the cells
    or it runs out into the lanes: 28px off the row line's right end (both
-   lanes) and 20px off the column line's bottom (the band, which the line
-   overshoots because it starts at the target column's header cell, i.e.
-   already below the band).
+   lanes) and 22px off the column line's bottom. That 22 is the 20px band,
+   which the line overshoots because it starts at the target column's header
+   cell and so begins below the band already, plus the 2px of bottom padding
+   section 12 keeps for the drag overlay's outset stroke. The row line never
+   sees that 2px: main.js sizes it from the figure's WIDTH.
    Known boundary: for a drop AFTER the last column, main.js takes the origin
    from the figure instead of a cell (t = fig.offset(); t.left += fig
    offsetWidth), so that one line lands on the table's right edge, 14px past
@@ -1551,7 +1569,7 @@ table.md-grid-board {
 
 #typora-table-col-insert-marker::before {
     top: 0;
-    bottom: 20px;
+    bottom: 22px;
     left: -2px;
     width: 4px;
 }
