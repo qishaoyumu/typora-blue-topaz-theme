@@ -1146,15 +1146,37 @@ table.md-grid-board {
    The two handles do NOT share a grip: the reference draws lucide's
    grip-vertical on the row handle and grip-horizontal on the column one, so
    the dot field turns with the axis it drags. Each is laid out below.
-   Both handles now sit INSIDE the table's own box, in the lanes section 12
-   carved out of its padding, but only one of them needs telling. The row
-   tracker is parked on the <tr>, whose left edge already includes the
-   table's left padding, so -14px still lands the handle in the left lane.
+   Both handles sit in the lanes section 12 carved out of the table's own
+   padding, and each is placed so that the RING, not the box, ends on the
+   cells' edge — which is where the drag overlay below draws its outset
+   stroke, so the pill and the outline meet without either crossing the
+   other.
+   The row tracker is parked on the <tr>, whose left edge already includes
+   the table's 14px left padding, i.e. on the cells' left edge, so the
+   handle is offset from there: -16 = -14 (its own width) - 2 (the ring).
+   Measured on the fixture against a cells' left edge of 462.16: grip box
+   446.16 to 460.16, ring 444.16 to 462.16, stroke band 460.16 to 462.16 —
+   the ring's last 2px land on the stroke and no accent falls inside the
+   cells, where at -14 the ring ran to 464.16, 2px in. The handle's outer
+   2px now lie outside the table's border box, which nothing clips: the
+   tracker is #write's SIBLING, not a descendant of figure{overflow-x:auto}.
    The column tracker is parked on the FIGURE'S top (main.js: n.top = a.top,
    a = figure.offset()), which is the table's border-box top, 20px above the
    header cells — so the handle has to come back DOWN by that band: 6px
    = 20 (the band) − 14 (the handle's own height) leaves it ending exactly
-   on the cells' top edge, with 2px between it and the toolbar above. */
+   on the cells' top edge. It does NOT get the row handle's extra 2px, and
+   the toolbar is why. Section 13's bar is 24px tall with no vertical
+   padding around 24px buttons, so a button's box IS the bar's box, and the
+   2px a 4px offset would claim — table_top+2 to table_top+4 — is not
+   empty: measured on the fixture, that strip carries 26px and 24px of
+   button fill on its two rows under the active alignment button (accent
+   15%), and the same again under a hovered one, while the 16px glyph stops
+   2px short of it. A ring there would slice the bottom off every button
+   the pill slides past. At 6px the ring's top edge lands on the bar's
+   bottom edge exactly (both measured at 102) and covers nothing. What it
+   costs is arithmetic only: the column pill still ends 2px inside the
+   cells, but the pill spans the column's full width and hides the outset
+   top stroke either way, so on screen the two placements are the same. */
 #typora-table-row-tracker,
 #typora-table-col-tracker {
     cursor: auto;
@@ -1162,7 +1184,7 @@ table.md-grid-board {
 
 #typora-table-row-tracker .typora-table-drag-area {
     width: 14px;
-    left: -14px;
+    left: -16px;
     border-radius: 5px 0 0 5px;
 }
 
@@ -1336,11 +1358,24 @@ table.md-grid-board {
    properties of which have to go.
    The stroke cannot be a real border: cells carry none, so one appearing
    here would relay the whole grid out from under the pointer, in either
-   border model. An absolutely positioned ::before over the cell's padding box
-   draws it instead, and carries the tint as well so the zebra fill and the
-   header's own accent wash read through it exactly as they do under the
-   reference's translucent is-selected overlay. ::before, not ::after: the
-   empty-cell shim in section 12 owns ::after.
+   border model. An absolutely positioned ::before draws it instead, and
+   carries the tint as well so the zebra fill and the header's own accent
+   wash read through it exactly as they do under the reference's translucent
+   is-selected overlay. ::before, not ::after: the empty-cell shim in
+   section 12 owns ::after.
+   That pseudo-element is NOT the cell's padding box. The stroke belongs
+   OUTSIDE the cells, so the box is inset -2px along the selection's outer
+   edges and 0 along its inner ones — which is what the reference does (its
+   overlay sits at -1 * --table-border-width all round and moves to -2px on
+   each edge that carries the stroke). Drawn inside, as it was, the
+   outline's outer extent WAS the cells' box, while the pill is the handle
+   plus its 2px ring plus the +1px main.js writes onto the handle's JS-set
+   dimension: measured on a 27.5px row, pill 144.80 to 177.80 against an
+   outline of 146.80 to 174.30 — 2.00px proud at the top and 3.50px at the
+   bottom, and 2.00px of the ring standing inside the cells on the other
+   axis. Outside, the outline reads 144.80 to 176.30, the ring stops on the
+   cells' edge, and all that is left over is main.js's +1 (0.5 of which is
+   its own offsetHeight rounding), entirely at the bottom.
    Row and column are told apart by where main.js puts the class — on the
    <tr> for a row drag, on every cell of the column for a column drag — so
    the two sets of selectors are disjoint and the edge rules below can key
@@ -1382,20 +1417,28 @@ table.md-grid-board {
 }
 
 /* Row drag: every cell draws the top and bottom edge, the outer two close
-   the ends. Longhand radii, so a one-column table keeps both sides round. */
+   the ends. Longhand radii, so a one-column table keeps both sides round.
+   Every edge that carries a stroke also moves its own inset out to -2px, so
+   the 2px is drawn beyond the cell instead of over it; the inner edges keep
+   the base rule's 0. Inset and border grow the box by exactly the same 2px,
+   which is why the tint underneath never widens. */
 #write tr.typora-on-moving > td::before,
 #write tr.typora-on-moving > th::before {
+    top: -2px;
+    bottom: -2px;
     border-top-width: 2px;
     border-bottom-width: 2px;
 }
 
 #write tr.typora-on-moving > :first-child::before {
+    left: -2px;
     border-left-width: 2px;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
 }
 
 #write tr.typora-on-moving > :last-child::before {
+    right: -2px;
     border-right-width: 2px;
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
@@ -1403,15 +1446,30 @@ table.md-grid-board {
 
 /* Column drag: the same three rules turned 90°. The header cell is always
    the column's first (main.js marks every [mdtype='table_row'], thead
-   included); the last body row closes it. */
+   included); the last body row closes it.
+   The bottom edge is the one that has no room to move out. The table's
+   padding is 20px 14px 0, so the last row's cells end ON the table's border
+   box, which is also the padding box of figure{overflow-x:auto} — a scroll
+   container, and the same clip the table's own hairline shadow already
+   falls outside of (section 12). The stroke below the last row lands at
+   229.30..231.30 against a clip at 229.30 and is cut away whole: measured
+   on the fixture, every pixel below y=229 reads pure background, where the
+   inset stroke used to read accent at y=227 and y=228. That costs the
+   source column, and a row drag of the last row, its closing edge. Getting
+   it back needs 2px of room below the cells — padding-bottom on the table
+   or on the figure — and either one adds 2px to the height of every table
+   in every state, which is not a call this rule can make on its own. */
 #write td.typora-on-moving::before,
 #write th.typora-on-moving::before {
+    left: -2px;
+    right: -2px;
     border-left-width: 2px;
     border-right-width: 2px;
 }
 
 #write thead th.typora-on-moving::before,
 #write thead td.typora-on-moving::before {
+    top: -2px;
     border-top-width: 2px;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
@@ -1419,6 +1477,7 @@ table.md-grid-board {
 
 #write tbody tr:last-child > td.typora-on-moving::before,
 #write tbody tr:last-child > th.typora-on-moving::before {
+    bottom: -2px;
     border-bottom-width: 2px;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
