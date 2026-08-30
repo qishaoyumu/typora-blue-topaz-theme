@@ -1163,36 +1163,39 @@ table.md-grid-board {
    grip-vertical on the row handle and grip-horizontal on the column one, so
    the dot field turns with the axis it drags. Each is laid out below.
    Both handles sit in the lanes section 12 carved out of the table's own
-   padding, and each is placed so that the RING, not the box, ends on the
-   cells' edge — which is where the drag overlay below draws its outset
-   stroke, so the pill and the outline meet without either crossing the
-   other.
+   padding, and both are placed the same way: the handle's BOX ends ON the
+   cells' edge, and the 2px ring it grows when pressed reaches 2px past that
+   — over the outset stroke the drag overlay below draws there, and 2px into
+   the cell. The pill sits ON the frame, not beside it. That is the
+   reference's own geometry: its handle is a child of the first cell, placed
+   with inset-inline-end:100% (row) / inset-block-end:100% (column) at 14px
+   = 16 - 2, so it spans -14..0 from the cell's edge and reaches -16..+2
+   while held.
    The row tracker is parked on the <tr>, whose left edge already includes
-   the table's 14px left padding, i.e. on the cells' left edge, so the
-   handle is offset from there: -16 = -14 (its own width) - 2 (the ring).
-   Measured on the fixture against a cells' left edge of 462.16: grip box
-   446.16 to 460.16, ring 444.16 to 462.16, stroke band 460.16 to 462.16 —
-   the ring's last 2px land on the stroke and no accent falls inside the
-   cells, where at -14 the ring ran to 464.16, 2px in. The handle's outer
-   2px now lie outside the table's border box, which nothing clips: the
-   tracker is #write's SIBLING, not a descendant of figure{overflow-x:auto}.
+   the table's 14px left padding, i.e. on the cells' left edge, so -14 is
+   what puts the handle's right edge there. Measured on the fixture against
+   a cells' left edge of 462.16: grip box 448.16 to 462.16, ring 446.16 to
+   464.16 — the ring's outer 2px sit over the stroke band 460.16..462.16 and
+   its inner 2px over the cell, the same relation the column handle has on
+   its own axis (ring bottom 120 against a cells' top of 118). The ring's
+   outer edge falls 2px beyond the table's border box, which nothing clips:
+   the tracker is #write's SIBLING, not a descendant of
+   figure{overflow-x:auto}.
    The column tracker is parked on the FIGURE'S top (main.js: n.top = a.top,
    a = figure.offset()), which is the table's border-box top, 20px above the
    header cells — so the handle has to come back DOWN by that band: 6px
-   = 20 (the band) − 14 (the handle's own height) leaves it ending exactly
-   on the cells' top edge. It does NOT get the row handle's extra 2px, and
-   the toolbar is why. Section 13's bar is 24px tall with no vertical
-   padding around 24px buttons, so a button's box IS the bar's box, and the
-   2px a 4px offset would claim — table_top+2 to table_top+4 — is not
-   empty: measured on the fixture, that strip carries 26px and 24px of
-   button fill on its two rows under the active alignment button (accent
-   15%), and the same again under a hovered one, while the 16px glyph stops
-   2px short of it. A ring there would slice the bottom off every button
-   the pill slides past. At 6px the ring's top edge lands on the bar's
-   bottom edge exactly (both measured at 102) and covers nothing. What it
-   costs is arithmetic only: the column pill still ends 2px inside the
-   cells, but the pill spans the column's full width and hides the outset
-   top stroke either way, so on screen the two placements are the same. */
+   = 20 (the band) − 14 (the handle's own height) puts its bottom edge on
+   the cells' top edge, which is the row handle's relation turned 90°.
+   6px is also the only value the toolbar leaves. Section 13's bar is 24px
+   tall with no vertical padding around 24px buttons, so a button's box IS
+   the bar's box, and the 2px a 4px offset would claim — table_top+2 to
+   table_top+4 — is not empty: measured on the fixture, that strip carries
+   26px and 24px of button fill on its two rows under the active alignment
+   button (accent 15%), and the same again under a hovered one, while the
+   16px glyph stops 2px short of it. A ring there would slice the bottom off
+   every button the pill slides past. At 6px the ring's top edge lands on
+   the bar's bottom edge exactly (both measured at 102) and covers
+   nothing. */
 #typora-table-row-tracker,
 #typora-table-col-tracker {
     cursor: auto;
@@ -1200,7 +1203,7 @@ table.md-grid-board {
 
 #typora-table-row-tracker .typora-table-drag-area {
     width: 14px;
-    left: -16px;
+    left: -14px;
     border-radius: 5px 0 0 5px;
 }
 
@@ -1291,7 +1294,7 @@ table.md-grid-board {
    Clipping also puts the pill's three kept edges on their true fractional
    positions, where the box-shadow had been snapping them to whole pixels. At
    DPR 1 that shows: Chrome turns the outer edge pixel from solid accent into
-   an 84%-coverage blend (65,159,231 -> 113,183,237 on a 444.16 edge). At the
+   an 84%-coverage blend (65,159,231 -> 113,183,237 on a 446.16 edge). At the
    DPR 2 this actually ships on it does not — in WebKit the whole change is
    the trimmed edge and nothing else, 30x2 device px at the row pill's bottom
    and 2x30 at the column pill's right.
@@ -1424,11 +1427,12 @@ table.md-grid-board {
    plus its 2px ring plus the +1px main.js writes onto the handle's JS-set
    dimension: measured on a 27.5px row, pill 144.80 to 177.80 against an
    outline of 146.80 to 174.30 — 2.00px proud at the top and 3.50px at the
-   bottom, and 2.00px of the ring standing inside the cells on the other
-   axis. Outside, the outline reads 144.80 to 176.30 and the ring stops on
-   the cells' edge; the one thing left over, main.js's +1 on the handle's
-   JS-set dimension, is trimmed off the PILL instead — see the clip-path
-   beside the :active rules above.
+   bottom, with the ring's 2px landing on bare cell rather than on any
+   stroke. Outside, the outline reads 144.80 to 176.30, so those same 2px
+   now sit ON the stroke, which is the relation the reference has on both
+   axes; the one thing still left over, main.js's +1 on the handle's JS-set
+   dimension, is trimmed off the PILL instead — see the clip-path beside the
+   :active rules above.
    Outside also means the stroke below the LAST row falls past the table's own
    border box, and figure{overflow-x:auto} computes overflow-y:auto along with
    it. Shipped on its own the outset stroke therefore handed the figure a 2px
