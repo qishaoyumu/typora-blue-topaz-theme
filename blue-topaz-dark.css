@@ -252,26 +252,6 @@ hr {
     background: hsl(208, 64%, 39%);
 }
 
-/* The handle hover echo: same geometry, the dark table-hover tokens, and
-   lighten where light darkens. The dark header colour is LIGHTER than the
-   surface it sits on, so it is the lighter pixel the source has to lose to
-   for the cell's text to survive. Measured against the reference cell: text
-   max 16-17 per channel (mean 1.9-2.5), flat background within 4/255. */
-@supports (anchor-name: --a) and (left: anchor(--a left)) {
-    content:has(.typora-table-drag-area:hover:not(:active))::after {
-        mix-blend-mode: lighten;
-    }
-
-    content:has(#typora-table-row-tracker .typora-table-drag-area:hover:not(:active))::after {
-        background-color: #08569a21;
-        background-image: linear-gradient(#1f65a221, #1f65a221);
-    }
-
-    content:has(#typora-table-col-tracker .typora-table-drag-area:hover:not(:active))::after {
-        background-color: #21395bc7;
-    }
-}
-
 /* ========== Code ========== */
 #write code {
     /* rgb(213,128,0), the reference's measured dark inline-code orange (the
