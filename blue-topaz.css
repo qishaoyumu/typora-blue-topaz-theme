@@ -125,7 +125,7 @@
        Blue Topaz's .suggestion-item.is-selected = --theme-color-translucent-015,
        the accent at 0.15 (blends to #e0effb on white). */
     --suggest-active-bg: hsla(207, 77%, 54%, 0.15);
-    /* Table size-picker grid (the 3 x 5 popover): Typora ships its three
+    /* Table size-picker grid (the table-resize popover): Typora ships its three
        cell states as light literals (#999 / #555 / #c8caf4 / #94a7b9 /
        #dcdcdc). The reference has no such control, so its control grammar
        supplies the states instead: a flat neutral fill for a cell at rest,
@@ -901,16 +901,18 @@ table.md-grid-board {
     background: var(--grid-cell-bg);
     opacity: 1;
     transition: none;
-    /* The arrow, not the hand. The reference keeps the pointer for links
-       alone: its token block declares --cursor: default alongside
-       --cursor-link: pointer, and 56 selectors consume cursor: var(--cursor)
-       — bare `button` among them, plus .clickable-icon, .menu-item,
+    /* The arrow, not the hand. The reference keeps the pointer for links:
+       its token block declares --cursor: default and --cursor-link: pointer
+       adjacently under its own Cursor heading (app.css 1.13.7, 2189-2190),
+       and 58 declarations across 65 selectors consume cursor: var(--cursor)
+       — bare `button` among them (7213), plus .clickable-icon, .menu-item,
        .suggestion-item, .checkbox-container, .canvas-color-picker-item —
-       against 10 that take --cursor-link, every one of them a link
-       (.external-link, .internal-link, .markdown-embed-link). The one
-       --cursor: pointer redefinition is in its touch block. The drag handles
-       are the single exception and say grab / grabbing outright, which is
-       what section 13 does too.
+       against 12 that take --cursor-link, nearly all of them links
+       (.external-link, .internal-link, .markdown-embed-link; a few are not,
+       .file-embed.mod-generic and .bases-cards-item among them). The one
+       --cursor: pointer redefinition sits in the .is-mobile block (18848).
+       The drag handles are the single exception and say grab / grabbing
+       outright, which is what section 13 does too.
        These cells are <a href="#">, so the hand is the UA's doing rather
        than a choice; the same note covers the OK button below and the edit
        toolbar's buttons in section 13, which get it from bootstrap's .btn.
@@ -923,8 +925,11 @@ table.md-grid-board {
     opacity: 1;
 }
 
-/* Stock paints the whole header row #dcdcdc; the header's meaning is
-   carried by its deeper state fills instead. */
+/* Stock paints the whole header row #dcdcdc. The row carries no fill of its
+   own here, and since the cells became flat chips it is told apart in exactly
+   one state: where it is also the table's current size, by the deeper
+   --grid-current-bg-strong. Picked, and picked-while-current, are the same
+   two values the body rows wear. */
 .md-grid-board tr[row='1'] {
     background: transparent;
 }
@@ -966,8 +971,10 @@ table.md-grid-board {
    whether the pick grows the table or shrinks it. Stock could show both
    states at once by layering, a grey td under a tinted a; this skin paints
    one box per cell on purpose, so the second state has to be a second
-   colour instead: the accent one step down, the same step the OK button
-   takes on hover. One step, both rows — the header row is not deepened
+   colour instead: the accent one step down. In light that is the same step
+   the OK button takes on hover; dark goes a notch deeper still, 36% against
+   the button's 39%, because a dark surface flattens the difference — see
+   dev/color-mapping.md. One step, both rows — the header row is not deepened
    again, which would put three accents in a block eighteen pixels wide.
    Specificity: (0,3,1) and (0,4,2), clearing both the plain accent rule
    above and stock's own (0,2,1) / (0,3,2) states. */
