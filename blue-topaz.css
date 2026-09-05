@@ -1686,8 +1686,10 @@ table.md-grid-board {
    exactly as it did before (measured: x 918..922 in both), and only the 20px
    rise is left. The row line has no such split: its last-position branch
    measures the <tr>, whose box is already the cells'. That split is what the
-   @supports block below repairs; these two rules stay as the fallback for an
-   engine without anchor positioning. */
+   @supports block below repairs; both of these rules stay as the fallback for
+   an engine without anchor positioning, the row one also for an engine that
+   has anchors but not the arithmetic the switch nested inside that block
+   needs. */
 #typora-table-row-insert-marker::before {
     left: 0;
     right: 28px;
@@ -1803,6 +1805,156 @@ table.md-grid-board {
         background: var(--interactive-accent);
         pointer-events: none;
         z-index: 99;
+    }
+
+    /* A drop that cannot move anything draws nothing, and the row line comes
+       onto this host to get there.
+       moveTableRow and moveTableCol both no-op for t == b and t == b + 1 —
+       the row or column put back where it came from, and the one put after
+       itself — but M()'s guards are narrower than that. The row branch tests
+       only "the target row IS the source row" (@818134), never the source
+       row's BOTTOM edge, and both branches test the after-last index BEFORE
+       they test anything else, so dragging the last row, or the last column,
+       still draws a line on the source's own trailing edge. The reference has
+       the same rule with one fewer case to get wrong: its drop target is a row
+       index rather than a gap between rows, so "moves nothing" is just "the
+       target is the source", and its indicator is display:none there.
+       Nothing on the marker says which index it is on — main.js writes it a
+       display, a top / left and one JS-set dimension, and no class or
+       attribute — so the only way to recognise an invalid drop is geometric:
+       the line lands ON an edge of the source row or column. That comparison
+       needs the marker and the source in one expression, which is what
+       anchor() is for, and it is why the row line has to leave the marker's
+       own ::before: a pseudo-element of the marker cannot anchor to anything
+       in the editor on WebKit, where an absolutely positioned ancestor —
+       <content> itself — stops everything inside it from resolving an anchor.
+       The two axes never run together (main.js marks the <tr> for a row drag
+       and the cells for a column drag), so the one host carries both, chosen
+       by which of the two the class landed on. Both selectors keep the #write
+       prefix: T() re-parses the source <tr>, class and all, into the tracker's
+       ghost, and that copy is <content>'s child, not #write's.
+       The row line's x still comes from the MARKER, not from the dragged
+       table, so it stays where it has always been. The marker's width is the
+       FIGURE's offsetWidth, which on a table wide enough to scroll is the
+       figure's clipped width; the table's own box is not clipped, and this
+       host is outside the figure, so reading x off the table would run the
+       line out over the page — measured on a 9-column table, 294.00..1011.47
+       against the figure's visible 280..920, i.e. 91.47px of accent line
+       beside the table. Off the marker it is 294.00..906.00, the figure's box
+       less the 14px lane at each end, exactly what the ::before drew.
+       The thickness is a pair of insets, not a width or a height: anchor() is
+       valid only in an inset property, so a switch built on one cannot be
+       written as a size. Each pair of opposite insets meets on the same edge
+       and the line's half thickness H comes off both:
+           H = clamp(0px, (D - 1.5px) * 1000, 2px)
+       where D is the gap between the marker's edge and the nearer edge of the
+       source. Away from the source D is large, the multiplication saturates
+       the clamp, H is 2px and the line is the same 4px it always was. On the
+       source's edge H is 0, the two insets coincide, the used size resolves to
+       0 — a box that paints nothing and adds no scroll range (measured:
+       <content>'s scrollWidth and scrollHeight unchanged at every drop index
+       in both engines).
+       1.5px of tolerance because the after-last branches are not exact: they
+       add an INTEGER offsetHeight / offsetWidth to a fractional origin.
+       Measured residuals: 0.50 for a row on Chrome (an integer 28 against a
+       27.50px row) and 0.00 on WebKit, whose row heights are already whole;
+       0.33 for a column on both (an integer 304 against a 303.67px figure).
+       The nearest a VALID drop ever comes is a whole row height (27.50px) or
+       column width (79.72px), so the tolerance cannot swallow one.
+       The fallbacks are deliberately mismatched — -9999px on every left and
+       top, 99999px on every right and bottom. At an index where M() calls A(),
+       and for the whole of the other axis's drag, the marker is display:none
+       and both ends of a pair fall back at once: the box is over-constrained
+       by some 90000px, its used size resolves to 0, and it sits off the
+       top-left of <content>, which in a left-to-right writing mode cannot be
+       scrolled to. A matched pair would park a 4px line off-screen instead —
+       what the block above does — and both hide it; a box with no size is one
+       less thing to paint.
+       Nested inside that block rather than set beside it, because these rules
+       retire the row marker's ::before and write into the ::after box that
+       block creates: they must never apply where it did not. Measured in both
+       engines that the nesting renders identically to a flat second block, and
+       that a false condition here degrades to exactly the state before this
+       change — row line back on its ::before, column line still anchored, and
+       identical geometry at every index.
+       Known residual, unchanged from before: a table wide enough to scroll,
+       NOT scrolled to its end, dragged by its last column, dropped after that
+       column. main.js parks the marker on the figure's visible right edge,
+       91.47px away from the cells' right edge (measured, both engines), so
+       there is no edge for the switch to recognise and the line is still
+       drawn. Scrolled to its end, the same drop is caught: the marker lands
+       0.47px off the cells' right edge and the line goes. */
+    @supports (anchor-name: --bt-probe) and
+              (bottom: calc(anchor(--bt-probe top, 99999px) -
+                            clamp(0px, (min(abs(anchor(--bt-probe top, 0px) -
+                                                anchor(--bt-probe bottom, 0px)),
+                                            abs(anchor(--bt-probe top, 0px) -
+                                                anchor(--bt-probe bottom, 0px) -
+                                                14px)) - 1.5px) * 1000, 2px))) {
+        #typora-table-row-insert-marker::before {
+            content: none;
+        }
+
+        #typora-table-row-insert-marker {
+            anchor-name: --bt-row-marker;
+        }
+
+        /* One name for both axes: anchor() takes the LAST holder in tree
+           order, which for a row drag is the source row's last cell — whose
+           top and bottom are the row's — and for a column drag the source
+           column's last cell, whose left and right are the column's. */
+        #write table.md-table tr.typora-on-moving > *,
+        #write table.md-table th.typora-on-moving,
+        #write table.md-table td.typora-on-moving {
+            anchor-name: --bt-src;
+        }
+
+        /* Column drag: the clamped x of the block above, now written as two
+           insets. min() picks the leftmost of two candidates in the `left`
+           coordinate system; `right` measures back from the other edge, so
+           the same two points need max(), and the 14px lane changes sign. */
+        content:has(#write table.md-table th.typora-on-moving)::after,
+        content:has(#write table.md-table td.typora-on-moving)::after {
+            width: auto;
+            left: calc(min(anchor(--bt-col-marker left, -9999px),
+                           anchor(--bt-drag-table right, -9999px) - 14px) -
+                       clamp(0px, (min(abs(anchor(--bt-col-marker left, 0px) -
+                                           anchor(--bt-src right, 0px)),
+                                       abs(anchor(--bt-col-marker left, 0px) -
+                                           anchor(--bt-src right, 0px) -
+                                           14px)) - 1.5px) * 1000, 2px));
+            right: calc(max(anchor(--bt-col-marker left, 99999px),
+                            anchor(--bt-drag-table right, 99999px) + 14px) -
+                        clamp(0px, (min(abs(anchor(--bt-col-marker left, 0px) -
+                                            anchor(--bt-src right, 0px)),
+                                        abs(anchor(--bt-col-marker left, 0px) -
+                                            anchor(--bt-src right, 0px) +
+                                            14px)) - 1.5px) * 1000, 2px));
+        }
+
+        /* Row drag: x from the marker's own box, less the 28px of lane its
+           JS-set width carries; y centred on the marker's top. D compares
+           that top with BOTH edges of the source row — the top edge is
+           main.js's own guard, kept here because the mouseenter delegate can
+           rewrite what it compares against mid-drag, the bottom edge is the
+           one it never had. */
+        content:has(#write table.md-table tr.typora-on-moving)::after {
+            width: auto;
+            left: anchor(--bt-row-marker left, -9999px);
+            right: calc(anchor(--bt-row-marker right, 99999px) + 28px);
+            top: calc(anchor(--bt-row-marker top, -9999px) -
+                      clamp(0px, (min(abs(anchor(--bt-row-marker top, 0px) -
+                                          anchor(--bt-src top, 0px)),
+                                      abs(anchor(--bt-row-marker top, 0px) -
+                                          anchor(--bt-src bottom, 0px))) -
+                                 1.5px) * 1000, 2px));
+            bottom: calc(anchor(--bt-row-marker top, 99999px) -
+                         clamp(0px, (min(abs(anchor(--bt-row-marker top, 0px) -
+                                             anchor(--bt-src top, 0px)),
+                                         abs(anchor(--bt-row-marker top, 0px) -
+                                             anchor(--bt-src bottom, 0px))) -
+                                    1.5px) * 1000, 2px));
+        }
     }
 }
 
