@@ -63,6 +63,13 @@
     /* The reference's dark --text-on-accent: its held handle draws the grip
        in #e4e4e4, not white. */
     --table-drag-grip-active-ink: #e4e4e4;
+    /* Table hovers, Blue Topaz's dark values, byte-identical: they moved out
+       of the three :hover rules in the Table section below and into tokens the
+       light file's rules read, because section 13's handle-hover overlay
+       paints the same three colours from rules that are not :hover rules. */
+    --table-hover-raw-color: #08569a21;
+    --table-hover-color: #1f65a221;
+    --table-hover-thead-color: #21395bc7;
     --window-border: 1px solid var(--dark-border-color);
     /* Raised panels (code-tooltip, quick-open, suggest list, modal,
        notification, footer word-count): the reference fills its
@@ -228,29 +235,18 @@ hr {
 /* Same :not(.md-reset) guards as the light skin (fencing off the
    table-resize popover's in-#write pick-grid): these overrides win by load
    order at equal specificity, so the guards must match exactly. */
+/* The token only: the light file's background-color: var(--bt-th-base)
+   declaration applies here too and picks this value up. */
 #write th:not(.md-reset) {
-    background-color: hsla(208, 64%, 49%, 0.1);
+    --bt-th-base: hsla(208, 64%, 49%, 0.1);
 }
 
 #write tbody tr:not(.md-reset) {
-    background-color: #2f2f2f32;
+    --bt-row-base: #2f2f2f32;
 }
 
 #write tbody tr:not(.md-reset):nth-child(odd) {
-    background-color: #00000033;
-}
-
-/* Table hovers: Blue Topaz's dark --table-hover-* tokens, byte-identical. */
-#write tbody tr:not(.md-reset):hover {
-    background-color: #08569a21;
-}
-
-#write td:not(.md-reset):hover {
-    background-color: #1f65a221;
-}
-
-#write th:not(.md-reset):hover {
-    background-color: #21395bc7;
+    --bt-row-base: #00000033;
 }
 
 /* ========== Table edit UI ========== */

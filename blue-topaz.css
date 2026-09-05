@@ -69,6 +69,16 @@
        --text-on-accent (#fff light, #e4e4e4 dark — measured on its handle's
        color and SVG stroke while pressed). */
     --table-drag-grip-active-ink: #fff;
+    /* Table hovers, under the reference's own names: --table-hover-raw-color
+       is the row, --table-hover-color the cell, --table-hover-thead-color the
+       header cell. They were literals inside section 12's :hover rules until
+       the drag handles started painting the same three colours from outside
+       the table (section 13, "Handle hover"), which needs them on a
+       non-hovered element; a token is the only place both readers can share
+       one value. Byte-identical to what those rules carried. */
+    --table-hover-raw-color: #85bfee2f;
+    --table-hover-color: #5dacec34;
+    --table-hover-thead-color: #ddefff;
     --window-border: 1px solid var(--ui-border-color);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -775,31 +785,44 @@ hr {
 #write th:not(.md-reset) {
     font-weight: 600;
     color: var(--text-color);
-    background-color: var(--primary-color-01);
+    /* Held in a token, not written straight onto background-color, because
+       section 13's handle-hover overlay has to mix against whatever a header
+       cell's resting fill is in the current skin. The dark file overrides the
+       token alone and inherits this declaration. */
+    --bt-th-base: var(--primary-color-01);
+    background-color: var(--bt-th-base);
 }
 
+/* Both parities are filled — this is not "zebra over nothing" — so the
+   handle-hover overlay in section 13 needs each row's own resting colour to
+   mix against: --bt-row-base carries it, and the dark file overrides the two
+   tokens alone. */
 #write tbody tr:not(.md-reset) {
-    background-color: #f1f1f176;
+    --bt-row-base: #f1f1f176;
+    background-color: var(--bt-row-base);
 }
 
 #write tbody tr:not(.md-reset):nth-child(odd) {
-    background-color: #ffffff70;
+    --bt-row-base: #ffffff70;
 }
 
 /* Table hovers: Blue Topaz's own --table-hover-* tokens (tr = raw, td =
    color, th = thead), byte-identical upstream. These live in the THEME
    layer — the core --table-row-background-hover being transparent is a red
-   herring that briefly got these removed on 2026-07-25. */
+   herring that briefly got these removed on 2026-07-25. The values sit in
+   :root because section 13's handle-hover overlay paints the same three from
+   rules that are not :hover rules; the dark file redefines the tokens and
+   drops its copies of these three rules. */
 #write tbody tr:not(.md-reset):hover {
-    background-color: #85bfee2f;
+    background-color: var(--table-hover-raw-color);
 }
 
 #write td:not(.md-reset):hover {
-    background-color: #5dacec34;
+    background-color: var(--table-hover-color);
 }
 
 #write th:not(.md-reset):hover {
-    background-color: #ddefff;
+    background-color: var(--table-hover-thead-color);
 }
 
 /* ========== 13. Table edit UI ========== */
@@ -1521,6 +1544,171 @@ content:has(#write.no-selection) *::after {
     #write :where(table.md-table thead th:first-child)::after {
         content: none;
     }
+}
+
+/* --- Handle hover: light the row / cell the handle is parked on ---------
+   The reference's handles are CHILDREN of the cell they belong to — the row
+   handle of the row's first cell, the column handle of the column's header
+   cell — so hovering one IS hovering that cell. The row takes its tr:hover
+   fill (a replacement, not an addition: the zebra goes), the first cell takes
+   the td:hover layer on top of it, and a column handle lights its own header
+   cell and nothing else. There is no whole-column highlight in the reference
+   at all: its theme.css has no column selector, and a hovered column handle
+   leaves every body cell of that column untouched (measured).
+   Typora's handles cannot inherit that for free. They live inside
+   #typora-table-row-tracker / #typora-table-col-tracker, which are #write's
+   SIBLINGS, and the only record of which row or column a tracker is parked at
+   is the inline top/left main.js writes on it — no class, no attribute,
+   nothing a selector can read. So the cell has to remember that the pointer
+   was on it a moment ago.
+
+   THE MEMORY. --bt-hot-row is a registered <integer>, 0 by default and 1
+   while the row is hovered. The default rule carries
+   `transition: --bt-hot-row 0s 3600s`, so the 1 -> 0 change that fires when
+   the pointer leaves the row starts a transition that is still inside its
+   DELAY, and the row goes on computing 1. Nothing animates — the duration is
+   0s, so the property only ever holds one of its two end values — and the
+   3600s is not a timer but a stand-in for "never": the value is meant to last
+   until something else happens, and nobody rests a pointer on a drag handle
+   for an hour.
+   The pointer reaches a handle THROUGH the cell it belongs to: either the
+   cell itself or its approach lane above, which is a pseudo-element OF that
+   cell and hit-tests as it — the first cell's ::before for a body row, the
+   corner cell's ::after for the header row, a header cell's ::before for a
+   column; the grip covers the same 14px because the tracker carries stock's
+   z-index:99 and paints over #write. Either way the last cell hovered is the
+   one the handle belongs to.
+
+   WHAT ENDS IT. While any row in the document is hovered, every OTHER row is
+   pinned to 0 with `transition: none`. Taking the property out of
+   transition-property cancels a running transition outright (CSS Transitions
+   1, "Faster switching"), so the previous hot row drops the moment the pointer
+   reaches another one — in this table or in any other, which is why the gate
+   is #write and not the table: two hot rows would light two rows at once.
+   Re-declaring 0 with the property still listed would NOT do it — a running
+   transition whose end value already equals the after-change value is left
+   alone. A distinct sentinel (-1) cancels it too, but then every row that
+   leaves the sentinel starts its own 3600s transition on the way back to 0,
+   i.e. one live animation per row in the document, for an hour; with
+   `transition: none` the only element that ever carries a transition is the
+   single hot one (measured on a 20-table / 260-row / 19.5k-element fixture:
+   getAnimations().length is 1 with the pointer off the table and 0 with it on
+   a row, in both engines).
+
+   COLUMNS. --bt-hot-cell is the same mechanism, declared on the header cells
+   ALONE, since only a header cell can ever be under a column handle. Its
+   clearing rule still fires on ANY cell's hover, header or body, and that is
+   what makes the leftover path safe: leave the table sideways out of a BODY
+   cell, come back from outside straight onto a column handle, and the last
+   cell hovered is that body cell, so no header cell is hot and nothing lights.
+   Lighting nothing is acceptable; lighting the WRONG column is not, and that
+   is exactly what a header-cells-only clearing rule would have done — it would
+   still be holding whichever header cell was hovered before the body one.
+
+   THE GATE is :hover on the grip, never :active. :active IS the drag, the one
+   state the overlay must be off for, and it latches from mousedown, when the
+   row is already being torn out of the table and wearing the drag overlay
+   below. #write:not(.no-selection) is the second half of the same thought:
+   main.js writes .no-selection on #write for the whole of a drag and pointer
+   capture keeps :hover on the grip through it. Nothing else is needed to make
+   the overlay disappear on time — both trackers are display:none until a
+   cell's mouseenter shows them and again from mouseup onwards, and a
+   display:none element cannot be :hover.
+
+   COLOURS come from section 12 and nowhere else: the same three
+   --table-hover-* tokens its :hover rules paint, mixed against the resting
+   fill the same section gives the element — --bt-row-base for a row,
+   transparent for a body cell, --bt-th-base for a header cell. color-mix
+   returns its endpoints exactly, so at --bt-hot-*: 1 the element gets the
+   hover colour to the byte and at 0 its own colour to the byte, and the row
+   layer and the cell layer still composite as two boxes exactly as they do
+   under a real hover. Measured in both engines and both skins: 0 differing
+   pixels between "handle hovered" and "the same cell hovered directly", and 0
+   between this file and the one before it in every state the gate is shut for.
+   The single residue is 1/255 on R and B of the NON-hot header cells, in dark
+   WebKit, only while a handle is hovered, where color-mix's full-precision
+   result and the hsla literal's own rounding fall either side of a byte.
+
+   COST. Both gates are :has() on <content>, whose subtree is the document, so
+   a hover crossing restyles it: measured at 0.4ms (1.1k elements), 1.2ms
+   (5.4k) and 3.5ms (19.5k, 20 tables, 260 rows) in Chrome, and 5ms at 19.5k in
+   WebKit, against ~0 without these rules. It is paid once per row or cell
+   boundary crossed, not per mousemove.
+
+   EXPORT AND PRINT need no neutralisation. Every painting rule hangs off
+   content:has(...) and exported HTML has no <content> element; beyond that the
+   export serializer writes a table with no class at all (main.js @378317, see
+   section 12), so table.md-table matches nothing there and even the memory
+   rules are inert. Print keeps the editor's DOM, but a print has no pointer,
+   so the gate is shut. */
+@property --bt-hot-row {
+    syntax: "<integer>";
+    inherits: true;
+    initial-value: 0;
+}
+
+@property --bt-hot-cell {
+    syntax: "<integer>";
+    inherits: true;
+    initial-value: 0;
+}
+
+#write table.md-table tr {
+    --bt-hot-row: 0;
+    transition: --bt-hot-row 0s 3600s;
+}
+
+#write table.md-table tr:hover {
+    --bt-hot-row: 1;
+    transition: --bt-hot-row 0s 0s;
+}
+
+#write:has(table.md-table tr:hover) table.md-table tr:not(:hover) {
+    --bt-hot-row: 0;
+    transition: none;
+}
+
+#write table.md-table thead th {
+    --bt-hot-cell: 0;
+    transition: --bt-hot-cell 0s 3600s;
+}
+
+#write table.md-table thead th:hover {
+    --bt-hot-cell: 1;
+    transition: --bt-hot-cell 0s 0s;
+}
+
+#write:has(table.md-table :is(th, td):hover) table.md-table thead th:not(:hover) {
+    --bt-hot-cell: 0;
+    transition: none;
+}
+
+/* Row handle: the hot BODY row takes tr:hover in place of its zebra... */
+content:has(#typora-table-row-tracker .typora-table-drag-area:hover) #write:not(.no-selection) table.md-table tbody tr:not(.md-reset) {
+    background-color: color-mix(in srgb, var(--table-hover-raw-color) calc(100% * var(--bt-hot-row)), var(--bt-row-base));
+}
+
+/* ...and its first cell takes the td:hover layer on top, wherever inside the
+   row the pointer actually came from: the reference's handle is a child of
+   the FIRST cell, so that is the cell its hover lands on. transparent is a
+   body cell's own resting fill — no rule in this file gives td a background
+   except the :hover one being mixed in here. */
+content:has(#typora-table-row-tracker .typora-table-drag-area:hover) #write:not(.no-selection) table.md-table tbody tr:not(.md-reset) > td:first-child {
+    background-color: color-mix(in srgb, var(--table-hover-color) calc(100% * var(--bt-hot-row)), transparent);
+}
+
+/* The header row is draggable too (main.js maps thead to row index 0), and
+   its handle belongs to the corner cell — a th, so it takes th:hover, and the
+   row itself stays put: section 12's row hover is scoped to tbody, exactly as
+   the reference's is. Row memory, not cell memory: what is hot here is the
+   header ROW, whichever of its cells the pointer left from. */
+content:has(#typora-table-row-tracker .typora-table-drag-area:hover) #write:not(.no-selection) table.md-table thead tr > th:first-child {
+    background-color: color-mix(in srgb, var(--table-hover-thead-color) calc(100% * var(--bt-hot-row)), var(--bt-th-base));
+}
+
+/* Column handle: its own header cell, and nothing below it. */
+content:has(#typora-table-col-tracker .typora-table-drag-area:hover) #write:not(.no-selection) table.md-table thead th:not(.md-reset) {
+    background-color: color-mix(in srgb, var(--table-hover-thead-color) calc(100% * var(--bt-hot-cell)), var(--bt-th-base));
 }
 
 /* --- Drag in progress --------------------------------------------------
@@ -3243,6 +3431,7 @@ kbd {
 .on-focus-mode #write table tr:not(.md-reset):nth-child(odd),
 .on-focus-mode #write table th:not(.md-reset):hover,
 .on-focus-mode #write table td:not(.md-reset):hover,
+.on-focus-mode #write table.md-table td:not(.md-reset),
 .on-focus-mode #write table tr:not(.md-reset):hover {
     background-color: transparent !important;
 }
