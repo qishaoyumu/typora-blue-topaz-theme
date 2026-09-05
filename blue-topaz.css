@@ -1413,14 +1413,22 @@ table.md-grid-board {
      while dragging costs nothing: the drag runs off document-level
      mousemove, not off the cell.
    The header row gets the column lane and the body's first column gets the
-   row lane. The corner cell can only have one ::before and the column lane
-   claims it, so the header row has no left lane. That is a real asymmetry,
-   not a free choice: the header row IS draggable — main.js's row-drag start
-   maps thead to index 0 (o.closest("thead").length ? 0 : o.prevAll().length
-   + 1), moveTableRow(0, …) is supported, and the mouseenter delegate parks
-   the row tracker for a hovered th exactly as it does for a td. So a body
-   row lights its grip from 14px outside the table, while the header row's
-   grip still needs the pointer inside a header cell.
+   row lane. The corner cell needs both, and its ::before is the column
+   lane's, so its row lane is its ::after — free on an .md-table cell, whose
+   only other ::after rule is section 12's :empty shim, and Typora's
+   serializer never leaves an .md-table cell empty. The header row IS
+   draggable — main.js's row-drag start maps thead to index 0
+   (o.closest("thead").length ? 0 : o.prevAll().length + 1),
+   moveTableRow(0, …) is supported, and the mouseenter delegate parks the
+   row tracker for a hovered th exactly as it does for a td — and the
+   reference's header row carries a row handle too, so without this lane
+   the header row's grip alone needed the pointer inside a cell. The
+   ::after lane is not reclaimed by the drag overlay (that is ::before), so
+   it stays during a drag; it paints nothing and hit-tests as the corner
+   cell, which the drag ignores, so that costs nothing either. The 14x14
+   corner where the two lanes would meet belongs to neither: each lane is
+   the cell's own extent on its other axis, and the reference's handles
+   leave the same corner empty.
    cursor:default keeps the text I-beam off what reads as blank margin. */
 #write :where(table.md-table thead th),
 #write :where(table.md-table tbody tr > :first-child) {
@@ -1437,7 +1445,8 @@ table.md-grid-board {
     cursor: default;
 }
 
-#write :where(table.md-table tbody tr > :first-child)::before {
+#write :where(table.md-table tbody tr > :first-child)::before,
+#write :where(table.md-table thead th:first-child)::after {
     content: "";
     position: absolute;
     left: -14px;
@@ -1451,14 +1460,17 @@ table.md-grid-board {
    lanes would hang outside the table's box inside figure{overflow-x:auto}. */
 .typora-export #write :where(table.md-table thead th)::before,
 .typora-export #write :where(table.md-table tbody tr > :first-child)::before,
+.typora-export #write :where(table.md-table thead th:first-child)::after,
 .typora-print #write :where(table.md-table thead th)::before,
-.typora-print #write :where(table.md-table tbody tr > :first-child)::before {
+.typora-print #write :where(table.md-table tbody tr > :first-child)::before,
+.typora-print #write :where(table.md-table thead th:first-child)::after {
     content: none;
 }
 
 @media print {
     #write :where(table.md-table thead th)::before,
-    #write :where(table.md-table tbody tr > :first-child)::before {
+    #write :where(table.md-table tbody tr > :first-child)::before,
+    #write :where(table.md-table thead th:first-child)::after {
         content: none;
     }
 }
