@@ -687,9 +687,10 @@ hr {
    row drag of the last row, with no closing edge. 2px is exactly the stroke
    and nothing more: the cells' own bottom does not move (229.30 either way),
    so the band, the toolbar and every cell box are untouched and only what
-   sits BELOW a table shifts. One thing keys off the number and has to follow
-   it: main.js sizes the column drop line from the figure's offsetHeight, so
-   section 13's pull-back for that line is 20 + 2.
+   sits BELOW a table shifts. Two things key off these numbers and have to
+   follow them: section 13's fallback column line pulls back 20 + 2 from the
+   figure's offsetHeight, and its anchored column line adds the 20 to the
+   table's top, the 2 to its bottom and takes the 14 off its right.
    The cost is 2px of height per table — measured, table and figure 131.30 ->
    133.30, the block after each table pushed down by 2px — and 28px of
    width. The figure is still capped at max-width:100%,
@@ -1673,17 +1674,20 @@ table.md-grid-board {
    cell and so begins below the band already, plus the 2px of bottom padding
    section 12 keeps for the drag overlay's outset stroke. The row line never
    sees that 2px: main.js sizes it from the figure's WIDTH.
-   Known boundary: for a drop AFTER the last column, main.js takes the origin
-   from the figure instead of a cell (t = fig.offset(); t.left += fig
-   offsetWidth), so that one line lands on the table's right edge, 14px past
-   the cells, and 20px high of where the other cases sit. One inline-positioned
+   Known boundary of these two rules: for a drop AFTER the last column,
+   main.js takes the origin from the figure instead of a cell (t =
+   fig.offset(); t.left += fig.offsetWidth), so that one line lands on the
+   table's right edge, 14px past the cells, and 20px high of where the other
+   cases sit. One inline-positioned
    element with one ::before cannot tell the two branches apart, and the
    inline offset is unreadable from CSS. On a table wide enough to scroll the
    horizontal half of that goes away — fig.offsetWidth is then the figure's
    own clipped width, so the line lands on the figure's visible right edge
    exactly as it did before (measured: x 918..922 in both), and only the 20px
    rise is left. The row line has no such split: its last-position branch
-   measures the <tr>, whose box is already the cells'. */
+   measures the <tr>, whose box is already the cells'. That split is what the
+   @supports block below repairs; these two rules stay as the fallback for an
+   engine without anchor positioning. */
 #typora-table-row-insert-marker::before {
     left: 0;
     right: 28px;
@@ -1696,6 +1700,110 @@ table.md-grid-board {
     bottom: 22px;
     left: -2px;
     width: 4px;
+}
+
+/* The column line, redrawn from two anchors instead of one inline offset.
+   A line drawn ON the marker can only be as right as the marker's own box,
+   and for a drop AFTER the last column main.js parks that box on the
+   FIGURE's top-right (t = fig.offset(); t.left += fig.offsetWidth), i.e.
+   14px right of the cells and 20px above them. Drawing the line somewhere
+   else instead — a box that reads the marker for x and the dragged table
+   for y — lets the one wrong branch be clamped without touching the other
+   four.
+   Host: <content>::after. It is unused by stock (base.css / base-control.css
+   only ever match the tails of class names — .md-toc-content:after,
+   .md-br-content:after, .md-content:after — never the <content> element)
+   and by this file. #write::after cannot do the job: its containing block is
+   #write, and the marker is #write's SIBLING, which puts the marker outside
+   the set of elements #write::after may anchor to.
+   x, from the marker: the marker's left is the target column's header cell
+   left for every inter-column drop, and the FIGURE's right edge for the
+   after-last one — the table's border-box right while the figure shrink-wraps
+   the table, the figure's own clipped right edge once the table is wide
+   enough to scroll, where the clamp below stays idle until the figure is
+   scrolled to its end and that line keeps sitting on the visible edge exactly
+   as before. Clamping it to the cells' right edge — the border box less
+   the 14px lane — moves that one case back onto the cells and is a no-op for
+   the rest, whose left is always a cell's own left and so always smaller.
+   min() picks whichever is smaller; the trailing -2px is the same half width
+   the ::before rules use to centre a 4px line on the edge JS aimed at.
+   y, from the table: cells' top = border box + the 20px band, cells' bottom =
+   border box - the 2px the drag overlay's outset stroke keeps. Both read off
+   section 12's padding directly, so neither branch of M() can move them.
+   Gating, without :hover or :active — the line must exist exactly while
+   main.js shows the marker, and main.js signals that with an inline
+   display:none no selector should key off ([style*="display: none"] would
+   match jQuery's serialisation, but that is a coincidence, not a contract):
+     - existence is :has(.typora-on-moving), the class L() writes at drag
+       start and D() removes at mouseup. It is on the source column's CELLS
+       for a column drag and on the <tr> for a row drag; both are inside the
+       table, so the box also exists during a row drag and is parked
+       off-screen by the fallback below. Tracker visibility is NOT usable
+       here: main.js's mouseenter delegate re-shows both trackers whenever
+       the pointer crosses a cell, drag or no drag.
+     - the marker's own display:none makes --bt-col-marker generate no box,
+       which makes anchor() invalid, which takes the -9999px fallback and
+       sends the line off the left of <content>. That is what hides the line
+       at a no-op index (main.js A(), fired for b == e and b + 1 == e) and
+       for the whole of a row drag. <content> is a scroll container, but in
+       LTR nothing overflowing its LEFT edge is reachable, so the parked box
+       adds no scroll range (measured: scrollWidth / scrollHeight unchanged
+       in every state, both engines).
+       The :has() gate is also what keeps the anchored box out of every other
+       style and layout pass: an always-present anchored ::after made WebKit
+       re-run anchor resolution on every DOM change (measured at 22k elements:
+       +4ms per paragraph insert, +60ms per table removal), while the gated
+       box costs ~4-6ms once at drag start and once at mouseup and nothing per
+       mousemove.
+   z-index 99 is not load-bearing here, unlike on the marker. The marker
+   PRECEDES #write in tree order and needs the lift to escape #write's opaque
+   background; <content>::after is the LAST positioned box in <content> and
+   paints over #write at z-index:auto already (measured: the after-last, pill
+   and picker states are pixel-identical with z-index:auto). 99 is kept so the
+   line keeps the ::before line's place in the order — level with the trackers
+   and the marker, hence over the tracker pill rather than under it should the
+   two ever meet, and under the context menus (.dropdown-menu, bootstrap's
+   1000). The table's size picker never meets it: M() removes the whole
+   .ty-table-edit bar, picker included, before it first places the marker.
+   The @supports test is the whole shipped expression, not a proxy, so an
+   engine that parses anchor() but not anchor() inside min() falls back
+   cleanly to the ::before line above. macOS Typora is a WKWebView and
+   Windows / Linux Typora bundles its own Chromium of unknown version;
+   measured working on the WebKit of macOS 26.6 (anchor positioning shipped
+   with Safari 26, so on macOS 15 and earlier Typora's WKWebView takes the
+   fallback) and on Chrome 148, both anchors resolving and both fallbacks
+   honoured. */
+@supports (anchor-name: --bt-probe) and
+          (left: calc(min(anchor(--bt-probe left, 0px),
+                          anchor(--bt-probe right, 0px) - 14px) - 2px)) {
+    #typora-table-col-insert-marker::before {
+        content: none;
+    }
+
+    #typora-table-col-insert-marker {
+        anchor-name: --bt-col-marker;
+    }
+
+    /* Only ever one table at a time — L() marks the cells of one table and
+       D() clears every one, so the name never lands on two; were it to,
+       anchor() would silently take the LAST of them in tree order. */
+    #write table.md-table:has(.typora-on-moving) {
+        anchor-name: --bt-drag-table;
+    }
+
+    content:has(#write table.md-table .typora-on-moving)::after {
+        content: "";
+        position: absolute;
+        left: calc(min(anchor(--bt-col-marker left, -9999px),
+                       anchor(--bt-drag-table right, -9999px) - 14px) - 2px);
+        top: calc(anchor(--bt-drag-table top, 0px) + 20px);
+        bottom: calc(anchor(--bt-drag-table bottom, 0px) + 2px);
+        width: 4px;
+        border-radius: 2px;
+        background: var(--interactive-accent);
+        pointer-events: none;
+        z-index: 99;
+    }
 }
 
 /* ========== 14. Inline code & Code blocks ========== */
