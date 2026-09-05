@@ -65,6 +65,10 @@
        so it stays TRANSLUCENT: the zebra fill and the header's own accent
        wash have to read through it the way they do there. */
     --table-drag-src-bg: hsla(207, 77%, 54%, 0.1);
+    /* Grip dots of a HELD drag handle, on the accent fill: the reference's
+       --text-on-accent (#fff light, #e4e4e4 dark — measured on its handle's
+       color and SVG stroke while pressed). */
+    --table-drag-grip-active-ink: #fff;
     --window-border: 1px solid var(--ui-border-color);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -1347,7 +1351,8 @@ table.md-grid-board {
 }
 
 .typora-table-drag-area:active::before {
-    background-image: radial-gradient(circle, #fff 1px, transparent 1.5px);
+    background-image: radial-gradient(circle, var(--table-drag-grip-active-ink) 1px,
+                                      transparent 1.5px);
 }
 
 /* The pill's far edge, trimmed back onto the outline. main.js sizes the
@@ -1610,6 +1615,15 @@ content:has(#write.no-selection) *::after {
     position: absolute;
     inset: 0;
     background: var(--table-drag-src-bg);
+    /* The reference's is-selected overlay blends with darken (light) /
+       lighten (dark), and so does this one. On every flat surface under it
+       — page, zebra, header wash — the accent is the darker (light) or the
+       lighter (dark) colour on all three channels, so the blend picks the
+       accent and the tint composites exactly as it would in normal mode.
+       Only the ink under the overlay is different: darken keeps dark text
+       dark instead of lifting it 10% toward the accent, lighten keeps light
+       text light. Dark swaps the mode in its own file. */
+    mix-blend-mode: darken;
     border: 0 solid var(--interactive-accent);
     pointer-events: none;
 }

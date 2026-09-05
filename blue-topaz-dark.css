@@ -60,6 +60,9 @@
     /* The accent at 0.10, translucent for the same reason as light: the
        drag tint is an overlay over the cell, not a replacement fill. */
     --table-drag-src-bg: hsla(208, 64%, 49%, 0.1);
+    /* The reference's dark --text-on-accent: its held handle draws the grip
+       in #e4e4e4, not white. */
+    --table-drag-grip-active-ink: #e4e4e4;
     --window-border: 1px solid var(--dark-border-color);
     /* Raised panels (code-tooltip, quick-open, suggest list, modal,
        notification, footer word-count): the reference fills its
@@ -253,6 +256,16 @@ hr {
 /* ========== Table edit UI ========== */
 #md-resize-grid:hover {
     background: hsl(208, 64%, 39%);
+}
+
+/* The drag overlay's blend mode, the reference's dark value: lighten keeps
+   light ink light under the tint the way darken keeps dark ink dark in the
+   light skin. Same four selectors as the light rule, so load order decides. */
+#write tr.typora-on-moving > td::before,
+#write tr.typora-on-moving > th::before,
+#write td.typora-on-moving::before,
+#write th.typora-on-moving::before {
+    mix-blend-mode: lighten;
 }
 
 /* ========== Code ========== */

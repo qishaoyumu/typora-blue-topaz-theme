@@ -52,6 +52,7 @@ helpers.
 | `--text-muted` (as worn by `.clickable-icon`) | `#7f7f7f` | `--ui-muted-color` — muted chrome ink: table edit-toolbar icons, the size picker's "x" and labels, the insert-table dialog's Columns / Rows labels |
 | `--table-drag-handle-color` | `#7f7f7f` | `--ui-faint-color` — grip dots of the table drag handles (`.typora-table-drag-area::before`) |
 | `--table-selection` (accent 0.10) | `hsla(207, 77%, 54%, 0.1)` | `--table-drag-src-bg` — the row/column being dragged, in place. Translucent, like the reference's `is-selected` overlay: the tint is painted by an absolutely positioned `::before` over the cell (which also carries the 2px accent stroke along the selection's outer edge), so the zebra fill and the header's own accent wash have to read through it. It was an opaque pre-blend while it was a cell background instead. The overlay is the ONLY change: the reference's `mod-dragging` carries no CSS, so the cells keep `--text-color` — the muted ink this wore until 2026-08-29 had no reference source |
+| `--text-on-accent` | `#fff` | `--table-drag-grip-active-ink` — grip dots of a held drag handle, on the accent fill (measured on the reference handle's color and SVG stroke while pressed) |
 | `--background-modifier-hover` analogue (no reference control) | `rgba(0, 0, 0, 0.067)` | `--grid-cell-bg` — a size-picker cell at rest. The reference's own control fill, black 0.067, the same value `--item-hover-bg-color` carries; the cells are flat chips now, with no per-cell border |
 | — | `rgba(0, 0, 0, 0.22)` | `--grid-current-bg` — picker cells marking the table's current size. main.js marks the `<td>` (`td.md-grid-ext`) but the fill is painted on the `<a>` inside it, so one box owns both radius and fill and no square corner shows past the rounded one. Raised from 0.16 after real-machine feedback: against the 0.067 chip it did not read at a glance |
 | — | `rgba(0, 0, 0, 0.34)` | `--grid-current-bg-strong` — the same in the picker's header row (was 0.26) |
@@ -112,6 +113,7 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | `--text-muted` (`.clickable-icon`) | `#8a8a8a` | `--ui-muted-color` |
 | `--table-drag-handle-color` | `#797979` | `--ui-faint-color` |
 | `--table-selection` (accent 0.10) | `hsla(208, 64%, 49%, 0.1)` | `--table-drag-src-bg` — translucent for the same reason as light |
+| `--text-on-accent` | `#e4e4e4` | `--table-drag-grip-active-ink` — the reference's dark value, not white |
 | — | `rgba(255, 255, 255, 0.08)` | `--grid-cell-bg` — white instead of light's black, a notch stronger because a dark surface swallows a wash |
 | — | `rgba(255, 255, 255, 0.28)` | `--grid-current-bg` (was 0.18) |
 | — | `rgba(255, 255, 255, 0.40)` | `--grid-current-bg-strong` (was 0.28) |
