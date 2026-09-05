@@ -1386,6 +1386,49 @@ table.md-grid-board {
     clip-path: inset(-2px -1px -2px -2px);
 }
 
+/* --- The drag itself: cursor and selection -----------------------------
+   A drag has a state class of its own: main.js's L() adds no-selection to
+   #write on the handle's mousedown and D() removes it on mouseup, in step
+   with .typora-on-moving, and nothing else ever writes it. It is the hook
+   for anything that must hold for the WHOLE drag rather than for as long
+   as the pointer stays on the handle.
+   Cursor: the handle is 14px across its off-axis, and the tracker follows
+   the pointer along the drag axis only, so a few pixels of drift puts the
+   pointer over cells and the cursor falls back to the text I-beam. The
+   reference does the same — measured: its cursor reads "text" once the
+   pointer leaves the handle mid-drag, no body class, no capture — so
+   keeping "grabbing" for the whole drag is a departure from it, taken on
+   purpose (2026-09-05): the drag is still in progress and the cursor
+   should say so. Scoped to <content>: the pointer over the sidebar is not
+   over the document. The pseudo-element clause is for the approach lanes
+   below, whose cursor:default at (1,0,1) would otherwise win over a bare
+   descendant selector; :has(#write.no-selection) lifts these to (1,1,1)
+   and (1,1,2), above the handle's own cursor rules, the lanes', and
+   bootstrap's .btn{cursor:pointer}, all of which say the same thing or
+   should lose while a drag is on.
+   Selection: the two mousedown handlers differ in one thing — T() (row)
+   returns false, which jQuery turns into preventDefault(), and _() (column)
+   returns nothing. So a column drag lets the browser's own mousedown
+   default run, and on WebKit that starts a text selection from the
+   tracker, whose cursor is then forced to the I-beam for as long as the
+   mouse is down, over the pill included (seen on the real machine, column
+   drags only, row drags fine). user-select:none on the trackers takes
+   them out of what a selection may start on, which is the only lever CSS
+   has here; the same value is what stock's .no-selection puts on #write.
+   Unprefixed and prefixed both, as stock writes it. */
+content:has(#write.no-selection),
+content:has(#write.no-selection) *,
+content:has(#write.no-selection) *::before,
+content:has(#write.no-selection) *::after {
+    cursor: grabbing;
+}
+
+#typora-table-row-tracker,
+#typora-table-col-tracker {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
 /* --- Approach lanes ----------------------------------------------------
    Stock only shows a handle once the pointer is INSIDE a cell: the trigger is
    $("#write").on("mouseenter click", "th, td"). The reference lights its
