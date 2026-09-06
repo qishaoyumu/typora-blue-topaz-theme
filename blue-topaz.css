@@ -1428,26 +1428,84 @@ table.md-grid-board {
    keeping "grabbing" for the whole drag is a departure from it, taken on
    purpose (2026-09-05): the drag is still in progress and the cursor
    should say so. Scoped to <content>: the pointer over the sidebar is not
-   over the document. The pseudo-element clause is for the approach lanes
-   below, whose cursor:default at (1,0,1) would otherwise win over a bare
-   descendant selector; :has(#write.no-selection) lifts these to (1,1,1)
-   and (1,1,2), above the handle's own cursor rules, the lanes', and
-   bootstrap's .btn{cursor:pointer}, all of which say the same thing or
-   should lose while a drag is on.
+   over the document.
+   cursor inherits, so the one declaration on <content> reaches every
+   element under it that has no cursor of its own, and the rest of the
+   block overrides the ones that do INSIDE #write and inside the trackers:
+   stock's a, img, figure, table{cursor:text}, sup.md-footnote, the
+   checkbox, .md-url, the math and HTML blocks, the raw-block tooltips,
+   CodeMirror's lines, the TOC, bootstrap's .btn, this file's task-list
+   input and TOC items, and the three approach lanes, which are
+   pseudo-elements and out of `*`'s reach (hence the two pseudo-element
+   rules; universal ones, since they were measured at 1ms in Chrome and 4ms
+   in WebKit on top of the class toggle, and a named list would miss
+   whatever stock adds next). What sits under <content> outside both keeps
+   its own cursor — in practice #md-notification{cursor:default}, measured
+   (rv20). 3c32b2f's `content:has(...) *` covered it; taking it back would
+   need `content:has(> #write.no-selection) > .md-notification-container *`,
+   a non-subject :has() anchored on <content>, which is the shape this whole
+   block exists to get rid of — so it stays, and a notification is not
+   something a table drag passes over anyway.
+   HOW THIS IS WRITTEN is the fw19 lesson (2026-09-05). The first version,
+   3c32b2f, wrote `content:has(#write.no-selection) *` and charged Chromium
+   for every keystroke: Blink handles a :has() that is not in the subject
+   position — `A:has(X) B`, whatever X and B are — by flagging its anchor A
+   the first time an element matches B and the engine walks left to evaluate
+   :has() on A, whether or not the :has() is true, and from then on every
+   DOM mutation inside A's subtree restyles the whole subtree. The rule
+   itself never has to match: a version whose X does not exist in the
+   document still cost 37ms once B matched, and the same rule with a B that
+   matches nothing cost the base's own 1.4ms (rv20). With A = <content> that
+   is the document: inserting one paragraph cost 55ms at 12k elements
+   against 1.3ms one commit earlier, and the same 35-55ms for every shape
+   of X and B tried. A subject :has() — `A:has(X)` with nothing after it —
+   restyles A alone. So content:has(> #write.no-selection) sets content's
+   own cursor and nothing else, and everything below hangs off
+   #write.no-selection directly. WebKit never had the problem.
+   The trackers are #write's SIBLINGS, out of the class's reach, and their
+   rule is the one :has() left — in the subject position again, and keyed
+   on :active because that is the state the grip itself is in: it latches
+   at mousedown and holds however far the held pointer drifts off the grip,
+   until mouseup (Chrome, real pointer, with and without preventDefault on
+   the mousedown — the row handle's T() returns false, which jQuery turns
+   into preventDefault() plus stopPropagation(); the column handle's _()
+   returns nothing). An engine that dropped :active on leaving the grip
+   would show the arrow over the ghost, nothing worse.
+   The class is written twice on the `*` rule for a specificity of (1,2,0):
+   stock's #write input[type=checkbox] and this file's
+   #write .md-task-list-item > input are (1,1,1), the pointer can drift
+   over either mid-drag, and the first version, at (1,1,1), lost to the
+   latter by order. Enumerating those elements in place of `*` was measured
+   and buys nothing: the same class-toggle cost in both engines (Chrome
+   33 vs 34ms at 12k, WebKit 173 vs 173ms at 32k, against stock's own 31
+   and 148 for the toggle in that run — a different run from the COST
+   figures below — already a full restyle since user-select inherits).
    Selection: the two mousedown handlers differ in one thing — T() (row)
-   returns false, which jQuery turns into preventDefault(), and _() (column)
-   returns nothing. So a column drag lets the browser's own mousedown
-   default run, and on WebKit that starts a text selection from the
-   tracker, whose cursor is then forced to the I-beam for as long as the
-   mouse is down, over the pill included (seen on the real machine, column
-   drags only, row drags fine). user-select:none on the trackers takes
-   them out of what a selection may start on, which is the only lever CSS
-   has here; the same value is what stock's .no-selection puts on #write.
-   Unprefixed and prefixed both, as stock writes it. */
-content:has(#write.no-selection),
-content:has(#write.no-selection) *,
-content:has(#write.no-selection) *::before,
-content:has(#write.no-selection) *::after {
+   returns false, which jQuery turns into preventDefault() plus
+   stopPropagation(), and _() (column) returns nothing. So a column drag
+   lets the browser's own mousedown default run, and on WebKit that starts
+   a text selection from the tracker, whose cursor is then forced to the
+   I-beam for as long as the mouse is down, over the pill included (seen on
+   the real machine, column drags only, row drags fine). user-select:none
+   on the trackers takes them out of what a selection may start on, which
+   is the only lever CSS has here; the same value is what stock's
+   .no-selection puts on #write. Unprefixed and prefixed both, as stock
+   writes it. */
+content:has(> #write.no-selection) {
+    cursor: grabbing;
+}
+
+#write.no-selection,
+#write.no-selection.no-selection *,
+#write.no-selection.no-selection *::before,
+#write.no-selection.no-selection *::after {
+    cursor: grabbing;
+}
+
+#typora-table-row-tracker:has(> .typora-table-drag-area:active),
+#typora-table-row-tracker:has(> .typora-table-drag-area:active) *,
+#typora-table-col-tracker:has(> .typora-table-drag-area:active),
+#typora-table-col-tracker:has(> .typora-table-drag-area:active) * {
     cursor: grabbing;
 }
 
@@ -1579,41 +1637,85 @@ content:has(#write.no-selection) *::after {
    z-index:99 and paints over #write. Either way the last cell hovered is the
    one the handle belongs to.
 
-   WHAT ENDS IT. While any row in the document is hovered, every OTHER row is
-   pinned to 0 with `transition: none`. Taking the property out of
-   transition-property cancels a running transition outright (CSS Transitions
-   1, "Faster switching"), so the previous hot row drops the moment the pointer
-   reaches another one — in this table or in any other, which is why the gate
-   is #write and not the table: two hot rows would light two rows at once.
-   Re-declaring 0 with the property still listed would NOT do it — a running
-   transition whose end value already equals the after-change value is left
-   alone. A distinct sentinel (-1) cancels it too, but then every row that
-   leaves the sentinel starts its own 3600s transition on the way back to 0,
-   i.e. one live animation per row in the document, for an hour; with
-   `transition: none` the only element that ever carries a transition is the
-   single hot one (measured on a 20-table / 260-row / 19.5k-element fixture:
-   getAnimations().length is 1 with the pointer off the table and 0 with it on
-   a row, in both engines).
+   WHAT ENDS IT. While the pointer is anywhere inside #write, every row that
+   is not itself hovered is pinned to 0 with `transition: none`. Taking the
+   property out of transition-property cancels a running transition outright
+   (CSS Transitions 1 §3 "Starting of transitions": a running transition for
+   a property with no matching transition-property value must be cancelled),
+   so the previous hot row drops the moment the pointer reaches anything
+   else — another row of this table, a row of any other, a paragraph in
+   between — and a memory survives only OFF #write. Of the places off it,
+   the one that leads to a handle is the tracker, which is #write's sibling
+   and so never in its hover chain: cell or lane first, grip last, and
+   nothing on that route clears.
+   Re-declaring 0 with the property still listed would NOT do
+   it — a running transition whose end value already equals the after-change
+   value is left alone. A distinct sentinel (-1) cancels it too, but then
+   every row that leaves the sentinel starts its own 3600s transition on the
+   way back to 0, i.e. one live animation per row in the document, for an
+   hour; with `transition: none` the only element that ever carries a
+   transition is the single hot one (measured on a 20-table / 231-row /
+   17.9k-element fixture: getAnimations().length is 1 with the pointer off
+   #write — on the grip — and 0 with it anywhere inside, in both engines).
+   The first version keyed the clears on #write:has(table.md-table tr:hover),
+   and that is the fw19 lesson again (the drag block above): a :has() with a
+   subject after it flags its anchor, and with #write for an anchor every
+   keystroke restyled the document in Chromium. Moving the anchor to the
+   table would have been cheap but wrong — a row left hot in one table stays
+   hot while the pointer is in another, and the next handle lights both.
+   #write:hover has no such cost, hover on #write flipping once on the way
+   in and once on the way out, not per row, and it clears more, not less.
+   The one memory it loses that the reference would keep: off the grip
+   sideways into #write and back. The grip's 14px band is the table's own
+   padding-left, inside the table's border box, so the grip's left edge IS
+   the table's — and everything left of that is #write: first the empty
+   content box figure.table-figure's auto margins leave beside a centred
+   table, usually a few hundred px, then #write's own 30px of padding, which
+   is the narrowest the strip can ever be. All of it IS #write, so the row
+   is cleared on the way out, and the grip lights nothing until the pointer
+   has been on the row again.
+   Accepted (2026-09-06): the reference re-lights there
+   because its handle is part of the cell, and the only selector that would
+   keep this memory while still clearing on every other row is the
+   per-keystroke one.
 
    COLUMNS. --bt-hot-cell is the same mechanism, declared on the header cells
-   ALONE, since only a header cell can ever be under a column handle. Its
-   clearing rule still fires on ANY cell's hover, header or body, and that is
-   what makes the leftover path safe: leave the table sideways out of a BODY
-   cell, come back from outside straight onto a column handle, and the last
-   cell hovered is that body cell, so no header cell is hot and nothing lights.
-   Lighting nothing is acceptable; lighting the WRONG column is not, and that
-   is exactly what a header-cells-only clearing rule would have done — it would
-   still be holding whichever header cell was hovered before the body one.
+   ALONE, since only a header cell can ever be under a column handle, and
+   cleared the same way: inside #write, every header cell not hovered is
+   pinned, wherever the pointer is. That is what
+   makes the leftover path safe: leave the table sideways out of a BODY cell,
+   come back from outside straight onto a column handle, and no header cell
+   is hot, so nothing lights. Lighting nothing is acceptable; lighting the
+   WRONG column is not, and that is exactly what a clearing rule keyed on
+   the header cells' own hover would have done — it would still be holding
+   whichever header cell was hovered before the body one.
 
    THE GATE is :hover on the grip, never :active. :active IS the drag, the one
    state the overlay must be off for, and it latches from mousedown, when the
    row is already being torn out of the table and wearing the drag overlay
    below. #write:not(.no-selection) is the second half of the same thought:
    main.js writes .no-selection on #write for the whole of a drag and pointer
-   capture keeps :hover on the grip through it. Nothing else is needed to make
-   the overlay disappear on time — both trackers are display:none until a
-   cell's mouseenter shows them and again from mouseup onwards, and a
-   display:none element cannot be :hover.
+   capture keeps :hover on the grip through it, and it is the only thing that
+   holds the overlay off for the whole drag. What follows the drag needs no
+   gate of its own. main.js's p() sets both trackers to display:none on
+   mouseup, which is NOT by itself enough to shut this one: Blink leaves
+   :hover on a hidden element until the pointer next moves (measured — the
+   grip still matches :hover two seconds after display:none, with the pointer
+   at rest; WebKit untested, and it does not matter which way it goes). If the
+   gate closes there, nothing is painted; if it stays open, what it paints is
+   already right. A drag that moved something ends with the figure replaced,
+   so every row is a new element whose memory reads 0 and nothing lights; a
+   press that moved nothing leaves the pointer on the approach lane of the
+   very cell the handle belongs to, which is the cell the stale gate paints —
+   the same pixels a plain hover would give. Either way the overlay never
+   outlives the cell it belongs to.
+   The gate's :has() is anchored on the tracker and reaches #write through
+   the sibling combinator — both trackers are <content>'s children ahead of
+   #write (TypeMark/index.html) — and not the other way round,
+   content:has(tracker grip:hover) #write ..., which was the first version
+   and the fw19 shape: anchored on <content>, it restyled the document on
+   every keystroke in Chromium. Anchored on the tracker, the flagged subtree
+   is the tracker.
 
    COLOURS come from section 12 and nowhere else: the same three
    --table-hover-* tokens its :hover rules paint, mixed against the resting
@@ -1629,18 +1731,27 @@ content:has(#write.no-selection) *::after {
    WebKit, only while a handle is hovered, where color-mix's full-precision
    result and the hsla literal's own rounding fall either side of a byte.
 
-   COST. Both gates are :has() on <content>, whose subtree is the document, so
-   a hover crossing restyles it: measured at 0.4ms (1.1k elements), 1.2ms
-   (5.4k) and 3.5ms (19.5k, 20 tables, 260 rows) in Chrome, and 5ms at 19.5k in
-   WebKit, against ~0 without these rules. It is paid once per row or cell
-   boundary crossed, not per mousemove.
+   COST (fw19, 2026-09-06; Chrome 148 at 12k elements / WebKit at 32k, one
+   page load per state, medians of a forced layout after the change). Idle
+   typing — a paragraph inserted under #write and removed — 1.4ms / 0ms, the
+   same as with none of these rules; the version before this one paid 58ms /
+   2ms. Typing inside a cell 1.0ms / 0ms (before: 60ms / 7ms). The per-frame
+   tracker moves of a drag 0.3ms / 1ms. The class toggle at the start and end
+   of a drag 35ms / 175ms against 34 / 150 without these rules, a full
+   restyle either way. All of these are one run (rv20's re-measure, the
+   three snapshots back to back). The two crossings that are this block's
+   own — on a 20-table / 231-row / 17.9k-element document, :hover widened
+   to a class so the pointerless WebKit can take it — are a row boundary,
+   0.2ms / 2ms against 0.2 / 0 without these rules, and onto or off the
+   grip, the one event that opens or shuts the gate, 2ms in both engines
+   against 0.1 / 0. Each is paid once per crossing, not per mousemove.
 
-   EXPORT AND PRINT need no neutralisation. Every painting rule hangs off
-   content:has(...) and exported HTML has no <content> element; beyond that the
-   export serializer writes a table with no class at all (main.js @378317, see
-   section 12), so table.md-table matches nothing there and even the memory
-   rules are inert. Print keeps the editor's DOM, but a print has no pointer,
-   so the gate is shut. */
+   EXPORT AND PRINT need no neutralisation. Every painting rule hangs off a
+   tracker, and exported HTML has neither tracker nor <content>; beyond that
+   the export serializer writes a table with no class at all (main.js @378317,
+   see section 12), so table.md-table matches nothing there and even the
+   memory rules are inert. Print keeps the editor's DOM, but a print has no
+   pointer, so the gate is shut. */
 @property --bt-hot-row {
     syntax: "<integer>";
     inherits: true;
@@ -1663,7 +1774,7 @@ content:has(#write.no-selection) *::after {
     transition: --bt-hot-row 0s 0s;
 }
 
-#write:has(table.md-table tr:hover) table.md-table tr:not(:hover) {
+#write:hover table.md-table tr:not(:hover) {
     --bt-hot-row: 0;
     transition: none;
 }
@@ -1678,13 +1789,13 @@ content:has(#write.no-selection) *::after {
     transition: --bt-hot-cell 0s 0s;
 }
 
-#write:has(table.md-table :is(th, td):hover) table.md-table thead th:not(:hover) {
+#write:hover table.md-table thead th:not(:hover) {
     --bt-hot-cell: 0;
     transition: none;
 }
 
 /* Row handle: the hot BODY row takes tr:hover in place of its zebra... */
-content:has(#typora-table-row-tracker .typora-table-drag-area:hover) #write:not(.no-selection) table.md-table tbody tr:not(.md-reset) {
+#typora-table-row-tracker:has(> .typora-table-drag-area:hover) ~ #write:not(.no-selection) table.md-table tbody tr:not(.md-reset) {
     background-color: color-mix(in srgb, var(--table-hover-raw-color) calc(100% * var(--bt-hot-row)), var(--bt-row-base));
 }
 
@@ -1693,7 +1804,7 @@ content:has(#typora-table-row-tracker .typora-table-drag-area:hover) #write:not(
    the FIRST cell, so that is the cell its hover lands on. transparent is a
    body cell's own resting fill — no rule in this file gives td a background
    except the :hover one being mixed in here. */
-content:has(#typora-table-row-tracker .typora-table-drag-area:hover) #write:not(.no-selection) table.md-table tbody tr:not(.md-reset) > td:first-child {
+#typora-table-row-tracker:has(> .typora-table-drag-area:hover) ~ #write:not(.no-selection) table.md-table tbody tr:not(.md-reset) > td:first-child {
     background-color: color-mix(in srgb, var(--table-hover-color) calc(100% * var(--bt-hot-row)), transparent);
 }
 
@@ -1702,12 +1813,12 @@ content:has(#typora-table-row-tracker .typora-table-drag-area:hover) #write:not(
    row itself stays put: section 12's row hover is scoped to tbody, exactly as
    the reference's is. Row memory, not cell memory: what is hot here is the
    header ROW, whichever of its cells the pointer left from. */
-content:has(#typora-table-row-tracker .typora-table-drag-area:hover) #write:not(.no-selection) table.md-table thead tr > th:first-child {
+#typora-table-row-tracker:has(> .typora-table-drag-area:hover) ~ #write:not(.no-selection) table.md-table thead tr > th:first-child:not(.md-reset) {
     background-color: color-mix(in srgb, var(--table-hover-thead-color) calc(100% * var(--bt-hot-row)), var(--bt-th-base));
 }
 
 /* Column handle: its own header cell, and nothing below it. */
-content:has(#typora-table-col-tracker .typora-table-drag-area:hover) #write:not(.no-selection) table.md-table thead th:not(.md-reset) {
+#typora-table-col-tracker:has(> .typora-table-drag-area:hover) ~ #write:not(.no-selection) table.md-table thead th:not(.md-reset) {
     background-color: color-mix(in srgb, var(--table-hover-thead-color) calc(100% * var(--bt-hot-cell)), var(--bt-th-base));
 }
 

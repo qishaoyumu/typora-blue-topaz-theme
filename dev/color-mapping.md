@@ -56,6 +56,8 @@ helpers.
 | `--table-hover-raw-color` | `#85bfee2f` | `--table-hover-raw-color` — a hovered body row, replacing its zebra fill; byte-identical upstream. Lifted from section 12's `tr:hover` literal into a token because section 13's handle-hover overlay paints the same colour on the row the handle is parked on, which is not :hover. The row's resting fill it is mixed against travels in `--bt-row-base` (set by the zebra rules, port-internal) |
 | `--table-hover-color` | `#5dacec34` | `--table-hover-color` — the hovered cell's layer on top of the row; same lift, same reason |
 | `--table-hover-thead-color` | `#ddefff` | `--table-hover-thead-color` — a hovered header cell; the header's resting fill travels in `--bt-th-base` (= `--primary-color-01`, port-internal) |
+| — | `#f1f1f176` / `#ffffff70` (odd) | `--bt-row-base` — a body row's resting zebra fill, lifted into a token so section 13's handle-hover overlay can `color-mix` against it. Port-internal; the values are section 12's own, unchanged. Both parities are filled, so the mix needs the row's own one |
+| `--primary-color-01` | `hsla(207, 77%, 54%, 0.1)` | `--bt-th-base` — a header cell's resting fill, lifted for the same reason. Port-internal; the dark file overrides the token alone and inherits the light `background-color` declaration |
 | `--background-modifier-hover` analogue (no reference control) | `rgba(0, 0, 0, 0.067)` | `--grid-cell-bg` — a size-picker cell at rest. The reference's own control fill, black 0.067, the same value `--item-hover-bg-color` carries; the cells are flat chips now, with no per-cell border |
 | — | `rgba(0, 0, 0, 0.22)` | `--grid-current-bg` — picker cells marking the table's current size. main.js marks the `<td>` (`td.md-grid-ext`) but the fill is painted on the `<a>` inside it, so one box owns both radius and fill and no square corner shows past the rounded one. Raised from 0.16 after real-machine feedback: against the 0.067 chip it did not read at a glance |
 | — | `rgba(0, 0, 0, 0.34)` | `--grid-current-bg-strong` — the same in the picker's header row (was 0.26) |
@@ -119,7 +121,9 @@ A second dark blue formula, `hsla(208, 64%, 49%, a)` (the HSL form of the dark `
 | `--text-on-accent` | `#e4e4e4` | `--table-drag-grip-active-ink` — the reference's dark value, not white |
 | `--table-hover-raw-color` | `#08569a21` | `--table-hover-raw-color` — dark row hover, byte-identical upstream; the three dark `:hover` rules went away with the lift, the light rules read the tokens |
 | `--table-hover-color` | `#1f65a221` | `--table-hover-color` |
-| `--table-hover-thead-color` | `#21395bc7` | `--table-hover-thead-color`; `--bt-th-base` = `hsla(208, 64%, 49%, 0.1)`, `--bt-row-base` = `#2f2f2f32` / `#00000033` (odd) |
+| `--table-hover-thead-color` | `#21395bc7` | `--table-hover-thead-color` — dark header-cell hover; the resting fill it is mixed against is the dark `--bt-th-base` below |
+| — | `#2f2f2f32` / `#00000033` (odd) | `--bt-row-base` — dark resting zebra, byte-identical to what the two rules carried before the lift |
+| — | `hsla(208, 64%, 49%, 0.1)` | `--bt-th-base` — the dark header fill; note this is the 64/49 formula, not the brighter `--primary-color-01` the light file points the token at |
 | — | `rgba(255, 255, 255, 0.08)` | `--grid-cell-bg` — white instead of light's black, a notch stronger because a dark surface swallows a wash |
 | — | `rgba(255, 255, 255, 0.28)` | `--grid-current-bg` (was 0.18) |
 | — | `rgba(255, 255, 255, 0.40)` | `--grid-current-bg-strong` (was 0.28) |
