@@ -1543,9 +1543,20 @@ content:has(> #write.no-selection) {
      mousemove, not off the cell.
    The header row gets the column lane and the body's first column gets the
    row lane. The corner cell needs both, and its ::before is the column
-   lane's, so its row lane is its ::after — free on an .md-table cell, whose
-   only other ::after rule is section 12's :empty shim, and Typora's
-   serializer never leaves an .md-table cell empty. The header row IS
+   lane's, so its row lane is its ::after, which on an .md-table cell is
+   otherwise claimed only by section 12's :empty shim — and :not(:empty)
+   hands the pseudo-element back whenever that shim needs it. Without the
+   guard the two rules share one ::after and split it by property: the
+   shim's display:inline-block loses to the lane's position:absolute, the
+   shim's line box goes, and a single-column raw table with an empty header
+   cell collapses to an 8px row — 28.8 -> 8 in Chromium, 28 -> 8 in the
+   offscreen WKWebView, re-measured on both the bare table and one inside a
+   figure (fw17 read WebKit as unaffected; rv20 does not reproduce that).
+   Typora's
+   own markup never gets there — every editor cell carries a span.td-span,
+   and the export serializer writes an empty cell as &nbsp; — so the guard
+   is for the hand-written <table class="md-table"> section 12 already
+   names, and the lane is unaffected by it. The header row IS
    draggable — main.js's row-drag start maps thead to index 0
    (o.closest("thead").length ? 0 : o.prevAll().length + 1),
    moveTableRow(0, …) is supported, and the mouseenter delegate parks the
@@ -1553,8 +1564,9 @@ content:has(> #write.no-selection) {
    reference's header row carries a row handle too, so without this lane
    the header row's grip alone needed the pointer inside a cell. The
    ::after lane is not reclaimed by the drag overlay (that is ::before), so
-   it stays during a drag; it paints nothing and hit-tests as the corner
-   cell, which the drag ignores, so that costs nothing either. The 14x14
+   it stays during a drag; it paints nothing, and it hit-tests as the
+   corner cell — which main.js's document-level mousemove ignores, while
+   the mouseenter delegate treats it as it treats any other cell. The 14x14
    corner where the two lanes would meet belongs to neither: each lane is
    the cell's own extent on its other axis, and the reference's handles
    leave the same corner empty.
@@ -1575,7 +1587,7 @@ content:has(> #write.no-selection) {
 }
 
 #write :where(table.md-table tbody tr > :first-child)::before,
-#write :where(table.md-table thead th:first-child)::after {
+#write :where(table.md-table thead th:first-child:not(:empty))::after {
     content: "";
     position: absolute;
     left: -14px;
@@ -1589,17 +1601,17 @@ content:has(> #write.no-selection) {
    lanes would hang outside the table's box inside figure{overflow-x:auto}. */
 .typora-export #write :where(table.md-table thead th)::before,
 .typora-export #write :where(table.md-table tbody tr > :first-child)::before,
-.typora-export #write :where(table.md-table thead th:first-child)::after,
+.typora-export #write :where(table.md-table thead th:first-child:not(:empty))::after,
 .typora-print #write :where(table.md-table thead th)::before,
 .typora-print #write :where(table.md-table tbody tr > :first-child)::before,
-.typora-print #write :where(table.md-table thead th:first-child)::after {
+.typora-print #write :where(table.md-table thead th:first-child:not(:empty))::after {
     content: none;
 }
 
 @media print {
     #write :where(table.md-table thead th)::before,
     #write :where(table.md-table tbody tr > :first-child)::before,
-    #write :where(table.md-table thead th:first-child)::after {
+    #write :where(table.md-table thead th:first-child:not(:empty))::after {
         content: none;
     }
 }
