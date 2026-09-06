@@ -2385,6 +2385,429 @@ content:has(> #write.no-selection) {
     }
 }
 
+/* --- The pill, kept inside the table for the whole of a drag -----------
+   Stock never clamps it. main.js writes the tracker's top (row) or left
+   (column) straight from the pointer on every mousemove — clientY - offsetY
+   - contentTop + content.scrollTop, with no Math.min / max anywhere — so the
+   grip follows the cursor out of the table and as far past it as the pointer
+   goes. Only the drop INDEX is bounded, by the sentinel in M() that pins
+   anything past the last threshold to the last row / column; that part
+   already matches the reference and is untouched here.
+   The reference clamps the handle and the drop target separately in the same
+   rAF loop: the target from a hit point clamped to [0, table length], the
+   handle from Math.clamp(offset + delta, tableStart - handleStart + d,
+   tableEnd - handleEnd - d) with d = --table-border-width = 1px. Measured on
+   it: dragged 227px BELOW the table the row handle stops with its bottom edge
+   on the table's bottom edge less 1px, and 183px above it with its top edge
+   on the table's top edge plus 1; the column handle stops 1px inside the
+   table's left / right edge the same way. That 1px is its cell border, which
+   this port does not have — its table's border box IS the cells' box, while
+   here the cells sit inside section 12's 20px / 14px / 2px lanes. The
+   faithful translation is therefore the CELLS' box, not the table's: the
+   pill's box ends ON the cells' edge, which is exactly the relation the
+   handle already has when parked (see the geometry note beside the :hover
+   rules above), and its 2px ring lands on the drag overlay's outset stroke
+   rather than on bare cell. Measured here with the pointer 100px past the
+   table, Chrome / WebKit: the row pill's top stops at 118.00 / 118 going up
+   and 201.80 / 200 going down while the tracker itself is at -2.00 and
+   331.30 / 329; the column pill's left stops at 462.16 / 458.16 and
+   645.47 / 641.47 against a tracker at 348.16 / 344.16 and 851.83 / 847.83.
+   The grip cannot clamp ITSELF. Clamping needs the dragged TABLE's geometry,
+   and the grip is a child of the tracker, which stock puts among <content>'s
+   first children — before #write in tree order. Made position:fixed, it
+   reaches its own tracker but not the table in Chrome, and reaches nothing at
+   all in WebKit, where an anchor host with a position:absolute ancestor
+   resolves no anchors and <content> — absolute, holding the whole editor — is
+   that ancestor for everything in it. So the visual pill is redrawn by a host
+   that can see both anchors, and the grip stays behind as the hit target with
+   its paint turned off.
+   Host: html::after. <content>::after is taken by the column drop line above,
+   and a drag needs the line and the pill at the same time; of the six
+   pseudo-elements that could stand in — ::before and ::after on <html>,
+   <body> and <content> — the three ::before boxes reach neither anchor in
+   either engine, since each precedes its target in tree order, and of the
+   three ::after boxes only <html>'s and <body>'s reach BOTH an absolutely
+   positioned tracker and a cell inside #write in BOTH engines once they are
+   position:fixed, which is the shape this pill needs: a fixed
+   <content>::after resolves both anchors in Chrome and neither in WebKit.
+   (The drop line's own <content>::after reaches both because it is
+   position:absolute; the comparison here is between the six boxes in this
+   block's shape.) <body>::after works and costs too much: with the same two
+   gates on <body> instead, Chrome 148 at 12k elements paid 4.1-5.0ms for an
+   idle paragraph insert and 3.3-3.5ms for one inside a cell, against 1.8 /
+   0.9 on <html>, and 6.1-6.6ms per drag frame against 1.3. Neither
+   pseudo-element is claimed by stock or by this file (the only body-ish
+   pseudo in the four shipped sheets is #ty-oversize-body:before, and
+   html::after appears in none of them).
+   WHAT A FIXED HOST GIVES UP is <content>'s clip, and the four insets below
+   buy it back by hand. The stock grip is a child of a tracker, whose
+   containing block and scroll container is <content>, so the editor's own box
+   cuts it off; a fixed box is clipped by the viewport alone, and wherever
+   <content> does not fill the window the pill would paint where the grip
+   cannot. There are two such bands on macOS and more on Windows:
+   mac-seamless-mode starts <content> one title bar down (base-control.css,
+   margin-top: var(--title-bar-height), 28px on mac-os-11) and paints an
+   opaque <titlebar> at z-index auto in it; a pinned outline starts it at the
+   sidebar's right edge (left: var(--sidebar-width), the sidebar at z-index
+   1); and window.css, which macOS does not load, gives it a 28px title bar of
+   its own and a 25px footer under narrow windows. Measured in both engines
+   without the clip, source table's top scrolled to -12 and the tracker at 15:
+   247 (Chrome) / 963 (WebKit, DPR 2) accent pixels above y = 28, the box
+   starting at 13; with the pointer off the top of the window, 357 / 1383 from
+   y = 6. With the outline pinned and a table wider than its figure scrolled
+   to the far right, the column pill put 1428 / 5706 pixels on the sidebar.
+   With the clip: 0 in every one of those, in both engines, and the y = 18 /
+   22 / 26 samples back to the background colour the file carries without this
+   block at all.
+   THE CLIP IS THE BOX, not a mask. Nothing in CSS clips a fixed box to
+   another element's padding box — anchor() is not accepted in clip-path — so
+   each inset is written as the intersection of the pill's own edge with
+   <content>'s, with width and height left auto so the two ends decide the
+   size. anchor() measures inward from the containing block edge that matches
+   the property, so in `bottom` and `right` the on-axis clamp is restated in
+   that frame with its two ends exchanged; a box whose two ends cross resolves
+   to zero and paints nothing. That is why the 2px ring is folded INTO the box
+   — 18px wide (row) / 18px tall (column), 7px radius on the same two corners,
+   no box-shadow — rather than left as a box-shadow, which is drawn outside
+   the border box and goes on being drawn when the box is squeezed to nothing:
+   measured with the ring put back as a shadow and the source table scrolled
+   clear of <content>'s top, WebKit paints a 21 x 3.5 stub across the edge,
+   half of it on the title bar, where the folded box paints 0 (Chrome paints
+   neither). Folding is exact rather than close: ring and fill are the same
+   colour, the box grows 2px on every side so the six background-position
+   percentages, all relative to the box's centre, land on the same pixels, and
+   a zero corner radius stays square under a spread. 23 light and 11 dark
+   states in both engines, 62 of the 68 with 0 differing pixels against the
+   ring form; the other six are 1 device pixel at delta (1,1,0) on a WebKit
+   corner (3 states) and 8 pixels at delta 1 on Chrome's dark dot field (3),
+   both gradient rasterisation, not geometry.
+   TWO RESIDUALS COME WITH SHRINKING THE BOX instead of masking it, and both
+   show only while the pill is actually crossing an edge. The dot field
+   re-centres in what is left — clipped 15px off a 31.5px row pill, the three
+   dot rows move down 7.5px, where the stock grip's ::before would simply lose
+   its top dot — and the 7px radius is re-applied at the cut, so the corner
+   reads rounded where a real overflow clip would cut it flat (measured: on
+   the clipped row the fill starts 5px in from the pill's left edge).
+   CHROME'S SCROLL COMPENSATION MOVES THE CLIP LINE WITH IT. Chrome does not
+   re-run these insets when <content> scrolls: it resolves them once, against
+   the anchors as they stood when the box was laid out, and translates the
+   whole box by the scroll delta since. The pill's own anchors scroll by that
+   same delta and stay right — the geometry replays put every unscrolled phase
+   within 0.01px — but <content> is the scroller and does not move, so its
+   edges are carried along and the effective clip line drifts by however far
+   the editor is scrolled DURING one drag. Measured in the seamless shell:
+   scroll 10 down mid-drag without moving the pointer and 149 pixels of pill
+   come back onto the title bar; scroll 100 up and 15px is cut off a pill that
+   is wholly inside the editor. The drift is the scroller's current offset
+   less the one the box was laid out at, not an accumulation: a mousemove
+   does not lay the box out again and so does not clear it (the cut stays
+   at 128 after one), but scrolling back to where the drag started does,
+   inside the same drag (10 down then 10 up, and 100 up then 100 down, both
+   land on the unscrolled pill's 28-45), and it is zero for any drag that
+   does not scroll. THE SCROLLER NEED NOT BE <content>: the translation
+   follows the default anchor's whole scroll chain, and a table wide enough
+   to scroll sits in a figure that is on it, so a horizontal scroll of the
+   figure mid-drag carries the clip the same way on the other axis.
+   Measured with the outline pinned, the same 420px of figure scroll leaves
+   0 accent pixels on the sidebar when it happens before the drag and 735
+   when it happens during one, the pill's left at 227 against a <content>
+   that starts at 270; main.js only reads the figure's scrollLeft, so this
+   one takes the reader scrolling it mid-drag. WebKit relayouts and is
+   exact in all of these.
+   THE ANCHOR EDGE IS THE BORDER BOX, the clip is the padding box less any
+   space-taking scrollbar. Section 29 of this file gives every scroller an
+   8px ::-webkit-scrollbar, which WebKit lays out as a lane (measured: the
+   right cut at 1192 against an anchor edge of 1200; none in this macOS
+   Chrome, whose scrollbars overlay), and window.css — which macOS does not
+   load — adds a 1px border on .paint-border content and a 12px scrollbar
+   of its own. Measured with those two rules on a <content> inset to 270
+   and overflowing both ways: anchor(left) reads 270 in both engines while
+   paint is cut at 271, and on the right the cut is at 1187 (WebKit) and
+   1199 against 1200. So a pill clamped into those lanes is up to 8px less
+   clipped than the grip would be on macOS and up to 13px on Windows.
+   position-anchor names the dragged TABLE, not the tracker, and which one it
+   is matters twice:
+     - Scrolling. Without it, a fixed host stays where it was while <content>
+       scrolls under it; with it, both engines keep the box glued to the
+       anchor. Both anchors live in <content> and so move together, and the
+       compensation is per axis, so naming either one keeps the pill correct
+       through a mid-drag scroll — measured on both engines, including a
+       scroll with no mousemove after it (<content> scrolled 300 with the row
+       pill clamped at the cells' bottom: its top 201.80 -> -100.20 in Chrome,
+       still on that edge; WebKit relayouts and clips it to nothing there,
+       since -100 is above the scrollport, which is the clip note above).
+     - Painting. Chrome stops painting an anchor-positioned box once its
+       DEFAULT anchor is scrolled out of its scroll container, and the tracker
+       goes there the moment the pointer leaves the editor's scrollport, which
+       a drag does all the time. Measured at the boundary with the tracker
+       named instead, the pill's clamped place mid-viewport and in plain
+       sight: tracker 2px inside the scrollport paints exactly what the
+       shipped form paints (0 differing pixels), 2px above it loses 522 pixels
+       of pill, 2px below the bottom loses 468. WebKit paints the same either
+       way (0 differing pixels in all four states). Naming the table ties that
+       rule to the thing the pill is clamped to, so the pill only goes when
+       the table itself does.
+   Chrome's compensation is per PROPERTY, not per box: an inset that names the
+   default anchor gets it, one that names only another anchor does not. Every
+   inset below therefore references --bt-pill-table — measured with the column
+   pill's top taken from the tracker instead, a mid-drag scroll of 300 with no
+   mousemove left the pill's off-axis at 104 while the table had moved to
+   -196, 300px out (WebKit, which recomputes both, was right either way). The
+   same rule is what carries <content>'s edges along with the scroll in the
+   insets that clip against them, since they name the default anchor too; see
+   the clip note above.
+   The trackers and <content> are named on the elements themselves, with no
+   shim pseudo-element to hang the name on. Each tracker is a 0x0 box — stock
+   gives it no size and both its children, the grip and the ghost, are
+   absolutely positioned out of flow — so its own border box IS the point the
+   pill has to follow, and <content>'s border box is the clip. A name on an
+   element nothing anchors to costs nothing, which is what all three are
+   whenever no drag is running; <content>'s rule is not even gated, because a
+   gate on it would be a second :has() on the element the fw19 rule is about.
+   Coordinates, all in the viewport's frame, all read off the TABLE except the
+   one value that has to follow the pointer, and all of them the CORE pill's:
+   each inset carries the folded ring's 2px on top of what is listed here.
+     off-axis — the table's own border box, which is where the tracker parks
+       anyway: the row tracker parks on the <tr>, i.e. on the cells' left
+       edge, and the pill hangs 14px left of that, which is the table's left
+       edge exactly; the column tracker parks on the figure's top, which is
+       the table's top, and the pill sits 6px below it. Taking it from the
+       table rather than from the tracker changes nothing while the two agree
+       and keeps the pill on the SOURCE table when they do not — the
+       mouseenter delegate has no drag guard, so brushing another table
+       mid-drag re-parks both trackers onto it (measured: the row tracker's
+       left 462.16 -> 294.00 in Chrome and 458.16 -> 290.00 in WebKit, the
+       column tracker's top 98.00 -> 855.78 / 845.00), and a tracker-derived
+       off-axis takes the pill along (measured on that variant: the row pill's
+       left 448.16 -> 280.00 / 444.16 -> 276.00, i.e. onto the other table);
+     on-axis  — the tracker's own edge, clamped between the cells' near edge
+       and the cells' far edge less the pill's own length. The cells' edges
+       are read off the dragged table plus section 12's padding: top + 20,
+       bottom - 2, left + 14, right - 14. Where a table has one row or one
+       column the two ends of the clamp coincide and the pill simply does not
+       move (measured on both, both engines);
+     length   — anchor-size() of the source row's / column's cell instead of
+       the JS-set dimension. main.js sizes the grip from a ROUNDED measurement
+       plus one (tr.offsetHeight + 1, cell.offsetWidth + 1), which the
+       clip-path above trims back by that 1 and leaves round(x) - x behind;
+       reading the cell directly gives the fractional length and no residue at
+       all (27.50 / 27 against a JS-set 29 / 28 on a row, 92.36 against 93 on
+       a column), so this pill carries no clip-path.
+   ANCHOR NAMES ARE NOT SHARED WITH THE DROP LINE, except where they are the
+   same anchor. anchor-name is an ordinary property: two rules that reach the
+   same element do not merge their lists, the later one replaces the earlier
+   outright. So:
+     - the table gets its own name. --bt-drag-table must stay unresolved for
+       the whole of a row drag or the drop line's box stops being a line (see
+       the note beside it above), and it is named on the CELLS' table for
+       exactly that reason, so the pill — which needs the table on both axes —
+       cannot borrow it. --bt-pill-table is named on both, and the column
+       rule, which reaches the same element as the drop line's and comes after
+       it in source order, restates --bt-drag-table alongside it. Measured
+       computed anchor-name, both engines: a row drag leaves the table at
+       --bt-pill-table alone, a column drag at --bt-drag-table plus
+       --bt-pill-table, and idle and post-mouseup at none;
+     - the source cells keep --bt-src, redeclared here rather than renamed.
+       The drop line wants the source's edges and the pill wants its length,
+       but it is one anchor on one set of elements for one reason, and an
+       identical declaration in two blocks cannot be broken by whichever wins:
+       either block may be the one the engine applies and the result is the
+       same. Measured: during a row drag the source row's cells carry
+       --bt-src and nothing else does, during a column drag the source
+       column's, and nothing at all when no drag is running.
+   THE GRIP'S PAINT is turned off by a gate anchored on the TRACKER, not on
+   <content>. This is the fw19 rule again (see the drag-cursor block above):
+   Blink flags the anchor of any :has() that is not in the subject position
+   and then restyles that anchor's whole subtree on every DOM change inside
+   it, so content:has(#write.no-selection) <grip> would have charged every
+   keystroke for the document. Anchored on the tracker, the flagged subtree is
+   the tracker, and the class is reached through the sibling combinator: both
+   trackers are <content>'s children ahead of #write (TypeMark/index.html).
+   The rule it has to outrank is the (0,2,0) of the :hover / :active opacity
+   pair above; :has() counts as its own most specific argument, so
+   #write.no-selection brings (1,1,0) and the whole selector lands at (2,2,0).
+   opacity, not visibility or display: the grip goes on hit-testing and goes
+   on carrying cursor:grabbing, and opacity is what stock ships it at anyway.
+   Measured in both engines in the pressed state: the grip's computed opacity
+   is 0 here against 1 before, its background and box-shadow unchanged.
+   The gate is #write.no-selection and not :active, which is the state the
+   grip itself is in but not one WebKit is known to hold for the length of a
+   button-held drag; L() writes the class at mousedown and D() removes it at
+   mouseup, and it opens and shuts in step with the .typora-on-moving the host
+   below keys on, because L() and D() write and clear both together.
+   The dot field. A pseudo-element has no ::before of its own, so the grip's
+   centred 2x3 (row) / 3x2 (column) tiling is restated as one background layer
+   per dot: same radial-gradient, same 4x4 / 5x4 tile as the layer's size, and
+   background-position percentages that centre each layer on the pill and step
+   it by the tile pitch. A percentage position offsets by (box - layer), so
+   50% centres a layer whatever the pill's length is, and calc(50% +- 2px /
+   4px / 5px) reproduces the tile centres the ::before gets from inset:0 +
+   margin:auto. The ink is --table-drag-grip-active-ink, the token the held
+   grip's own ::before reads, not the #fff that token replaced: dark gives it
+   #e4e4e4, and a literal here would have lit the pill's dots brighter than
+   the grip's in that skin alone.
+   Gating follows the drop line's: the host exists only while
+   #write.no-selection and a marked cell inside #write both do, so nothing
+   anchored is live outside a drag. THE FALLBACKS ARE NO LONGER ONE NUMBER.
+   With four insets and auto sizes, a fallback decides whether a missing
+   anchor collapses the box or inflates it to fill the viewport, and the two
+   roles need opposite signs. The PILL's anchors — the table, the two trackers
+   — fall back to +9999px, which puts the near edge past the far one in either
+   frame, since the same +9999 reads as "far down the screen" in `top` and
+   "far up it" in `bottom`; any of them going missing therefore resolves to a
+   zero-sized box that draws nothing. <content>'s falls back to -9999px, which
+   is no clip at all, i.e. the pill this block drew before the clip existed.
+   anchor-size() still falls back to 0px. Measured in both engines with each
+   name in turn misspelled at its declaration and the gate held open: no table
+   0x0 at (9997, 10017), no tracker 18x0 on a row and 0x18 on a column, no
+   <content> the whole pill in its right place, no source cell an 18x4 stub on
+   a row and 4x18 on a column; and after mouseup, where the table's and the
+   source cells' names go together (the trackers' and <content>'s are not
+   gated), 0x0 again for a twin box, while the real host's content returns
+   to none and generates nothing. 0px would have been wrong for all of them
+   — it parks a live pill in the viewport's corner.
+   The #write prefix on the second gate keeps the ghost out: T()
+   re-parses the source <tr>, class and all, into the tracker, and that copy
+   is in <content> but not in #write. The @supports test is the shipped
+   expression, so an engine that parses anchor() but not anchor-size() inside
+   clamp() keeps the unclamped stock pill rather than losing it — measured
+   with the condition forced false, 12 states in both engines, 0 differing
+   pixels against the file before this change.
+   COST (Chrome 148 at 12k elements / offscreen WebKit at 32k, one page load
+   per state, medians of a forced layout after the change; six loads for the
+   two typing states, three for the rest). An idle paragraph insert 1.8-1.9ms
+   / 0 (per-load medians 1.7-2.0) against 1.3 / 0 without this block; the same
+   inside a table cell 0.9 / 0 against 0.9 / 0; the L() / D() class toggle
+   33.7 / 181 against 33.3 / 180. The per-frame tracker write of a drag 1.3 /
+   3 on a row and 1.3 / 2-3 on a column (WebKit's timer reports whole
+   milliseconds), against 0.2 / 1 for both. Clipping the
+   box to <content> is free on top of that: the same three snapshots against
+   the unclipped form of this block measured 1.8 (1.6-2.0) / 0.9 / 34.4 / 1.3
+   / 1.3 in Chrome and 0 / 0 / 181 / 3 / 2 in WebKit, i.e. every state inside
+   the other's per-load spread. Both residuals were
+   located by subtraction: drop the three host rules and Chrome's idle insert
+   goes back to 1.3-1.4ms, so the 0.5 there is the pair of subject-position
+   :has() on <html>; keep the gates but take every anchor reference off the
+   box and the per-frame figure goes back to 0.2-0.3 / 1 while the idle insert
+   stays at 1.8-1.9, so the rest is the anchored box being repositioned, which
+   is what the feature is. The three host selectors carry their :has() in the
+   subject position, which restyles <html> alone; the one non-subject :has()
+   here is the grip gate, and its anchor is a tracker.
+   EXPORT AND PRINT need no neutralisation, for the same reason as the block
+   above: every rule here hangs off #write.no-selection or .typora-on-moving,
+   classes only a live drag carries, and exported HTML has neither the
+   trackers nor a table.md-table to begin with. */
+@supports (anchor-name: --bt-probe) and
+          (position-anchor: --bt-probe) and
+          (top: max(calc(clamp(calc(anchor(--bt-probe top, 0px) + 20px),
+                               anchor(--bt-probe top, 0px),
+                               calc(anchor(--bt-probe bottom, 0px) - 2px
+                                    - anchor-size(--bt-probe height, 0px))) - 2px),
+                    anchor(--bt-probe top, 0px))) {
+    content {
+        anchor-name: --bt-content;
+    }
+
+    #typora-table-row-tracker {
+        anchor-name: --bt-row-tracker;
+    }
+
+    #typora-table-col-tracker {
+        anchor-name: --bt-col-tracker;
+    }
+
+    #write table.md-table:has(tr.typora-on-moving) {
+        anchor-name: --bt-pill-table;
+    }
+
+    #write table.md-table:has(th.typora-on-moving, td.typora-on-moving) {
+        anchor-name: --bt-drag-table, --bt-pill-table;
+    }
+
+    #write table.md-table tr.typora-on-moving > *,
+    #write table.md-table th.typora-on-moving,
+    #write table.md-table td.typora-on-moving {
+        anchor-name: --bt-src;
+    }
+
+    #typora-table-row-tracker:has(~ #write.no-selection) .typora-table-drag-area,
+    #typora-table-col-tracker:has(~ #write.no-selection) .typora-table-drag-area {
+        opacity: 0;
+    }
+
+    html:has(#write.no-selection):has(#write table.md-table .typora-on-moving)::after {
+        content: "";
+        position: fixed;
+        z-index: 99;
+        pointer-events: none;
+        background-color: var(--interactive-accent);
+        background-repeat: no-repeat;
+    }
+
+    html:has(#write.no-selection):has(#write table.md-table tr.typora-on-moving)::after {
+        position-anchor: --bt-pill-table;
+        left: max(calc(anchor(--bt-pill-table left, 9999px) - 2px),
+                  anchor(--bt-content left, -9999px));
+        right: max(calc(anchor(--bt-pill-table left, 9999px) - 16px),
+                   anchor(--bt-content right, -9999px));
+        top: max(calc(clamp(calc(anchor(--bt-pill-table top, 9999px) + 20px),
+                            anchor(--bt-row-tracker top, 9999px),
+                            calc(anchor(--bt-pill-table bottom, 9999px) - 2px
+                                 - anchor-size(--bt-src height, 0px))) - 2px),
+                 anchor(--bt-content top, -9999px));
+        bottom: max(calc(clamp(calc(anchor(--bt-pill-table bottom, 9999px) + 2px
+                                    + anchor-size(--bt-src height, 0px)),
+                               anchor(--bt-row-tracker top, 9999px),
+                               calc(anchor(--bt-pill-table top, 9999px) - 20px))
+                         - anchor-size(--bt-src height, 0px) - 2px),
+                    anchor(--bt-content bottom, -9999px));
+        border-radius: 7px 0 0 7px;
+        background-image:
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px);
+        background-size: 4px 4px;
+        background-position:
+            calc(50% - 2px) calc(50% - 4px), calc(50% + 2px) calc(50% - 4px),
+            calc(50% - 2px) 50%,             calc(50% + 2px) 50%,
+            calc(50% - 2px) calc(50% + 4px), calc(50% + 2px) calc(50% + 4px);
+    }
+
+    html:has(#write.no-selection):has(#write table.md-table :is(td, th).typora-on-moving)::after {
+        position-anchor: --bt-pill-table;
+        top: max(calc(anchor(--bt-pill-table top, 9999px) + 4px),
+                 anchor(--bt-content top, -9999px));
+        bottom: max(calc(anchor(--bt-pill-table top, 9999px) - 22px),
+                    anchor(--bt-content bottom, -9999px));
+        left: max(calc(clamp(calc(anchor(--bt-pill-table left, 9999px) + 14px),
+                             anchor(--bt-col-tracker left, 9999px),
+                             calc(anchor(--bt-pill-table right, 9999px) - 14px
+                                  - anchor-size(--bt-src width, 0px))) - 2px),
+                  anchor(--bt-content left, -9999px));
+        right: max(calc(clamp(calc(anchor(--bt-pill-table right, 9999px) + 14px
+                                   + anchor-size(--bt-src width, 0px)),
+                              anchor(--bt-col-tracker left, 9999px),
+                              calc(anchor(--bt-pill-table left, 9999px) - 14px))
+                        - anchor-size(--bt-src width, 0px) - 2px),
+                   anchor(--bt-content right, -9999px));
+        border-radius: 7px 7px 0 0;
+        background-image:
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px),
+            radial-gradient(circle, var(--table-drag-grip-active-ink) 1px, transparent 1.5px);
+        background-size: 5px 4px;
+        background-position:
+            calc(50% - 5px) calc(50% - 2px), 50% calc(50% - 2px), calc(50% + 5px) calc(50% - 2px),
+            calc(50% - 5px) calc(50% + 2px), 50% calc(50% + 2px), calc(50% + 5px) calc(50% + 2px);
+    }
+}
+
 /* ========== 14. Inline code & Code blocks ========== */
 /* Scope to #write to avoid leaking into <code> inside preferences / modals / sidebar tooltips. */
 #write code {
