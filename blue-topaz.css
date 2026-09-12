@@ -2041,6 +2041,39 @@ content:has(> #write.no-selection) {
     border-bottom-right-radius: 4px;
 }
 
+/* --- Drag: the source keeps the hover it started from -------------------
+   The reference's handle is a child of the cell it belongs to and slides
+   along the table edge under the pointer for the whole drag, so the source
+   row never stops being hovered: tr:hover, the first cell's td:hover and
+   the is-selected overlay all at once (its dark screenshot, real machine,
+   2026-09-12). Typora's tracker slides the same way but is #write's
+   sibling, so nothing inside the table is hovered while it is held, and the
+   handle-hover memory above is shut for the drag by #write.no-selection.
+   main.js's own marker names the source instead: .typora-on-moving on the
+   <tr> for a row drag, on every cell of the column for a column drag (thead
+   included), mousedown to mouseup. Same tokens and layering as section 12's
+   hovers — the row takes the tr:hover fill in place of its zebra, its first
+   cell the td:hover layer on top, a header cell th:hover — and the ::before
+   overlay above composites over them exactly as it does over a plain hover,
+   darken / lighten picking the accent on every channel. The header row's
+   drag lights its corner cell alone, as the memory rule does. Until
+   2026-09-12 the source row went bare for the drag (real-machine report:
+   the dragged row should keep the hovered look, not lose it).
+   Specificity: (1,3,3) over the (1,2,2) zebra and hover rules of section
+   12, (1,4,4) over the (1,1,2) transparent body-cell rule above. */
+#write table.md-table tbody tr.typora-on-moving:not(.md-reset) {
+    background-color: var(--table-hover-raw-color);
+}
+
+#write table.md-table tbody tr.typora-on-moving:not(.md-reset) > td:first-child {
+    background-color: var(--table-hover-color);
+}
+
+#write table.md-table thead tr.typora-on-moving > th:first-child:not(.md-reset),
+#write table.md-table thead th.typora-on-moving:not(.md-reset) {
+    background-color: var(--table-hover-thead-color);
+}
+
 /* Drop indicator: JS stretches the marker to the full table width (row) or
    height (column) and parks it on the target edge. The reference's
    .table-drag-target is a zero-thickness div whose ::after bleeds
