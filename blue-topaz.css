@@ -5161,8 +5161,28 @@ footer.ty-footer {
    own .ty-show toggle): bottom corners squared, the hairline instead of
    the blue where chip meets list, and no shadow, which would band across
    the list's top. :has() needs WebKit 15.4+ / Chromium 105+; older engines
-   keep a rounded chip over a detached list. */
-body:has(#ty-auto-suggest.ty-show > .auto-suggest-for-fences) .md-fences .code-tooltip:focus-within {
+   keep a rounded chip over a detached list.
+
+   Anchored on the list itself, not on <body>. In a rule where :has() is
+   not the subject, Blink flags the :has() element the first time the
+   subject matches and the check walks left to it, and from then on every
+   DOM change inside that element's subtree restyles the whole subtree,
+   whether or not the :has() ever held. Anchored on <body> that was the
+   document: once the chip had been focused once, each keystroke anywhere
+   in the editor recalculated every element on the page (Chrome 148 at 12k
+   elements, medians of two loads: a paragraph insert 1.8 -> 35.9-37.5ms
+   with the chip focused, a keystroke in the chip 17.8-19.3ms, the list's
+   own rebuild 16.7-17.7ms, the list closing and reopening 35.0-37.1ms).
+   #ty-auto-suggest is a child of <content> that precedes #write in both
+   of Typora's page templates (index.html, html/content.html), so the
+   sibling combinator reaches the chip from the list, and the subtree the
+   flag covers is the list's own rows: 1.7-1.8 / 0.6-0.8 / 0.6-0.7 / 0.3ms,
+   against 1.7-1.9 / 0.7 / 0.5 / 0.0 for the file without this rule.
+   WebKit never restyled the document for it (0-1ms throughout at 32k),
+   but the same move takes its list rebuild from 3 to 2ms and the close
+   and reopen from 5 to 2. Specificity goes from (1,5,1) to (2,5,0);
+   nothing between the two targets the chip. */
+#ty-auto-suggest.ty-show:has(> .auto-suggest-for-fences) ~ #write .md-fences .code-tooltip:focus-within {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     border-bottom-color: var(--ui-border-color);
