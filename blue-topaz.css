@@ -1169,19 +1169,29 @@ table.md-grid-board {
    margin-top on every layout pass, and a translate does not disturb the
    height it measures there.
    That translate also makes the bar a stacking context, which traps the size
-   picker's stock z-index:1060 inside it — the picker can only outrank the
-   table through the BAR's own layer. The bar and the table are siblings at
-   z-index:auto with the bar first, so once section 12 positions the table
-   (for offsetParent's sake) the table would paint over the open picker.
-   z-index:1 puts the bar back in front, and stays well under the trackers'
-   99, which is what lets the drag handle keep painting over the bar. */
+   picker's stock z-index:1060 inside it — the picker can only outrank
+   anything through the BAR's own layer, in #write's stacking context
+   (#write carries transform:translateZ(0)). Two things paint over that
+   layer at z-index:auto or 1: the table, a sibling positioned by section
+   12 for offsetParent's sake, and any LATER block whose parts carry a
+   z-index of their own — a code fence's .CodeMirror-scroll is
+   position:relative at z-index:3 with an opaque inherited background
+   (codemirror.css), and the fence itself, position:relative at auto, is no
+   stacking context, so that 3 competes with the bar directly. At z-index:1
+   the open picker was cut off by the fence under the table, from the
+   fence's top edge down (real-machine screenshot, 2026-09-12, reproduced
+   in both engines). 7 clears the whole in-#write ladder
+   (.md-fences-adv-panel 1, .CodeMirror-scroll and gutters 3, section 14's
+   chip 4, CodeMirror's scrollbar fillers and .md-rawblock-tooltip 6) and
+   stays well under the trackers' 99, which live outside #write's context
+   anyway and are what lets the drag handle keep painting over the bar. */
 #write figure.table-figure > .ty-table-edit {
     margin-left: -5px;
     padding: 0 19px;
     box-sizing: border-box;
     min-width: max-content;
     transform: translateY(4px);
-    z-index: 1;
+    z-index: 7;
     background: transparent;
     border: 0;
     display: flex;
