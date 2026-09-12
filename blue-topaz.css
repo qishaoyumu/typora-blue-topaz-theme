@@ -145,23 +145,25 @@
        supplies the states instead, in one hue: a flat neutral fill for a
        body cell at rest, the accent as a tint for the table's CURRENT size,
        and the accent solid for the size being picked; the header row — row
-       1 of the grid is always the table's header — wears the same three
-       states two notches deeper, so the grid reads as a small table rather
-       than as a field of chips (real-machine request, 2026-09-12). All
-       translucent, not pre-blended, so they sit correctly on the menu
+       1 of the grid is always the table's header — wears the current and
+       picked states two notches deeper, so the grid reads as a small table
+       rather than as a field of chips (real-machine request, 2026-09-12).
+       All translucent, not pre-blended, so they sit correctly on the menu
        colour. The body tint is the base blue formula at 0.24 — the family
        of --suggest-active-bg and --file-active-bg, a step stronger because
        a 13px chip has less area to read from than a list row (0.18 was
-       faint on the offscreen render); the header's rest / current tints are
-       0.16 / 0.55, and its solid is the accent at 40% lightness against
-       --interactive-accent's 58%. Until 2026-09-12 the current size was two
+       faint on the offscreen render); the header's current tint is 0.55,
+       and its solid is the accent at 40% lightness against
+       --interactive-accent's 58%. At rest the header row is the neutral
+       chip like the body: a resting tint of its own (0.16, shipped for an
+       hour) ran across all six columns and read as the current block
+       reaching past its width. Until 2026-09-12 the current size was two
        greys (0.22, and 0.34 on the header row) and a picked-while-current
        cell a second, deeper blue; on the real machine the greys read as
        dead chips and the two blues as a fault. Section 13 says what each
        state means. */
     --grid-cell-bg: rgba(0, 0, 0, 0.067);
     --grid-current-bg: hsla(207, 77%, 54%, 0.24);
-    --grid-head-bg: hsla(207, 77%, 54%, 0.16);
     --grid-head-current-bg: hsla(207, 77%, 54%, 0.55);
     --grid-head-accent: hsl(207, 77%, 40%);
     /* The reference file icon has its own blue, brighter than the accent in
@@ -977,10 +979,15 @@ table.md-grid-board {
 /* THE STATES, one hue (tokens in section 3, both skins). Row 1 of the grid
    is always the table's header — Typora tables have one, and a pick always
    includes it — so the grid is drawn as a small table: the header row wears
-   every state two notches deeper than the body and is seamed off by a 3px
-   gap, the way section 12's header sits on its own wash above the zebra.
+   the current and picked states two notches deeper than the body and is
+   seamed off by a 3px gap, the way section 12's header sits on its own
+   wash above the zebra. At rest it is the neutral chip like the body: a
+   resting tint of its own ran across all six columns and read as the
+   current block reaching past its width (real-machine screenshot,
+   2026-09-12, a 3 x 5 table with three lighter cells beyond it), and the
+   seam already names the row.
      body                            header row
-     at rest         --grid-cell-bg, neutral   --grid-head-bg, faint tint
+     at rest         --grid-cell-bg, neutral   the same
      current size    --grid-current-bg, tint   --grid-head-current-bg
      picked, new     --interactive-accent      --grid-head-accent, solid
      picked, kept    the current tint, ringed 2px in the picked solid
@@ -1008,7 +1015,7 @@ table.md-grid-board {
    wider border-spacing would have cost 1px x 11 gaps (the height note on
    .md-grid-board a). It gives back 3 of the 21.6px the wrap trim above
    bought.
-   Specificity, all on the <a>: body rest (0,1,1) < header rest (0,2,2);
+   Specificity, all on the <a>: rest (0,1,1);
    body current (0,2,1) < header current (0,3,2); picked (0,2,1) and header
    picked (0,3,2) follow their current rules in source order and win the
    tie; picked-and-current (0,3,1) / (0,4,2) outrank everything. The row-1
@@ -1019,10 +1026,6 @@ table.md-grid-board {
 .md-grid-board .md-grid-ext,
 .md-grid-board tr[row='1'] .md-grid-ext {
     background: transparent;
-}
-
-.md-grid-board tr[row='1'] a {
-    background: var(--grid-head-bg);
 }
 
 .md-grid-board tr[row='2'] a {
