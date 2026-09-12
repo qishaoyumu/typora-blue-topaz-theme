@@ -1649,17 +1649,36 @@ content:has(> #write.no-selection) {
    z-index:99 and paints over #write. Either way the last cell hovered is the
    one the handle belongs to.
 
-   WHAT ENDS IT. While the pointer is anywhere inside #write, every row that
-   is not itself hovered is pinned to 0 with `transition: none`. Taking the
-   property out of transition-property cancels a running transition outright
-   (CSS Transitions 1 §3 "Starting of transitions": a running transition for
-   a property with no matching transition-property value must be cancelled),
+   WHAT ENDS IT. A row that is not itself hovered is pinned to 0 with
+   `transition: none` whenever the pointer is on ITS OWN TABLE (another row,
+   or the padding the lanes do not cover) or on ANOTHER BLOCK of #write — a
+   paragraph, a list, another table. Taking the property out of
+   transition-property cancels a running transition outright (CSS
+   Transitions 1 §3 "Starting of transitions": a running transition for a
+   property with no matching transition-property value must be cancelled),
    so the previous hot row drops the moment the pointer reaches anything
-   else — another row of this table, a row of any other, a paragraph in
-   between — and a memory survives only OFF #write. Of the places off it,
-   the one that leads to a handle is the tracker, which is #write's sibling
-   and so never in its hover chain: cell or lane first, grip last, and
-   nothing on that route clears.
+   that could park the handle elsewhere, and a memory survives everywhere
+   else: off #write, and on the parts of #write that belong to no block —
+   its own padding, the margins between blocks, the figure's box beside a
+   narrower table — which is exactly where the pointer goes when it slips
+   off the grip sideways. Of the places off #write, the one that leads to a
+   handle is the tracker, which is #write's sibling and so never in its
+   hover chain: cell or lane first, grip last, and nothing on that route
+   clears.
+   "Another block" is written without a :has() on #write. Five forms carry
+   it: `table.md-table:hover tr:not(:hover)` for the table's own rows; a
+   hovered EARLIER sibling of the figure, or of any ancestor of it,
+   `:hover ~ figure.table-figure` and `:hover ~ * figure.table-figure`; and
+   for a hovered LATER sibling `figure.table-figure:has(~ :hover)`, plus the
+   same on the containers a Typora figure can sit inside,
+   `:is(blockquote, ul, ol, li):has(~ :hover)`. Those :has() anchors are the
+   figure and the list / quote elements, with a sibling-only argument, and
+   Blink charges nothing for them on a keystroke (COST below). Anchoring the
+   same test on #write instead — `#write:has(> :hover)
+   figure.table-figure:not(:hover)`, one rule in place of five — put
+   38-40ms on every paragraph insert and 37ms on every keystroke inside a
+   cell at 12k elements, the fw19 cost again: a :has() anchor is flagged
+   whole, whatever its argument's depth.
    Re-declaring 0 with the property still listed would NOT do
    it — a running transition whose end value already equals the after-change
    value is left alone. A distinct sentinel (-1) cancels it too, but then
@@ -1669,32 +1688,36 @@ content:has(> #write.no-selection) {
    transition is the single hot one (measured on a 20-table / 231-row /
    17.9k-element fixture: getAnimations().length is 1 with the pointer off
    #write — on the grip — and 0 with it anywhere inside, in both engines).
-   The first version keyed the clears on #write:has(table.md-table tr:hover),
-   and that is the fw19 lesson again (the drag block above): a :has() with a
-   subject after it flags its anchor, and with #write for an anchor every
-   keystroke restyled the document in Chromium. Moving the anchor to the
-   table would have been cheap but wrong — a row left hot in one table stays
-   hot while the pointer is in another, and the next handle lights both.
-   #write:hover has no such cost, hover on #write flipping once on the way
-   in and once on the way out, not per row, and it clears more, not less.
-   The one memory it loses that the reference would keep: off the grip
-   sideways into #write and back. The grip's 14px band is the table's own
-   padding-left, inside the table's border box, so the grip's left edge IS
-   the table's — and everything left of that is #write: first the empty
-   content box figure.table-figure's auto margins leave beside a centred
-   table, usually a few hundred px, then #write's own 30px of padding, which
-   is the narrowest the strip can ever be. All of it IS #write, so the row
-   is cleared on the way out, and the grip lights nothing until the pointer
-   has been on the row again.
-   Accepted (2026-09-06): the reference re-lights there
-   because its handle is part of the cell, and the only selector that would
-   keep this memory while still clearing on every other row is the
-   per-keystroke one.
+   Two earlier shapes are recorded so they are not tried again. The first
+   version keyed the clears on #write:has(table.md-table tr:hover) — the
+   fw19 lesson (the drag block above): a :has() with a subject after it
+   flags its anchor, and with #write for an anchor every keystroke restyled
+   the document in Chromium. A table-anchored :has() would have been cheap
+   but wrong on its own — a row left hot in one table stays hot while the
+   pointer is in another, and the next handle lights both — which is what
+   the sibling forms above exist for. The second version, shipped
+   2026-09-06, cleared on #write:hover: no cost, but it cleared too much.
+   The grip's 14px band is the table's own padding-left, inside the table's
+   border box, so the grip's left edge IS the table's, and everything left
+   of that — the figure's box beside a narrower table, then #write's 30px of
+   padding — is #write: the row was cleared on the way out, and a grip
+   hovered again after a sideways slip lit nothing until the pointer had
+   been on the row again (real-machine report, 2026-09-12: hover the handle
+   once and it lights; leave and come back and it does not, until another
+   row is touched). Replayed with a real pointer in Chrome, cell -> grip ->
+   20px left of the grip -> grip: the first cell read the hover colour, the
+   resting colour, the resting colour; with the five forms it reads hover,
+   resting, hover. What the reference still keeps and this does not: off
+   the grip onto ANOTHER BLOCK and straight back — that clears, as it
+   should, and the grip lights nothing until the row is touched; the
+   reference re-lights there because its handle is part of the cell. A
+   figure nested in a container the list above does not name clears on its
+   own rows and its own siblings only.
 
    COLUMNS. --bt-hot-cell is the same mechanism, declared on the header cells
    ALONE, since only a header cell can ever be under a column handle, and
-   cleared the same way: inside #write, every header cell not hovered is
-   pinned, wherever the pointer is. That is what
+   cleared by the same five forms: on the table, every header cell not
+   hovered is pinned, whichever cell the pointer is in. That is what
    makes the leftover path safe: leave the table sideways out of a BODY cell,
    come back from outside straight onto a column handle, and no header cell
    is hot, so nothing lights. Lighting nothing is acceptable; lighting the
@@ -1703,9 +1726,10 @@ content:has(> #write.no-selection) {
    whichever header cell was hovered before the body one.
 
    THE GATE is :hover on the grip, never :active. :active IS the drag, the one
-   state the overlay must be off for, and it latches from mousedown, when the
-   row is already being torn out of the table and wearing the drag overlay
-   below. #write:not(.no-selection) is the second half of the same thought:
+   state this overlay must be off for — the drag paints the same wash from
+   main.js's own .typora-on-moving instead, which needs no memory (the drag
+   block below) — and it latches from mousedown, when the row is already
+   being torn out of the table and wearing the drag overlay below. #write:not(.no-selection) is the second half of the same thought:
    main.js writes .no-selection on #write for the whole of a drag and pointer
    capture keeps :hover on the grip through it, and it is the only thing that
    holds the overlay off for the whole drag. What follows the drag needs no
@@ -1757,6 +1781,11 @@ content:has(> #write.no-selection) {
    0.2ms / 2ms against 0.2 / 0 without these rules, and onto or off the
    grip, the one event that opens or shuts the gate, 2ms in both engines
    against 0.1 / 0. Each is paid once per crossing, not per mousemove.
+   fw23 (2026-09-12), the five-form clears against the #write:hover ones on
+   the same harness, two loads each: Chrome idle insert 1.7 against 1.7-1.9,
+   inside a cell 1.2 against 0.8-0.9, per tracker move 1.3 against 1.3-1.4;
+   WebKit 0 / 0 / 3 either way. The 0.3 inside a cell is the figure being
+   its own :has() anchor and typed in.
 
    EXPORT AND PRINT need no neutralisation. Every painting rule hangs off a
    tracker, and exported HTML has neither tracker nor <content>; beyond that
@@ -1786,7 +1815,11 @@ content:has(> #write.no-selection) {
     transition: --bt-hot-row 0s 0s;
 }
 
-#write:hover table.md-table tr:not(:hover) {
+#write table.md-table:hover tr:not(:hover),
+#write :hover ~ figure.table-figure table.md-table tr,
+#write :hover ~ * figure.table-figure table.md-table tr,
+#write figure.table-figure:has(~ :hover) table.md-table tr,
+#write :is(blockquote, ul, ol, li):has(~ :hover) figure.table-figure table.md-table tr {
     --bt-hot-row: 0;
     transition: none;
 }
@@ -1801,7 +1834,11 @@ content:has(> #write.no-selection) {
     transition: --bt-hot-cell 0s 0s;
 }
 
-#write:hover table.md-table thead th:not(:hover) {
+#write table.md-table:hover thead th:not(:hover),
+#write :hover ~ figure.table-figure table.md-table thead th,
+#write :hover ~ * figure.table-figure table.md-table thead th,
+#write figure.table-figure:has(~ :hover) table.md-table thead th,
+#write :is(blockquote, ul, ol, li):has(~ :hover) figure.table-figure table.md-table thead th {
     --bt-hot-cell: 0;
     transition: none;
 }
