@@ -65,8 +65,8 @@
     --table-drag-grip-active-ink: #e4e4e4;
     /* Table hovers, Blue Topaz's dark values, byte-identical: they moved out
        of the three :hover rules in the Table section below and into tokens the
-       light file's rules read, because section 13's handle-hover overlay
-       paints the same three colours from rules that are not :hover rules. */
+       light file's rules read, because section 13 paints the same three
+       colours on a drag's source row from rules that are not :hover rules. */
     --table-hover-raw-color: #08569a21;
     --table-hover-color: #1f65a221;
     --table-hover-thead-color: #21395bc7;
