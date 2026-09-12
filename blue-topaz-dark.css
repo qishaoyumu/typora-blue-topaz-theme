@@ -128,14 +128,19 @@
     /* Suggestion-list selection: the same base blue formula at 0.15
        (--theme-color-translucent-015; blends to #222f3a on #202020). */
     --suggest-active-bg: hsla(208, 64%, 49%, 0.15);
-    /* Size-picker chips: the light neutrals turned over, white instead of
-       black and a notch stronger because a dark surface swallows a wash.
-       The picked size takes --interactive-accent, which dark already
-       overrides, so the picker needs no rule of its own here. */
+    /* Size-picker chips: the resting neutral turned over, white instead of
+       black and a notch stronger because a dark surface swallows a wash;
+       the tints are dark's own base blue formula at 0.36 (body current),
+       0.20 / 0.70 (header rest / current), each half again its light value
+       for the same reason (0.28 was a shadow on the offscreen render). The
+       header's solid is BRIGHTER than dark's 49% accent, not deeper — on a
+       dark surface deeper reads as less. The body's picked size takes
+       --interactive-accent, which dark already overrides. */
     --grid-cell-bg: rgba(255, 255, 255, 0.08);
-    --grid-current-bg: rgba(255, 255, 255, 0.28);
-    --grid-current-bg-strong: rgba(255, 255, 255, 0.40);
-    --grid-current-accent: hsl(208, 64%, 36%);
+    --grid-current-bg: hsla(208, 64%, 49%, 0.36);
+    --grid-head-bg: hsla(208, 64%, 49%, 0.20);
+    --grid-head-current-bg: hsla(208, 64%, 49%, 0.70);
+    --grid-head-accent: hsl(208, 70%, 64%);
     /* Dark's measured icon blue equals the primary formula (rgb 45,130,205),
        unlike light, whose icon has its own brighter blue. */
     --file-icon-color: var(--primary-color);

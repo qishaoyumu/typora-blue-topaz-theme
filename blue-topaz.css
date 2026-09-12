@@ -141,17 +141,29 @@
     --suggest-active-bg: hsla(207, 77%, 54%, 0.15);
     /* Table size-picker grid (the table-resize popover): Typora ships its three
        cell states as light literals (#999 / #555 / #c8caf4 / #94a7b9 /
-       #dcdcdc). The reference has no such control, so its control grammar
-       supplies the states instead: a flat neutral fill for a cell at rest,
-       two deeper neutrals for the table's current size, and the accent
-       itself for the size being picked. Translucent, not pre-blended, so
-       the same three values sit correctly on the menu colour and on the
-       panel. --grid-select-bg-strong is gone with the pre-blends: the
-       picked size is one accent for every row now. */
+       #dcdcdc). The reference has no such control, so its selection grammar
+       supplies the states instead, in one hue: a flat neutral fill for a
+       body cell at rest, the accent as a tint for the table's CURRENT size,
+       and the accent solid for the size being picked; the header row — row
+       1 of the grid is always the table's header — wears the same three
+       states two notches deeper, so the grid reads as a small table rather
+       than as a field of chips (real-machine request, 2026-09-12). All
+       translucent, not pre-blended, so they sit correctly on the menu
+       colour. The body tint is the base blue formula at 0.24 — the family
+       of --suggest-active-bg and --file-active-bg, a step stronger because
+       a 13px chip has less area to read from than a list row (0.18 was
+       faint on the offscreen render); the header's rest / current tints are
+       0.16 / 0.55, and its solid is the accent at 40% lightness against
+       --interactive-accent's 58%. Until 2026-09-12 the current size was two
+       greys (0.22, and 0.34 on the header row) and a picked-while-current
+       cell a second, deeper blue; on the real machine the greys read as
+       dead chips and the two blues as a fault. Section 13 says what each
+       state means. */
     --grid-cell-bg: rgba(0, 0, 0, 0.067);
-    --grid-current-bg: rgba(0, 0, 0, 0.22);
-    --grid-current-bg-strong: rgba(0, 0, 0, 0.34);
-    --grid-current-accent: hsl(207, 77%, 44%);
+    --grid-current-bg: hsla(207, 77%, 54%, 0.24);
+    --grid-head-bg: hsla(207, 77%, 54%, 0.16);
+    --grid-head-current-bg: hsla(207, 77%, 54%, 0.55);
+    --grid-head-accent: hsl(207, 77%, 40%);
     /* The reference file icon has its own blue, brighter than the accent in
        light mode (measured rgb(65,159,231) vs #2f93e4); dark's measured icon
        equals the primary formula, so dark overrides this to the primary. */
@@ -953,21 +965,68 @@ table.md-grid-board {
     opacity: 1;
 }
 
-/* Stock paints the whole header row #dcdcdc. The row carries no fill of its
-   own here, and since the cells became flat chips it is told apart in exactly
-   one state: where it is also the table's current size, by the deeper
-   --grid-current-bg-strong. Picked, and picked-while-current, are the same
-   two values the body rows wear. */
+/* Stock paints the whole header row #dcdcdc, and #555 where it is also the
+   table's current size — a fill on the <tr>. The row carries no fill of its
+   own here; its cells do (below), so nothing square can surface behind the
+   chips. Stock's header-row rules are answered at their own specificity
+   below, so load order settles them. */
 .md-grid-board tr[row='1'] {
     background: transparent;
 }
 
-/* Current table size. main.js marks the TD (td.md-grid-ext), so the class
-   stays where it is and only the paint moves: the td goes transparent and
-   the fill is drawn on the <a> it holds. */
+/* THE STATES, one hue (tokens in section 3, both skins). Row 1 of the grid
+   is always the table's header — Typora tables have one, and a pick always
+   includes it — so the grid is drawn as a small table: the header row wears
+   every state two notches deeper than the body and is seamed off by a 3px
+   gap, the way section 12's header sits on its own wash above the zebra.
+     body                            header row
+     at rest         --grid-cell-bg, neutral   --grid-head-bg, faint tint
+     current size    --grid-current-bg, tint   --grid-head-current-bg
+     picked, new     --interactive-accent      --grid-head-accent, solid
+     picked, kept    the current tint, ringed 2px in the picked solid
+   A current-size cell is one the table already has — main.js marks the td
+   md-grid-ext across the existing rows x columns — and a picked cell is one
+   it will have; hover preview and typed value share a.md-active. Fill,
+   stroke and tint are the three weights of one accent, which is how the
+   reference tells selected from hovered from resting everywhere else, and
+   the grid never needs a second hue or an ornament (a centre dot was
+   rendered and dropped — it competed with the drag grips' dot field).
+   Reading the grid: at rest the tinted block IS the table, header row
+   darkest. Hovering past it fills the new cells solid and rings the cells
+   the table already has, so the boundary between what it is and what it
+   becomes stays visible inside the pick (real-machine request, 2026-09-12:
+   "hovering 6 x 6 over a 3 x 5, I want to still see the 3 x 5"). Hovering
+   inside it rings the whole pick and leaves the rest of the tint standing,
+   so a shrink shows exactly the rows and columns that go — the case that
+   matters, since Typora drops their contents. The ring is an inset
+   box-shadow, not a border: the chip's box does not move, and stock's own
+   per-cell border was zeroed above.
+   main.js marks the TD, so the class stays where it is and only the paint
+   moves: the td goes transparent and the fill is drawn on the <a> it holds,
+   one box per cell (the chip note above). The seam is a margin on row 2's
+   <a>, which is display:block inside its td: 3px on the one row, where a
+   wider border-spacing would have cost 1px x 11 gaps (the height note on
+   .md-grid-board a). It gives back 3 of the 21.6px the wrap trim above
+   bought.
+   Specificity, all on the <a>: body rest (0,1,1) < header rest (0,2,2);
+   body current (0,2,1) < header current (0,3,2); picked (0,2,1) and header
+   picked (0,3,2) follow their current rules in source order and win the
+   tie; picked-and-current (0,3,1) / (0,4,2) outrank everything. The row-1
+   picked pair answers stock's own header-row state (.md-grid-board
+   tr[row='1'] a.md-active {background:#94a7b9}) at its own (0,3,2), which a
+   picked header cell wore before the pair existed — measured on the
+   fixture: row 1 showed #94a7b9 where the body rows showed accent. */
 .md-grid-board .md-grid-ext,
 .md-grid-board tr[row='1'] .md-grid-ext {
     background: transparent;
+}
+
+.md-grid-board tr[row='1'] a {
+    background: var(--grid-head-bg);
+}
+
+.md-grid-board tr[row='2'] a {
+    margin-top: 3px;
 }
 
 .md-grid-board .md-grid-ext > a {
@@ -975,42 +1034,29 @@ table.md-grid-board {
 }
 
 .md-grid-board tr[row='1'] .md-grid-ext > a {
-    background: var(--grid-current-bg-strong);
+    background: var(--grid-head-current-bg);
 }
 
-/* New size: hover preview and typed value share a.md-active, and the header
-   row is not singled out — one accent across the picked block, the way the
-   reference fills a selected control.
-   Stock keeps its own header-row state at (0,3,2)
-   (.md-grid-board tr[row='1'] a.md-active {background:#94a7b9}), which a
-   picked header cell would otherwise wear — measured on the fixture before
-   this selector existed: row 1 showed #94a7b9 where the body rows showed
-   accent. Hence the pair rather than one plain (0,2,1) selector. */
 .md-grid-board a.md-active,
-.md-grid-board a:hover,
-.md-grid-board tr[row='1'] a.md-active,
-.md-grid-board tr[row='1'] a:hover {
+.md-grid-board a:hover {
     background: var(--interactive-accent);
 }
 
-/* The current size keeps a step of its own INSIDE the picked block. A
-   current-size cell is one the table already has — main.js marks the td
-   md-grid-ext across the existing rows x columns — and it is what tells you
-   whether the pick grows the table or shrinks it. Stock could show both
-   states at once by layering, a grey td under a tinted a; this skin paints
-   one box per cell on purpose, so the second state has to be a second
-   colour instead: the accent one step down. In light that is the same step
-   the OK button takes on hover; dark goes a notch deeper still, 36% against
-   the button's 39%, because a dark surface flattens the difference — see
-   dev/color-mapping.md. One step, both rows — the header row is not deepened
-   again, which would put three accents in a block eighteen pixels wide.
-   Specificity: (0,3,1) and (0,4,2), clearing both the plain accent rule
-   above and stock's own (0,2,1) / (0,3,2) states. */
+.md-grid-board tr[row='1'] a.md-active,
+.md-grid-board tr[row='1'] a:hover {
+    background: var(--grid-head-accent);
+}
+
 .md-grid-board .md-grid-ext > a.md-active,
-.md-grid-board .md-grid-ext > a:hover,
+.md-grid-board .md-grid-ext > a:hover {
+    background: var(--grid-current-bg);
+    box-shadow: inset 0 0 0 2px var(--interactive-accent);
+}
+
 .md-grid-board tr[row='1'] .md-grid-ext > a.md-active,
 .md-grid-board tr[row='1'] .md-grid-ext > a:hover {
-    background: var(--grid-current-accent);
+    background: var(--grid-head-current-bg);
+    box-shadow: inset 0 0 0 2px var(--grid-head-accent);
 }
 
 /* The "40 x 99" row: reference text-input grammar (1px border, 7px radius,
