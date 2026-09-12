@@ -2100,6 +2100,32 @@ content:has(> #write.no-selection) {
     border-bottom-right-radius: 4px;
 }
 
+/* Seams between the selection's own cells. The reference's overlay sits at
+   -1 * --table-border-width (1px) on EVERY edge, not just the stroked ones,
+   so two neighbouring overlays both bleed over the 1px border they share
+   and that strip takes the tint twice: measured on its dark screenshot
+   (2026-09-12), the selected row's fill reads (37,44,52) and the line
+   between two of its cells (38,54,67), which is exactly one more lighten
+   pass of the 10% accent over the fill — not a border, not a divider of
+   its own, just the overlap. This port's cells share no border and touch,
+   so the same look is one bleed of 1px on each INNER edge — the trailing
+   side of every cell but the last across a row, the bottom of every cell
+   but the last down a column, the header cell included — which makes the
+   first pixel column (row) or row (column) of the next cell the doubled
+   strip. The stroked outer edges keep their -2px; the base rule's 0 stays
+   on the inner edge the neighbour bleeds into. */
+#write tr.typora-on-moving > td:not(:last-child)::before,
+#write tr.typora-on-moving > th:not(:last-child)::before {
+    right: -1px;
+}
+
+#write thead th.typora-on-moving::before,
+#write thead td.typora-on-moving::before,
+#write tbody tr:not(:last-child) > td.typora-on-moving::before,
+#write tbody tr:not(:last-child) > th.typora-on-moving::before {
+    bottom: -1px;
+}
+
 /* --- Drag: the source keeps the hover it started from -------------------
    The reference's handle is a child of the cell it belongs to and slides
    along the table edge under the pointer for the whole drag, so the source
