@@ -1722,6 +1722,26 @@ content:has(> #write.no-selection) {
     pointer-events: none;
 }
 
+/* ...and nothing on the page is selectable for the same span. main.js's
+   column mousedown handler returns nothing (the row one returns false),
+   so the browser's default action goes ahead: a native selection drag
+   starts on the grip. Stock gets away with it because every mousemove
+   then hits a cell inside #write, which the same class has already made
+   user-select:none, and the selection finds nowhere to extend. With
+   #write out of hit testing the pointer hits <content> instead, the
+   selection extends from the grip across the editor, and WebKit paints
+   that range as one selection wash over the whole page (real machine,
+   both skins, 2026-09-13, column drags only). Chrome 148 starts no selection on that
+   mousedown at all, so the offscreen replay cannot show it; the cure is
+   the one that holds in either engine: with the root unselectable there
+   is no caret to place on the mousedown and nothing to extend to, and
+   the class comes off on mouseup. Same gate as the pill block's, so no
+   new :has() argument on <html>. */
+html:has(#write.no-selection) {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
 /* The source row/column, left in place, in the reference's selection
    vocabulary: the accent at 10% over the cell, a 2px accent stroke along the
    SELECTION'S OUTER EDGE only, and 4px corners where two of those edges
