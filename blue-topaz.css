@@ -1625,7 +1625,9 @@ content:has(> #write.no-selection) {
    ::after lane is not reclaimed by the drag overlay (that is ::before), so
    it stays during a drag; it paints nothing, and it hit-tests as the
    corner cell — which main.js's document-level mousemove ignores, while
-   the mouseenter delegate treats it as it treats any other cell. The 14x14
+   the mouseenter delegate treats it as it treats any other cell (which is
+   why the drag block takes #write out of hit testing for the drag: see
+   #write.no-selection there). The 14x14
    corner where the two lanes would meet belongs to neither: each lane is
    the cell's own extent on its other axis, and the reference's handles
    leave the same corner empty.
@@ -1693,6 +1695,31 @@ content:has(> #write.no-selection) {
    targets it. */
 .typora-table-data-area {
     display: none;
+}
+
+/* The editor leaves hit testing for the whole of a drag. main.js's
+   mouseenter delegate on "th, td" — the one that parks the trackers — has
+   no drag guard: whenever the pointer enters a cell it reassigns the
+   closure's source-row variable (the row branch's "target IS the source"
+   test reads it), the table variable, and re-shows and re-parks BOTH
+   trackers. And the lanes above put a cell's hit box exactly where the
+   pointer travels: the row lane is the first cell's ::before pulled 14px
+   left, the very strip the grip slides along, and the tracker is moved to
+   the pointer only AFTER the mousemove that follows, so a quick drag down
+   the grip lands in the next row's lane first. From that moment that row
+   counts as the source and its drop line is hidden — the line "sometimes
+   not showing" on a row drag, real machine, 2026-09-13 (the column branch
+   tests indices, not the row variable, which is why column drags never
+   showed it). With #write out of hit testing there is no cell to enter:
+   the drag runs off the document's mousemove and mouseup, which fire on
+   <content> just the same, and the grip is <content>'s child, not
+   #write's. A side effect is wanted: nothing inside the table can be
+   :hover while a row or column is being dragged. Measured in Chrome 148
+   (real pointer) and the offscreen WKWebView: the lane hit-tests as
+   <content> for the whole drag, the line stays on every row the pointer
+   revisits, and the drop index sweep is unchanged. */
+#write.no-selection {
+    pointer-events: none;
 }
 
 /* The source row/column, left in place, in the reference's selection
