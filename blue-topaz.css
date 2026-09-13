@@ -1852,16 +1852,30 @@ content:has(> #write.no-selection) {
    (2026-09-12), the selected row's fill reads (37,44,52) and the line
    between two of its cells (38,54,67), which is exactly one more lighten
    pass of the 10% accent over the fill — not a border, not a divider of
-   its own, just the overlap. This port's cells share no border and touch,
-   so the same look is one bleed of 1px on each INNER edge — the trailing
-   side of every cell but the last across a row, the bottom of every cell
-   but the last down a column, the header cell included — which makes the
-   first pixel column (row) or row (column) of the next cell the doubled
-   strip. The stroked outer edges keep their -2px; the base rule's 0 stays
-   on the inner edge the neighbour bleeds into. */
+   its own, just the overlap. The strip is 2px, not 1: each overlay's 1px
+   bleed lands on the neighbour's cell, so the last pixel of cell A carries
+   B's tint on top of its own and the first pixel of B carries A's, and no
+   pixel between them shows a border. Measured on its dark screenshots
+   (2026-09-13, 2x): the row's
+   (33,49,63) fill meets its first cell's (36,58,83) as 1px of (35,63,89)
+   then 1px of (34,57,77); down a column the zebra's (29,36,44) / (37,44,52)
+   meet as 1px of (31,45,60) then 1px of (38,54,67) — one lighten pass on
+   each side of the boundary. This port's cells share no border and touch,
+   so the same look is a bleed of 1px on EVERY inner edge — both sides of
+   every boundary between two of the selection's cells, the header cell
+   included — which makes the last pixel of one cell and the first of the
+   next the doubled pair. From 2026-09-12 until the 13th only the trailing
+   edge bled, which drew a 1px seam the real machine read as fainter than
+   the reference's (both screenshots at 2x: 2 device pixels against 4).
+   The stroked outer edges keep their -2px. */
 #write tr.typora-on-moving > td:not(:last-child)::before,
 #write tr.typora-on-moving > th:not(:last-child)::before {
     right: -1px;
+}
+
+#write tr.typora-on-moving > td:not(:first-child)::before,
+#write tr.typora-on-moving > th:not(:first-child)::before {
+    left: -1px;
 }
 
 #write thead th.typora-on-moving::before,
@@ -1869,6 +1883,11 @@ content:has(> #write.no-selection) {
 #write tbody tr:not(:last-child) > td.typora-on-moving::before,
 #write tbody tr:not(:last-child) > th.typora-on-moving::before {
     bottom: -1px;
+}
+
+#write tbody td.typora-on-moving::before,
+#write tbody th.typora-on-moving::before {
+    top: -1px;
 }
 
 /* --- Drag: the source keeps the hover it started from -------------------
